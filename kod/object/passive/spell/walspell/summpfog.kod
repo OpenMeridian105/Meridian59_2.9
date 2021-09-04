@@ -1,0 +1,112 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+SummonPoisonFog is WallSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include summpfog.lkod
+
+   SummonPoisonFog_name_rsc = "poison fog"
+   SummonPoisonFog_icon_rsc = ipoiscld.bgf
+   SummonPoisonFog_desc_rsc = \
+      "Creates a pungent cloud of poisonous fog."
+
+   SummonPoisonFog_cast_rsc = \
+      "A thick, pungent fog rises from the ground before you."
+
+   SummonPoisonFog_sound = qor.ogg
+
+classvars:
+
+   vrName = SummonPoisonFog_name_rsc
+   vrIcon = SummonPoisonFog_icon_rsc
+   vrDesc = SummonPoisonFog_desc_rsc
+
+   viSpell_num = SID_POISON_FOG
+   viSchool = SS_QOR
+   viSpell_level = 3
+   viMana = 20
+   viSpellExertion = 3
+
+   viCast_time = 2000
+   vrSucceed_wav = SummonPoisonFog_sound
+   vrSuccess = SummonPoisonFog_cast_rsc
+
+   viChance_To_Increase = 20
+   viMeditate_ratio = 30
+
+   vbCastable_in_HappyLand = FALSE
+
+   viHarmful = TRUE
+   vbCanCastOnOthers = FALSE
+
+   // Poison fog can't kill anyone, so don't warn about being a murderer.
+   viWallCanKill = FALSE
+
+   //// Seed parameters
+   viElementDuration = 60000
+   viElementSpeed = 50
+   viElementCharges = 27
+   viElementNoise = 0
+   viElementCurve = 961024
+
+properties:
+
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&EntrootBerry,2], plReagents);
+
+      return;
+   }
+
+   GetNumSpellTargets()
+   {
+      return vbCanCastOnOthers;
+   }
+
+   PlaceWallElements(seed = $, lTargets = $)
+   {
+      local oCaster, oRoom, iAngle, lSeed, iXFineStep,iYFineStep;
+
+      oCaster = First(seed);
+      oRoom = Send(oCaster,@GetOwner);
+      iAngle = Nth(seed,6);
+
+      iXFineStep = Send(oRoom,@GetXFineStep,#angle=iAngle)*3;
+      iYFineStep = Send(oRoom,@GetYFineStep,#angle=iAngle)*3;
+
+      lSeed = ListCopy(seed);
+      SetNth(lSeed,6,0);
+
+      Send(self,@SpawnElement,#seed=lSeed,#who=oCaster,
+         #yfineoffset=FINENESS_HALF+iYFineStep,
+         #xfineoffset=FINENESS_HALF+iXFineStep,
+         #walltype=&PoisonFogCloud);
+
+      propagate;
+   }
+
+   GetScrollClass()
+   {
+      return &SummonPoisonFogScroll;
+   }
+
+
+end
+////////////////////////////////////////////////////////////////////////////////

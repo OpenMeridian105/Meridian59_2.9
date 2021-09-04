@@ -1,0 +1,47 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+VeryToughTreasure is TreasureType
+
+constants:
+
+   include blakston.khd
+
+classvars:
+
+   viTreasure_num = TID_VERY_TOUGH
+
+properties:
+
+   /// low chance of getting an outstanding item
+   piItem_att_chance = 2
+   piDIff_seed = 8
+
+messages:
+
+   Constructed()
+   {
+      plTreasure = [ [ &InkyCap, 19],
+                     [ &PurpleMushroom, 14 ],
+                     [ &Sapphire, 12 ],
+                     [ &Diamond, 9 ],
+                     [ &Ruby, 7 ],
+                     [ &BlueDragonScale, 17],
+                     [ &DarkAngelFeather, 15],
+                     [ &HoldWand, 1],
+                     [ &MysticSword, 3 ],
+                     [ &PlateArmor, 3 ]
+                   ];
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

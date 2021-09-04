@@ -1,0 +1,125 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+WeapAttPurger is WeaponAttribute
+
+///////////////////////////////////////////////////////////////////////
+//
+//  This weapon has a chance to purge positive enchantments from the 
+//     opponent every time it does damage.
+//
+//   Form is:
+//
+//      [ WA_PURGER]
+//
+///////////////////////////////////////////////////////////////////////
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include wapurge.lkod
+
+   weapattpurger_desc = " The sign of Psychochild is engraved on the weapon."
+   purger_worked_user = "Your weapon tears at the magic surrounding %s%s."
+   purger_worked_target = "%s%s's weapon tears at the magic surrounding you!"
+   purger_dm = "purger"
+   purger_info_desc = "%i%% chance to cast Purge on hit\n"
+
+classvars:
+
+   vrDesc = weapattpurger_desc
+   vrInfoDesc = purger_info_desc
+   viItem_Att_Num = WA_PURGER
+   viDifficulty = 9
+   vrDM_trigger = purger_dm
+   vbAppears_in_Happyland = FALSE
+   vbAllowSpecialAttributes = FALSE
+   vbProcRequirement = TRUE
+
+properties:
+
+   // Modify the object's price by percent
+   piValue_modifier = 200 
+
+   piValue_power_modifier = 10
+
+   // Percent chance the effect procs
+   piEffect_percent = 15
+
+   piSpellPower = 60
+
+messages:
+
+   // Effect Functions
+
+   ModifyDamage(damage=0,target=$,wielder=$,lData=$)
+   "Wielder has a 1% chance of purging target with any hit."
+   {
+      local oSpell;
+
+      if target = $
+         OR wielder = $
+      {
+         return damage;
+      }
+
+      if Random(1,100) < piEffect_percent
+      {
+         oSpell = Send(SYS,@FindSpellByNum,#num=SID_PURGE);
+
+         // Gotta have something to try to remove....
+         if Send(target,@IsEnchanted)
+         {
+            // Purge casts at piSpellPower
+            if Send(oSpell,@DoPurge,#who=target,#iSpellPower=piSpellPower)
+            {
+               // Only tell our victim if they lost enchantments.
+               Send(target,@MsgSendUser,#message_rsc=purger_worked_target,
+                     #parm1=Send(wielder,@GetCapDef),
+                     #parm2=Send(wielder,@GetName));
+            }
+
+            // Tell the wielder every time we fired so they think it's cool.
+            Send(wielder,@MsgSendUser,#message_rsc=purger_worked_user,
+                  #parm1=Send(target,@GetDef),
+                  #parm2=Send(target,@GetName));
+         }
+      }
+
+      return damage;
+   }
+
+   // Add the spell name to the description.
+   AppendDescInfo(oItem = $,compound = $, bShowAll = FALSE)
+   {
+      if (bShowAll
+         OR Send(oItem,@GetIDStatusFromCompound,#compound=compound))
+      {
+         AddPacket(4,vrInfoDesc, 4,piEffect_percent);
+      }
+      else
+      {
+         // Not identified, add nothing (blank resource).
+         AddPacket(4,system_blank_resource);
+      }
+
+      return;
+   }
+
+   IsMagicalEffect()
+   {
+      return TRUE;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

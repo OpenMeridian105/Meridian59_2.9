@@ -1,0 +1,109 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+PoisonFogCloud is ActiveWallElement
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include poisfogc.lkod
+
+   PoisonFogCloud_name_rsc = "thick fog"
+   PoisonFogCloud_icon_rsc = poisoncl.bgf
+   PoisonFogCloud_desc_rsc = "You choke just looking at the thick putrid fog."
+
+   PoisonFogCloud_poisoned = \
+      "You suddenly feel sick as you inhale the vapors of the fog."
+
+   PoisonFogCloud_poison_snd = psncough.ogg
+
+   PoisonFog_dissipates = "Some of the poison fog fades, then clears."
+   PoisonFog_unaffected = \
+      "You hold your breath and the noxious cloud does not affect you."
+
+classvars:
+
+   vrName = PoisonFogCloud_name_rsc
+   vrIcon = PoisonFogCloud_icon_rsc
+   vrDesc = PoisonFogCloud_desc_rsc
+
+   viObject_flags = OF_NOEXAMINE
+
+   vrDissipateMessage = PoisonFog_dissipates
+   vrUnaffectedMessage = PoisonFog_unaffected
+
+   // How many ms should the effect last at max spellpower?
+   viEffectDuration = 30000
+
+   // How much damage (10^[-3]) should the effect do per second at max spellpower?
+   viEffectDamage = 800
+
+   // How much does each element contribute to the summoning limit?
+   viLimitCount = 1
+
+   // Time between checks for effect.
+   viEffectInterval = 2500
+
+properties:
+
+   piDrawFx = DRAWFX_TRANSLUCENT_50
+
+messages:
+
+   DoEffect(what = $)
+   {
+      local oEffect, iSpellpower, iStrength;
+
+      iSpellpower = Nth(plSeed,2);
+
+      if Random(0,SPELLPOWER_MAXIMUM) < iSpellpower
+      {
+         oEffect = Send(SYS,@FindSpellByNum,#num=SID_POISON);
+         iStrength = iSpellpower*viEffectDamage/SPELLPOWER_MAXIMUM;
+
+         if NOT Send(what,@HasOverTimeEffect,#what=oEffect)
+            OR (Random(1,50 + Send(what,@GetStamina)) < Send(First(plSeed),@GetAim))
+         {
+            if IsClass(what,&User)
+            {
+               Send(what,@MsgSendUser,#message_rsc=PoisonFogCloud_poisoned);
+               Send(what,@WaveSendUser,#wave_rsc=PoisonFogCloud_poison_snd);
+            }
+
+            Send(oEffect,@StartPoison,#source=poCaster,#who=what,#healthloss=iStrength,
+               #vigorloss=iStrength/4,#duration=viEffectDuration);
+            Send(poOwner,@SomethingAttacked,#what=poCaster,#victim=what,
+                  #use_weapon=self,#stroke_obj=self);
+            if IsClass(poCaster,&Player)
+            {
+               Send(poCaster,@SetPlayerFlag,#flag=PFLAG_DID_DAMAGE,#value=TRUE);
+            }
+         }
+      }
+      else
+      {
+         Send(what,@MsgSendUser,#message_rsc=PoisonFog_unaffected);
+      }
+
+      propagate;
+   }
+
+   SendAnimation()
+   {
+      AddPacket(1,ANIMATE_CYCLE, 4,Random(240,280), 2,1, 2,5);
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,72 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+NeruElementalChampion is NeruElemental
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include neelech.lkod
+   
+   neelem_champion_name_rsc = "Kangi"
+   neelem_champion_desc_rsc = \
+      "This gigantic golem seems to be made entirely out of nerudite. "
+
+   neelem_champion_dead_name_rsc = "The corpse of Kangi"
+
+classvars:
+
+   vrName = neelem_champion_name_rsc
+   vrDesc = neelem_champion_desc_rsc
+   vrDead_name = neelem_champion_dead_name_rsc
+
+   vbNamedMob = TRUE
+   viIndefinite = ARTICLE_NONE
+   viDefinite = ARTICLE_NONE
+   
+   viTreasure_type = TID_NONE
+   viSpeed = SPEED_FAST
+
+   viLevel = 250
+   viDifficulty = 9
+
+   viCashmin = 3000
+   viCashmax = 12000
+
+   viPoisonChance = 20
+   viPoisonStrength = 1000
+   viPoisonDuration = 20000
+   viPoisonHealth = 100
+   viPoisonVigor = 50
+
+   viBonusXP = 100
+   viBonusTP = 10
+
+properties:
+
+   piAnimation = ANIM_NONE
+
+messages:
+
+   Constructed()
+   {
+      plResistances = [ [-SPL_TYPE_QUAKE, -60 ],
+                        [-SPL_TYPE_ALL, 50 ],
+                        [ATK_TYPE_PIERCE, -60],
+                        [ATK_TYPE_ALL, 50 ] ];
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

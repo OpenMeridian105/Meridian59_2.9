@@ -1,0 +1,6 @@
+fireelemental_name_rsc = de "Der Feuergolem"
+fireelemental_desc_rsc = de \
+   "Verzehrende Hitze strömt aus der gewaltigen, sich ständig umwälzenden "
+   "Lavamasse, die den Körper dieses Wesens aus reiner Energie bildet. "
+   "Seine Bewegungen knistern wie hungrige Flammen"
+fireelemental_dead_name_rsc = de "toter Feuergolem"

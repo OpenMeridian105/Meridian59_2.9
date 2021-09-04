@@ -1,0 +1,51 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+CureDiseasePotion is Potion
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include curedisp.lkod
+
+   CureDiseasePotion_name_rsc = "cure disease potion"
+   //CureDiseasePotion_icon_rsc = potion01.bgf
+   CureDiseasePotion_worked = \
+      "Almost immediately, you can feel the soothing power of Shal'ille "
+      "spreading softly from your stomach through your body, cleansing your "
+      "body of disease."
+
+classvars:
+
+   vrLabelName = CureDiseasePotion_name_rsc
+   vrDesc = Potion_desc_crisp_rsc
+   vrWorked = CureDiseasePotion_worked
+
+   viBulk = 20
+   viWeight = 20
+   viValue_average = 60
+
+   viItem_type = ITEMTYPE_POTION | ITEMTYPE_SUNDRY
+   viUse_type = ITEM_SINGLE_USE
+   viSpellEffect = SID_CURE_DISEASE
+
+   viPoisonPercent = 50
+   viGoBadDamage = 10
+   viColor = XLAT_TO_ORANGE
+
+properties:
+
+messages:
+
+end
+////////////////////////////////////////////////////////////////////////////////

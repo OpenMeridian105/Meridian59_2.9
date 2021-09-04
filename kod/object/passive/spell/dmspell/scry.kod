@@ -1,0 +1,273 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Scry is DMSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include scry.lkod
+
+   scry_name_rsc = "scry"
+   scry_icon_rsc = lightnin.bgf
+
+   allinroom_scry_msg1 = "~b%s%s deeply scrys the soul of %s%s."
+   allinroom_scry_msg2 = "~bYou tingle as %s%s deeply scrys %s%s."
+
+   caster_scry_msg = "~bYou deeply scry %s%s."
+   scryd_scry_msg = "~bYou are deeply scryed by %s%s."
+   scry_desc_rsc = \
+      "This scrys a person of your choice, revealing their status for "
+      "spell advancement."
+
+   scry_mastery_report = "%s is %s of %s."
+   scry_apprentice = "an apprentice"
+   scry_adept = "an adept"
+   scry_scholar = "a scholar"
+   scry_journeyman = "a journeyman"
+   scry_master = "a master"
+   scry_archmage = "an archmage"
+
+   scry_weaponcraft = "weaponcraft"
+
+classvars:
+   vrName = scry_name_rsc
+   vrIcon = scry_icon_rsc
+   vrDesc = scry_desc_rsc
+
+   viSpell_num = SID_SCRY
+   viMana = 0
+
+properties:
+
+   plSchools = $
+
+messages:
+
+   Constructor()
+   {
+      plSchools = [SS_SHALILLE, SS_FAREN, SS_RIIJA, SS_KRAANAN, SS_QOR, SS_JALA,
+                   SKS_WEAPONCRAFT ];
+
+      propagate;
+   }
+
+   GetNumSpellTargets()
+   {
+      return 1;
+   }
+
+   GetSchoolStr(iSchool=0)
+   {
+      if iSchool = SKS_WEAPONCRAFT
+      {
+         return scry_weaponcraft;
+      }
+
+      propagate;
+   }
+
+   DoSpellEffects(who = $, lTargets = $)
+   {
+      local  i, oRoom, each_obj, oTarget;
+
+      oRoom = Send(who,@GetOwner);
+      oTarget = First(lTargets);
+
+      Send(who,@MsgSendUser,#message_rsc=caster_scry_msg,
+            #parm1=Send(oTarget,@GetDef),
+            #parm2=Send(oTarget,@GetName));
+
+      if (IsClass(oTarget,&Player))
+      {
+         Send(oTarget,@EffectSendUser,#what=self,#effect=EFFECT_INVERT);
+         Send(oTarget,@MsgSendUser,#message_rsc=scryd_scry_msg,
+               #parm1=Send(who,@GetIndef),#parm2=Send(who,@GetName));
+         Send(self,@ComputeScryInfo,#who=oTarget,#dmis=who);
+      }
+
+      foreach i in Send(oRoom,@GetHolderActive)
+      {
+         each_obj = First(i);
+
+         if (IsClass(each_obj,&Player)
+            AND (each_obj <> who)
+            AND (each_obj <> oTarget))
+         {
+            if (IsClass(oTarget,&Battler))
+            {
+               Send(each_obj,@MsgSendUser,#message_rsc=allinroom_scry_msg1,
+                     #parm1=Send(who,@GetIndef),#parm2=Send(who,@GetName),
+                     #parm3=Send(oTarget,@GetDef),#parm4=Send(oTarget,@GetName));
+            }
+            else
+            {
+               Send(each_obj,@MsgSendUser,#message_rsc=allinroom_scry_msg2,
+                     #parm1=Send(who,@GetIndef),#parm2=Send(who,@GetName),
+                     #parm3=Send(oTarget,@GetDef),#parm4=Send(oTarget,@GetName));
+            }
+         }
+      }
+
+      return TRUE;
+   }
+
+   SendEffectData()
+   {
+      // for EFFECT_INVERT, 4 bytes of time to be inverted
+      AddPacket(4,10000);
+
+      return;
+   }
+
+   ComputeScryInfo(who=$,dmis=$)
+   "This routine does all the top level work for the scry spell. It checks"
+   "to see what the player in question needs for each spell school."
+   {
+      local i;
+
+      foreach i in plSchools
+      {
+         Send(self,@ReportMastery,#dmis=dmis,#who=who,#school=i);
+      }
+
+      return;
+   }
+
+   ReportMastery(who=$,dmis=$, school=-1)
+   {
+      local i, high_level, obj, rName, rMastery;
+
+      if school > 9
+      {
+         Send(self,@ReportSkillMastery,#who=who,#dmis=dmis,#school=school);
+
+         return;
+      }
+
+      high_level = 0;
+      foreach i in Send(who,@GetSpellList)
+      {
+         obj = Send(SYS,@FindSpellByNum,#num=Send(who,@DecodeSpellNum,#compound=i));
+         if Send(obj,@GetSchool) = school
+         {
+            if Send(obj,@GetLevel) > high_level
+            {
+               high_level = Send(obj,@GetLevel);
+            }
+         }
+      }
+
+      // no message
+      if high_level = 0
+      {
+         return;
+      }
+
+      rName = Send(self,@GetSchoolStr,#iSchool=school);
+      rMastery = scry_apprentice;
+      if high_level = 2   { rMastery = scry_adept;  }
+      if high_level = 3   { rMastery = scry_scholar;  }
+      if high_level = 4   { rMastery = scry_journeyman;  }
+      if high_level = 5   { rMastery = scry_master;  }
+      if high_level = 6   { rMastery = scry_archmage;  }
+      Send(dmis,@msgsenduser,#message_rsc=scry_mastery_report,
+            #parm1=Send(who,@GetName),#parm2=rMastery,#parm3=rName);
+
+      if Send(DMis,@GetSpellAbility,#spell_num=viSpell_num) < 50
+      {
+         return;
+      }
+
+      /// let's find out about the next level!  Whee!
+      if Send(SYS,@GetNumAtLevel,#school=school,#level=high_level+1) <> 0
+      {
+         foreach i in Send(SYS,@GetSpells)
+         {
+            if NOT IsClass(i,&Spell)
+            {
+               continue;
+            }
+
+            if (Send(i,@GetLevel) = (high_level + 1))
+               AND (school = Send(i,@GetSchool))
+            {
+               Send(who,@PlayerCanLearn,#spell_num=Send(i,@GetSpellNum),#scryer=dmis);
+
+               return;
+            }
+         }
+      }
+
+      return;
+   }
+
+   ReportSkillMastery(who=$,dmis=$, school=-1)
+   {
+      local i, high_level, obj, rName, rMastery, num;
+
+      high_level = 0;
+      foreach i in Send(who,@GetSkillList)
+      {
+         num = Send(who,@DecodeSkillNum,#compound=i);
+         obj = Send(sys,@FindSkillByNum,#num=num);
+         if Send(obj,@GetSchool) = school
+         {
+            if Send(obj,@GetLevel) > high_level
+            {
+               high_level = Send(obj,@GetLevel);
+            }
+         }
+      }
+
+      // no message
+      if high_level = 0
+      {
+         return;
+      }
+
+      rName = Send(self,@GetSchoolStr,#iSchool=school);
+      rMastery = scry_apprentice;
+      if high_level = 2   { rMastery = scry_adept;  }
+      if high_level = 3   { rMastery = scry_scholar;  }
+      if high_level = 4   { rMastery = scry_journeyman;  }
+      if high_level = 5   { rMastery = scry_master;  }
+      if high_level = 6   { rMastery = scry_archmage;  }
+      Send(dmis,@msgsenduser,#message_rsc=scry_mastery_report,
+            #parm1=Send(who,@GetName),#parm2=rMastery,#parm3=rName);
+
+      if Send(DMis,@GetSpellAbility,#spell_num=viSpell_num) < 50
+      {
+         return;
+      }
+
+      /// let's find out about the next level!  Whee!
+      if Send(SYS,@GetNumAtLevel,#school=school,#level=high_level+1) <> 0
+      {
+         foreach i in Send(SYS,@GetSkills)
+         {
+            if (Send(i,@GetLevel) = (high_level + 1))
+               AND (school = Send(i,@GetSchool))
+            {
+               Send(who,@PlayerCanLearn,#skill_num=Send(i,@GetSkillNum),#scryer=dmis);
+
+               return;
+            }
+         }
+      }
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

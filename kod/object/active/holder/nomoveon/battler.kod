@@ -1,0 +1,4158 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Battler is NoMoveOn
+
+constants:
+
+   include blakston.khd
+   include protocol.khd
+
+   // Raise or lower this number to raise or lower the chance the 'avoids 
+   //  your attack' message comes up.
+   BATTLER_AVOID_CHANCE = 50  
+
+   // Threshold for the "wound" and "damage" levels of feedback.
+   DAMAGE_THRESHOLD_WOUND = 500
+   DAMAGE_THRESHOLD_DAMAGE = 1500
+
+   // This tick factor modifies responsiveness of resource regeneration for
+   // players. The factor is a percentage of the original and will scale
+   // tick duration and the amount of resource gained/lost accordingly.
+   TICK_FACTOR_PLAYER = 25
+
+   // The amount of milivigor consumed per moved unit.
+   EXERTION_PER_MOVE = 20
+
+   // Limit the number of poison enchantments a battler can have.
+   MAX_POISON_STACKS = 4
+
+resources:
+
+   include battler.lkod
+
+   // KNOWN BUG: placing a comment on the same line as a resource definition
+   //  will comment out the next line.
+
+   battler_blue_text = "~b"
+   battler_plain_text = "~n"
+
+   // battler_attacker_hit - Your scimitar wounds Psychochild for (10) damage.
+   // battler_attacker_slay - Your scimitar slays Psychochild.
+   // battler_attacker_miss - Your attack is blocked by Psychochild.
+   // battler_attacker_fail - Your scimitar scrapes Psychochild, failing to cause any real harm.
+   // battler_defender_hit - Psychochild's scimitar wounds you for (10) damage.
+   // battler_defender_slay - Psychochild's scimitar slays you.
+   // battler_defender_miss - Psychochild's attack is blocked by you.
+   // battler_defender_fail - Psychochild's scimitar scrapes you, failing to cause any real harm.
+
+   battler_attacker_hit = "%sYour %s %s %s%q for ~k~B%i~B%s damage."
+   battler_attacker_slay = "%sYour %s %s %s%q."
+   battler_attacker_miss = "%sYour attack %s %s%q."
+   battler_attacker_fail = "%sYour %s %s %s%q, failing to cause any real harm."
+   battler_attacker_hit_mob = "%sYour %s %s %s%s for ~k~B%i~B%s damage."
+   battler_attacker_slay_mob = "%sYour %s %s %s%s."
+   battler_attacker_miss_mob = "%sYour attack %s %s%s."
+   battler_attacker_fail_mob = "%sYour %s %s %s%s, failing to cause any real harm."
+
+   battler_defender_hit = "%s%s%q's %s %s you for ~r~B%i~B%s damage."
+   battler_defender_slay = "%s%s%q's %s %s you."
+   battler_defender_miss = "%s%s%q's attack %s you."
+   battler_defender_fail = "%s%s%q's %s %s you, failing to cause any real harm."
+   battler_defender_hit_mob = "%s%s%s's %s %s you for ~r~B%i~B%s damage."
+   battler_defender_slay_mob = "%s%s%s's %s %s you."
+   battler_defender_miss_mob = "%s%s%s's attack %s you."
+   battler_defender_fail_mob = "%s%s%s's %s %s you, failing to cause any real harm."
+
+   battler_punch = "punch"
+   battler_attack = "attack"
+   battler_blocked  = "is blocked by" 
+   battler_dodged  = "is dodged by"
+   battler_parried  = "is parried by"
+   battler_misses = "misses"
+
+   battler_fail = "barely touches"
+   battler_nick = "nicks"
+   battler_wound = "wounds"
+   battler_damage = "damages"
+   battler_slay = "slays"
+
+   battler_acid_fail = "wets"
+   battler_acid_nick = "burns"
+   battler_acid_wound = "sears"
+   battler_acid_damage = "disfigures"
+   battler_acid_slay = "dissolves"
+
+   battler_fire_fail = "warms"
+   battler_fire_nick = "singes"
+   battler_fire_wound = "chars"
+   battler_fire_damage = "scorches"
+   battler_fire_slay = "incinerates"
+
+   battler_shock_fail = "tingles"
+   battler_shock_nick =  "jolts"
+   battler_shock_wound = "shocks"
+   battler_shock_damage = "fries"
+   battler_shock_slay = "electrocutes"
+
+   battler_cold_fail = "refreshes"
+   battler_cold_nick = "cools"
+   battler_cold_wound = "chills"
+   battler_cold_damage = "frosts"
+   battler_cold_slay = "freezes"
+
+   battler_holy_fail = "inspires"
+   battler_holy_nick = "infuses"
+   battler_holy_wound = "cleanses"
+   battler_holy_damage = "exorcises"
+   battler_holy_slay = "purifies"
+
+   battler_unholy_fail = "unsettles"
+   battler_unholy_nick = "maligns"
+   battler_unholy_wound = "pollutes"
+   battler_unholy_damage = "appalls"
+   battler_unholy_slay = "corrupts"
+
+   battler_quake_fail = "startles"
+   battler_quake_nick = "shakes"
+   battler_quake_wound = "buffets"
+   battler_quake_damage = "slams"
+   battler_quake_slay = "flattens"
+
+   battler_bite_fail = "nips"
+   battler_bite_nick = "gnaws"
+   battler_bite_wound = "bites"
+   battler_bite_damage = "tears into"
+   battler_bite_slay = "devours"
+
+   battler_claw_fail = "scratches"
+   battler_claw_nick = "claws"
+   battler_claw_wound = "rakes"
+   battler_claw_damage = "rends"
+   battler_claw_slay = "shreds"
+
+   battler_sting_fail = "annoys"
+   battler_sting_nick = "irritates"
+   battler_sting_wound = "stings"
+   battler_sting_damage = "pricks"
+   battler_sting_slay = "impales"
+
+   battler_punch_fail = "nudges"
+   battler_punch_nick = "slaps"
+   battler_punch_wound = "pummels"
+   battler_punch_damage = "mangles"
+   battler_punch_slay = "thrashes"
+
+   battler_slash_fail = "scrapes"
+   battler_slash_nick = "cuts"
+   battler_slash_wound = "slashes"
+   battler_slash_damage = "maims"
+   battler_slash_slay = "cleaves"
+
+   battler_bludgeon_fail = "bonks"
+   battler_bludgeon_nick = "bashes"
+   battler_bludgeon_wound = "crushes"
+   battler_bludgeon_damage = "smashes"
+   battler_bludgeon_slay = "brutalizes"
+
+   battler_thrust_fail = "tickles"
+   battler_thrust_nick = "pokes"
+   battler_thrust_wound = "stabs"
+   battler_thrust_damage = "impales"
+   battler_thrust_slay = "runs through"
+
+   battler_pierce_fail = "bounces off of"
+   battler_pierce_nick = "grazes"
+   battler_pierce_wound = "pierces"
+   battler_pierce_damage = "lacerates"
+   battler_pierce_slay = "fells"
+
+   battler_ambush_attacker = "~I~kYou ambush your prey!"
+   battler_ambush_victim = "~I~rYou are caught off guard!"
+
+classvars:
+
+   viObject_flags = OF_ATTACKABLE
+   viBattler_level = 50
+   viNaturalVigorRegeneration = 0
+
+properties:
+
+   // Evil twin object
+   poEvilTwin = $
+
+   // List of active evil twins (i.e. ETs we've created).
+   plEvilTwins = $
+
+   // Apparition list and target
+   plApparitionList = $
+   poApparitionOriginal = $
+
+   // Store minions
+   plControlledMinions = $
+   ptMinionControlCheck = $
+
+   // list of resistances, Each element is [value, type].
+   plResistances = $
+
+   // List of enchantments.
+   // Each element is [ timer, object of spell, [optional state] ].
+   plEnchantments = $
+   plOverTimeEffects = $
+
+   // Flags for keeping track of booleans for health, vigor, mana, resting.
+   // By default, regen flags are set (i.e. positive regen).
+   piBattlerFlags = BFLAG_REGEN_MASK
+
+   // Default resource values.
+   // Current health, mana and vigor are stored in centiunits (10^-2)
+   // for increased accuracy. Max values are stored as usual.
+
+   // Default health values.
+   piHealth = 2000
+   piMax_health = 20
+   ptHealth = $
+   // The current health regeneration rate. 1000 > 1 hp per sec.
+   piHealth_Rate = 0
+
+   // Default mana values.
+   piMana = 1500
+   piMax_mana = 15
+   ptMana = $
+   // The current mana regeneration rate. 1000 > 1 hp per sec.
+   piMana_Rate = 0
+
+   // Default vigor values.
+   piVigor = 10000
+   piMax_vigor = 200
+   piVigor_rest_threshold = 80
+   ptVigor = $
+   // The current vigor regeneration rate. 1000 > 1 hp per sec.
+   piVigor_Rate = 0
+
+   // Reputation hashtable for monster territory/influence system
+   phReputation = $
+
+   // Keeps track of who damaged this battler recently, and for how much.
+   // Used to determine who logged / killed this monster or player.
+   // Form [damage, amount, timer]
+   plHurtMeRecently = $
+   // 20 seconds default for players, 60 for monsters
+   piHurtMeTime = 20000
+
+   // The ms tick we received last position update from battler.
+   piLastMoveUpdateTime = 0
+   piSpeed = 0
+
+   // This is what % of normal speed the battler moves at.
+   // Shouldn't go below 0 (and shouldn't go too high either).
+   piMovementSpeedPercent = 100
+
+   // Second wind ability has a major effect on resource generation and is
+   // querried frequently. Save it as a property instead.
+   piWind = 0
+
+   // Keeps track of the summoning magic the player is currently maintaining.
+   piActiveSummons = 0
+
+messages:
+
+   // The first lump of code here deals with resistances and immunities/etc.
+   // They are included here in battler so both user and mobiles can enjoy
+   //  the effect.
+
+   TryDeflect()
+   {
+      return FALSE;
+   }
+
+   Delete()
+   {
+      local i;
+
+      // If this Battler has created any evil twins, delete them.
+      Send(self,@RemoveAllCreatedEvilTwins);
+
+      // If this Battler has an Evil Twin, delete it too.
+      Send(self,@RemoveAttackingEvilTwin);
+
+      // If this Battler has Apparitions attacking it, delete them.
+      Send(self,@RemoveAllApparitions);
+
+      foreach i in plHurtMeRecently
+      {
+         if IsTimer(Nth(i,3))
+         {
+            DeleteTimer(Nth(i,3));
+         }
+         SetFirst(i,$);
+         SetNth(i,3,$);
+      }
+
+      plHurtMeRecently = $;
+
+      // Delete our resource timers.
+      if ptHealth <> $
+      {
+         DeleteTimer(ptHealth);
+         ptHealth = $;
+      }
+
+      if ptMana <> $
+      {
+         DeleteTimer(ptMana);
+         ptMana = $;
+      }
+
+      if ptVigor <> $
+      {
+         DeleteTimer(ptVigor);
+         ptVigor = $;
+      }
+
+      propagate;
+   }
+
+   ReqNewOwner(what = $)
+   {
+      return IsClass(what,&Room);
+   }
+
+   SayDyingWords(what=$)
+   {
+      return FALSE;
+   }
+
+   IsLikelyVictim()
+   {
+      // nearly all battlers can be attacked by a monster without provocation
+      return TRUE;
+   }
+
+   IsUndead()
+   {
+      return FALSE;
+   }
+
+   // This checks if the battler can completely resist the effects of the spell.
+   //  By default, the spell is not resisted.
+   SpellResist(oSpell=$,who=$,iSpellpower=$)
+   {
+      return FALSE;
+   }
+
+   GetBaseResistances()
+   "Many mobs have base resistances, but players do not. Monster.kod overwrites this."
+   {
+      return $;
+   }
+
+   GetCurrentResistances()
+   "Spells and items can change resistances temporarily."
+   {
+      local oObjectAttribute, lCurResist, oEquipment, oEnchantment;
+
+      lCurResist = ListCopy(Send(self,@GetBaseResistances));
+
+      foreach oObjectAttribute in plObject_attributes
+      {
+         lCurResist = Send(oObjectAttribute,@ModifyResistance,
+                           #resistance_list=lCurResist);
+      }
+
+      foreach oEquipment in Send(self,@GetEquippedItems)
+      {
+         lCurResist = Send(oEquipment,@ModifyResistance,
+                           #resistance_list=lCurResist);
+      }
+
+      foreach oEnchantment in Send(self,@GetEnchantmentList)
+      {
+         if Length(oEnchantment) > ENCHANTMENT_LIST_NO_STATE
+         {
+            lCurResist = Send(Nth(oEnchantment,2),@ModifyResistance,
+                              #resistance_list=lCurResist,
+                              #iState=Nth(oEnchantment,3));
+         }
+         else
+         {
+            lCurResist = Send(Nth(oEnchantment,2),@ModifyResistance,
+                              #resistance_list=lCurResist);
+         }
+      }
+
+      foreach oEnchantment in plRadiusEnchantments
+      {
+         lCurResist = Send(Nth(oEnchantment,2),@ModifyResistance,
+                           #resistance_list=lCurResist,
+                           #iState=Nth(Nth(oEnchantment,3),5));
+      }
+
+      return lCurResist;
+   }
+
+   GetEquippedItems()
+   "Support for items equipped by players, but also some monsters, such as troops."
+   {
+      return $;
+   }
+
+   ResistanceCheck(atype = 0, stype= 0)
+   "Given bitvectors of attack type and spell, find the resistance modifier "
+   "which applies. Largest resistance plus worst weakness gives the modifier."
+   {
+      local j, iResType, iMaxRes, iMinRes, iResistance, resistance_list;
+
+      iMaxRes = NO_RESISTANCE;
+      iMinRes = NO_RESISTANCE;
+
+      resistance_list = Send(self,@GetCurrentResistances);
+
+      foreach j in resistance_list
+      {
+         iResType = First(j);
+         if iResType > 0
+         {
+            // It's a resistance to weapon type
+
+            if (atype & iResType) <> 0
+               OR (atype <> 0 AND iResType = ATK_TYPE_ALL)
+            {
+               iResistance = Nth(j,2);
+               
+               if iResistance > iMaxRes
+               {
+                  iMaxRes = iResistance;
+               }
+
+               if iResistance < iMinRes
+               {
+                  iMinRes = iResistance;
+               }
+            }
+         }
+         else
+         {
+            // It's a resistance to spell type
+            iResType = -iResType;
+
+            if (stype& iResType) <> 0
+               OR (stype<> 0 AND iResType = SPL_TYPE_ALL)
+            {
+               iResistance = Nth(j,2);
+               
+               if iResistance > iMaxRes
+               {
+                  iMaxRes = iResistance;
+               }
+
+               if iResistance < iMinRes
+               {
+                  iMinRes = iResistance;
+               }
+            }
+         }
+      }
+
+      // clip to max/min values
+      iMaxRes = Bound(iMaxRes,$,MAX_RESISTANCE);
+      iMinRes = Bound(iMinRes,MIN_RESISTANCE,$);
+
+      return iMaxRes + iMinRes;
+   }
+
+   GetDamageFromResistance(what = $, value = $)
+   "Adjust <what> damage according to the value multiplier"
+   {
+      local iDamage;
+
+      if value > NO_RESISTANCE
+      {
+         iDamage = what * (MAX_RESISTANCE - value) / MAX_RESISTANCE;
+      }
+      else
+      {
+         iDamage = what * (MIN_RESISTANCE + value) / MIN_RESISTANCE;
+      }
+
+      return iDamage;
+   }
+
+   //// Spell enchantment functions.
+
+   RemoveEnchantmentClass(class = &Object, report=TRUE)
+   "If have a current enchantment set by anything in class, end it."
+   {
+      local i, state, removedSomething, oEnchantment;
+
+      removedSomething = FALSE;
+
+      foreach i in plEnchantments
+      {
+         oEnchantment = Nth(i,2);
+
+         if IsClass(oEnchantment,class)
+         {
+            removedSomething = TRUE;
+            if First(i) <> $
+            {
+               DeleteTimer(First(i));
+               SetFirst(i,$);
+            }
+
+            if Length(i) >= ENCHANTMENT_LIST_STATE
+            {
+               state = Nth(i,3);
+            }
+
+            Send(oEnchantment,@RemoveEnchantmentEffects,#who=self,#state=state,
+                  #report=report);
+
+            Send(self,@ShowRemoveEnchantment,#what=oEnchantment,
+                  #type=ENCHANTMENT_PLAYER);
+
+            plEnchantments = DelListElem(plEnchantments,i);
+
+            if Send(oEnchantment,@IsLightSource)
+            {
+               Send(self,@RecalcFlickerFlag);
+            }
+
+            Send(self,@ResetPlayerFlagList,#who=self);
+         }
+      }
+
+      return removedSomething;
+   }
+
+   ShowRemoveEnchantment()
+   "User overrides this to send data to the client."
+   {
+      return;
+   }
+
+   ResetPlayerFlagList()
+   {
+      if poOwner <> $
+      {
+         Send(poOwner,@SomethingChanged,#what=self);
+      }
+
+      return;
+   }
+
+   CheckBattlerFlag(flag=0)
+   {
+      return piBattlerFlags & flag;
+   }
+
+   SetBattlerFlag(flag=0,value=FALSE)
+   "This always requires the POSITIVE flag name.  Default unsets the flag."
+   {
+      if (value)
+      {
+         piBattlerFlags |= flag;
+      }
+      else
+      {
+         piBattlerFlags &= ~flag;
+      }
+
+      return;
+   }
+
+   IsEnchanted(what=$,byClass=&Spell,state=$)
+   "Returns whether or not currently enchanted by <what>."
+   {
+      local i;
+
+      if what = $
+      {
+         foreach i in plEnchantments
+         {
+            if IsClass(Nth(i,2),byClass)
+            {
+               return TRUE;
+            }
+         }
+      }
+      else
+      {
+         if (IsClass(what,&RadiusEnchantment))
+         {
+            return Send(self,@IsEnchantedRadius,#what=what,#state=state);
+         }
+         return GetListNode(plEnchantments, 2, what) <> $;
+      }
+
+      return FALSE;
+   }
+
+   GetEnchantedState(what=$)
+   "If enchanted by <what>, returns the state data (which MUST exist, or it's an error.  "
+   "In other words, the caller must know that <what> adds state data).  Returns $ otherwise."
+   {
+      local i;
+
+      foreach i in plEnchantments
+      {
+         if Nth(i,2) = what
+            AND Length(i) > ENCHANTMENT_LIST_NO_STATE
+         {
+            return Nth(i,3);
+         }
+      }
+
+      return $;
+   }
+
+   SetEnchantedState(what=$,state=$)
+   "Sets state of <what> to specified value."
+   {
+      local i;
+
+      foreach i in plEnchantments
+      {
+         if Nth(i,2) = what
+            AND Length(i) > ENCHANTMENT_LIST_NO_STATE
+         {
+            SetNth(i,3,state);
+
+            return state;
+         }
+      }
+
+      return $;
+   }
+
+   GetEnchantmentsByClass(enchClass=&Spell)
+   "Returns a subset of plEnchantments whose elements are of the given class."
+   {
+      local i, returnList;
+      returnList = $;
+
+      foreach i in plEnchantments
+      {
+         if IsClass(Nth(i,2),enchClass)
+         {
+            returnList = Cons(i,returnList);
+         }
+      }
+
+      return returnList;
+   }
+
+   GetEnchantmentList()
+   {
+      return plEnchantments;
+   }
+
+   GetCastPower(what=$)
+   "This is used by purge to get the spellpower the personal enchantment was "
+   "cast at. Put in Battler instead of Player as we may use this for monster "
+   "buffs one day."
+   {
+      local lEnch;
+
+      if what = $
+      {
+         Debug("GetCastPower called with $ spell!");
+
+         return 0;
+      }
+
+      lEnch = GetListNode(plEnchantments, 2, what);
+      if lEnch <> $
+      {
+         if Length(lEnch) > ENCHANTMENT_LIST_NO_STATE
+         {
+            return Nth(lEnch,4);
+         }
+         else
+         {
+            return Nth(lEnch,3);
+         }
+      }
+
+      Debug("GetCastPower couldn't find enchantment ",what);
+
+      return 0;
+   }
+
+   //// Resource related stuff common to players and mobs.
+
+   // Movement speed mods
+   GetRawMovementSpeedPercent()
+   {
+      return piMovementSpeedPercent;
+   }
+
+   GetMovementSpeedPercent()
+   {
+      return Bound(piMovementSpeedPercent, MOVEMENTSPEED_MIN, MOVEMENTSPEED_MAX);
+   }
+
+   AddMovementSpeedPercent(iSpeed = 0)
+   "Adds or subtracts movement speed %."
+   {
+      piMovementSpeedPercent += iSpeed;
+
+      Send(self,@MovementSpeedChanged);
+
+      return;
+   }
+
+   ResetMovementSpeed()
+   {
+      piMovementSpeedPercent = 100;
+
+      Send(self,@MovementSpeedChanged);
+
+      return;
+   }
+
+   SetMovementSpeedPercent(iSpeed = 0)
+   "Sets movement speed percent directly."
+   {
+      piMovementSpeedPercent = iSpeed;
+
+      Send(self,@MovementSpeedChanged);
+
+      return;
+   }
+
+   MovementSpeedChanged()
+   "Override to do something specific when movespeed changes."
+   {
+      return;
+   }
+
+   // This message is used to modify responsiveness of resource
+   // regeneration for players. Tick duration and restored resource
+   // amount are scaled by a percentage.
+   GetTickFactor(i=$)
+   "Code for players. Monsters are handled in monster.kod."
+   {
+      return i * TICK_FACTOR_PLAYER / 100;
+   }
+
+   // Health related code.
+   GetMaxHealth()
+   {
+      return piMax_health;
+   }
+
+   GetHealth()
+   {
+      return piHealth/100;
+   }
+
+   GetExactHealth()
+   {
+      return piHealth;
+   }
+
+   LoseHealth(amount = 0, precision = FALSE)
+   {
+      if NOT precision
+      {
+         amount *= 100;
+      }
+
+      if piHealth - amount < 0
+      {
+         amount = piHealth;
+         piHealth = 0;
+      }
+      else
+      {
+         piHealth -= amount;
+      }
+
+      Send(self,@NewHealth);
+
+      if precision
+      {
+         return amount;
+      }
+
+      return amount / 100;
+   }
+
+   GainHealth(amount=0, precision = FALSE, bCapped=TRUE)
+   "If uncapped, still respects the hardcap."
+   {
+      if Send(self,@IsInCannotInteractMode)
+      {
+         Send(self,@NewHealth);
+
+         return 0;
+      }
+
+      if NOT precision
+      {
+         amount *= 100;
+      }
+
+      if bCapped AND piHealth + amount > 100 * piMax_health
+      {
+         amount = 100 * piMax_health - piHealth;
+         piHealth = 100 * piMax_health;
+      }
+      else if piHealth + amount > 200 * piMax_health
+      {
+         amount = 200 * piMax_health - piHealth;
+         piHealth = 200 * piMax_health;
+      }
+      else
+      {
+         piHealth += amount;
+      }
+
+      Send(self,@NewHealth);
+
+      if precision
+      {
+         return amount;
+      }
+
+      return amount / 100;
+   }
+
+   SetHealth(amount=$)
+   {
+      if amount <> $
+      {
+         piHealth = Bound(amount*100,0,$);
+      }
+
+      Send(self,@DrawHealth);
+
+      return;
+   }
+
+   SetExactHealth(amount=$)
+   {
+      if amount <> $
+      {
+         piHealth = Bound(amount,0,$);
+      }
+
+      Send(self,@DrawHealth);
+
+      return;
+   }
+
+   // Check if target is currently suffering from a health curse.
+   // Curses stop natural regeneration of the specified resource.
+   GetHealthCurse()
+   {
+      return piBattlerFlags & BFLAG_HEALTH_CURSE;
+   }
+
+   NewHealth()
+   {
+      local iTime;
+
+      if (poOwner = $)
+      {
+         return;
+      }
+
+      iTime = Send(self,@CalculateHealthTime);
+
+      // Let's make sure we aren't negative. That'd be absurd!
+      // Also, don't allow temporary HPs beyond the hardcap.
+      piHealth = Bound(piHealth,0,200*piMax_health);
+
+      // iTime can only be negative or positive, never zero.
+      if iTime <> $
+      {
+         // iTime is positive, that means Health is below max.
+         if iTime > 0
+         {
+            if ptHealth = $
+            {
+               piBattlerFlags |= BFLAG_HEALTH_REGEN;
+               ptHealth = CreateTimer(self,@HealthRegen,iTime);
+            }
+            else
+            {
+               // We reset the current timer if:
+               // a) The rate swings (+ to - or vice versa).
+               // b) Time left on the timer exceeds updated time.
+               if (NOT (piBattlerFlags & BFLAG_HEALTH_REGEN))
+                  OR iTime < GetTimeRemaining(ptHealth)
+               {
+                  piBattlerFlags |= BFLAG_HEALTH_REGEN;
+                  DeleteTimer(ptHealth);
+                  ptHealth = CreateTimer(self,@HealthRegen,iTime);
+               }
+            }
+         }
+         else
+         {
+            iTime = -iTime;
+
+            if ptHealth = $
+            {
+               piBattlerFlags &= ~BFLAG_HEALTH_REGEN;
+               ptHealth = CreateTimer(self,@HealthDecay,iTime);
+            }
+            else
+            {
+               // We reset the current timer if:
+               // a) The rate swings (+ to - or vice versa).
+               // b) Time left on the timer exceeds updated time.
+               if ((piBattlerFlags & BFLAG_HEALTH_REGEN)
+                  OR iTime < GetTimeRemaining(ptHealth))
+               {
+                  piBattlerFlags &= ~BFLAG_HEALTH_REGEN;
+                  DeleteTimer(ptHealth);
+                  ptHealth = CreateTimer(self,@HealthDecay,iTime);
+               }
+            }
+         }
+      }
+
+      Send(self,@DrawHealth);
+
+      return;
+   }
+
+   CalculateHealthPerTick()
+   {
+      local iHealthPerTick, iBoost, i, bMaxHealth;
+
+      // Health regeneration starts out as 1 percent of our health
+      // pool per second at max vigor.
+      iHealthPerTick = (piVigor/100) * piMax_health / 20;
+
+      // At or above max health?
+      bMaxHealth = piHealth >= 100 * piMax_health;
+
+      // Faction bonus of up to 30%.
+      if IsClass(self,&Player)
+      {
+         iHealthPerTick *= Send(Send(SYS,@GetParliament),@GetFactionHealthRegenBonus,
+                                 #who=self,#maxhealth=bMaxHealth) + 100;
+         iHealthPerTick /= 100;
+      }
+
+      // Second wind will give us a progressive boost to regeneration
+      // the lower we go. Boost is based on missing Health below 50%.
+      if piWind > 0 AND piHealth < piMax_health * 25
+      {
+         iBoost = piWind * (piMax_health * 25 - piHealth)/(piMax_health * 25);
+         iBoost = Bound(iBoost,25,100);
+         iHealthPerTick = iHealthPerTick * iBoost / 25;
+      }
+
+      // Resting helps us recover health.
+      if (piBattlerFlags & BFLAG_RESTING)
+      {
+         iHealthPerTick *= 2;
+      }
+
+      // A curse will stop our natural regeneration.
+      if (piBattlerFlags & BFLAG_HEALTH_CURSE)
+      {
+         iHealthPerTick = Bound(iHealthPerTick,$,0);
+      }
+
+      // Factor in restorate.
+      foreach i in plRadiusEnchantments
+      {
+         // Check the battler's REs for restorate.
+         if IsClass(Nth(i,2),&Restorate)
+         {
+            // Get the RE's state.
+            iHealthPerTick += Nth(Nth(i,3),5);
+            break;
+         }
+      }
+
+      // Additional effects may cause our health to regenerate or decay.
+      iHealthPerTick += piHealth_Rate;
+
+      // Disable regeneration when sitting at or above max health.
+      if bMaxHealth
+      {
+         iHealthPerTick = Bound(iHealthPerTick,$,0);
+
+         // Add a decay of 1 point per 5 seconds if sitting above the max.
+         if piHealth > 100 * piMax_health
+         {
+            iHealthPerTick -= 200;
+         }
+
+         //End any regeneration effects that expire upon reaching max health.
+         Send(self,@DeleteOverTimeEffect,#removal=REMOVE_AT_MAX,#type=TYPE_HEALTH,
+            #bReport=FALSE);
+      }
+
+      // Stop any decay if we are already sitting at 0 health.
+      if piHealth = 0
+      {
+         iHealthPerTick = Bound(iHealthPerTick,0,$);
+      }
+
+      return iHealthPerTick;
+   }
+
+   CalculateHealthTime()
+   "Calculate # of milliseconds until user will gain a health point."
+   {
+      local iHealthPerTick, iTime;
+
+      iHealthPerTick = Send(Self,@CalculateHealthPerTick);
+
+      // Let's set reasonable limits for how small the minimum health
+      // gained per tick can be. If it is greater than 0.01 per second,
+      // let's calculate the time it takes to gain one hp.
+      if Abs(iHealthPerTick) > 10
+      {
+         iTime = 1000000 / iHealthPerTick;
+      }
+      // If it's smaller, return $ so that NewHealth knows not to start a timer.
+      else
+      {
+         return $;
+      }
+
+      return Send(self,@GetTickFactor,#i=iTime);
+   }
+
+   HealthRegen()
+   {
+      ptHealth = $;
+
+      if Send(self,@IsInCannotInteractMode) OR poOwner = $
+      {
+         return;
+      }
+
+      piHealth = Bound(piHealth + Send(self,@GetTickFactor,#i=100),$,piMax_health*100);
+      Send(self,@NewHealth);
+
+      return;
+   }
+
+   HealthDecay()
+   {
+      ptHealth = $;
+
+      if Send(self,@IsInCannotInteractMode) OR poOwner = $
+      {
+         return;
+      }
+
+      piHealth = Bound(piHealth - Send(self,@GetTickFactor,#i=100),0,$);
+
+      // We've run out of health. Check what happens now.
+      if piHealth < 1
+      {
+         Send(self,@ZeroHealth);
+      }
+
+      Send(self,@NewHealth);
+
+      return;
+   }
+
+   ZeroHealth()
+   "Uh oh! Are we in trouble?"
+   {
+      // Quite possibly.
+      Send(self,@DeathOverTime);
+
+      return;
+   }
+
+   DeathOverTime()
+   "We're feeling a little under the weather. I'm sure it's nothing."
+   {
+      return;
+   }
+
+   // Mana related code.
+   GetMaxMana()
+   {
+      return piMax_mana;
+   }
+
+   GetMana()
+   {
+      return piMana/100;
+   }
+
+   GetExactMana()
+   {
+      return piMana;
+   }
+
+   SetMana(amount=$)
+   {
+      if amount <> $
+      {
+         piMana = Bound(amount*100,0,$);
+      }
+
+      Send(self,@DrawMana);
+
+      return;
+   }
+
+   SetExactMana(amount=$)
+   {
+      if amount <> $
+      {
+         piMana = Bound(amount,0,$);
+      }
+
+      Send(self,@DrawMana);
+
+      return;
+   }
+
+   LoseMana(amount = 0, precision = FALSE, override = FALSE)
+   {
+      if NOT override
+         AND Send(self,@IsInCannotInteractMode)
+      {
+         Send(self,@NewMana);
+
+         return 0;
+      }
+
+      if NOT precision
+      {
+         amount *= 100;
+      }
+
+      if piMana - amount < 0
+      {
+         amount = piMana;
+         piMana = 0;
+      }
+      else
+      {
+         piMana -= amount;
+      }
+
+      Send(self,@NewMana);
+
+      if precision
+      {
+         return amount;
+      }
+
+      return amount / 100;
+   }
+
+   GainMana(amount=0, precision = FALSE, bCapped=TRUE, bNoRestrict=FALSE)
+   "If uncapped, still respects the hardcap."
+   {
+      if Send(self,@IsInCannotInteractMode)
+      {
+         Send(self,@NewMana);
+
+         return 0;
+      }
+
+      if NOT precision
+      {
+         amount *= 100;
+      }
+
+      if bCapped AND piMana + amount > 100 * piMax_mana
+      {
+         amount = 100 * piMax_mana - piMana;
+         piMana = 100 * piMax_mana;
+      }
+      else if bNoRestrict
+      {
+         piMana += amount;
+      }
+      else if piMana + amount > 200 * piMax_mana
+      {
+         amount = 200 * piMax_mana - piMana;
+         piMana = 200 * piMax_mana;
+      }
+      else
+      {
+         piMana += amount;
+      }
+
+      Send(self,@NewMana);
+
+      if precision
+      {
+         return amount;
+      }
+
+      return amount / 100;
+   }
+
+   // Check if target is currently suffering from a mana curse.
+   // Curses stop natural regeneration of the specified resource.
+   GetManaCurse()
+   {
+      return piBattlerFlags & BFLAG_MANA_CURSE;
+   }
+
+   NewMana()
+   {
+      local iTime;
+
+      if (poOwner = $)
+      {
+         return;
+      }
+
+      iTime = Send(self,@CalculateManaTime);
+
+      // Let's make sure we aren't negative. That'd be absurd!
+      // Upper bound should be checked when mana is added via GainMana.
+      piMana = Bound(piMana,0,$);
+
+      // iTime can only be negative or positive, never zero.
+      if iTime <> $
+      {
+         // iTime is positive, that means Mana is below max.
+         if iTime > 0
+         {
+            if ptMana = $
+            {
+               piBattlerFlags |= BFLAG_MANA_REGEN;
+               ptMana = CreateTimer(self,@ManaRegen,iTime);
+            }
+            else
+            {
+               // We reset the current timer if:
+               // a) The rate swings (+ to - or vice versa).
+               // b) Time left on the timer exceeds updated time.
+               if ((NOT (piBattlerFlags & BFLAG_MANA_REGEN))
+                  OR iTime < GetTimeRemaining(ptMana))
+               {
+                  piBattlerFlags |= BFLAG_MANA_REGEN;
+                  DeleteTimer(ptMana);
+                  ptMana = CreateTimer(self,@ManaRegen,iTime);
+               }
+            }
+         }
+         else
+         {
+            iTime = -iTime;
+
+            if ptMana = $
+            {
+               piBattlerFlags &= ~BFLAG_MANA_REGEN;
+               ptMana = CreateTimer(self,@ManaDecay,iTime);
+            }
+            else
+            {
+               // We reset the current timer if:
+               // a) The rate swings (+ to - or vice versa).
+               // b) Time left on the timer exceeds updated time.
+               if ((piBattlerFlags & BFLAG_MANA_REGEN)
+                  OR iTime < GetTimeRemaining(ptMana))
+               {
+                  piBattlerFlags &= ~BFLAG_MANA_REGEN;
+                  DeleteTimer(ptMana);
+                  ptMana = CreateTimer(self,@ManaDecay,iTime);
+               }
+            }
+         }
+      }
+
+      Send(self,@DrawMana);
+
+      return;
+   }
+
+   CalculateManaPerTick()
+   {
+      local iManaPerTick, i, bMaxMana;
+
+      // Mana regeneration starts out as 1 percent of our mana pool
+      // per second at 200 vigor.
+      iManaPerTick = (piVigor/100) * piMax_mana / 20;
+
+      // At or above max mana?
+      bMaxMana = piMana >= 100 * piMax_mana;
+
+      // Faction bonus of up to 30%.
+      if IsClass(self,&Player)
+      {
+         iManaPerTick *= (Send(Send(SYS,@GetParliament),@GetFactionManaRegenBonus,
+                              #who=self,#maxmana=bMaxMana) + 100);
+         iManaPerTick /= 100;
+      }
+
+      // Resting helps us recover mana.
+      if (piBattlerFlags & BFLAG_RESTING)
+      {
+         iManaPerTick *= 2;
+      }
+
+      // A curse will stop our natural regeneration.
+      if (piBattlerFlags & BFLAG_MANA_CURSE)
+      {
+         iManaPerTick = Bound(iManaPerTick,$,0);
+      }
+
+      // Factor in rejuvenate.
+      foreach i in plRadiusEnchantments
+      {
+         // Check the battler's REs for rejuvenate.
+         if IsClass(Nth(i,2),&Rejuvenate)
+         {
+            // Get the RE's state.
+            iManaPerTick += Nth(Nth(i,3),5);
+            break;
+         }
+      }
+
+      // Additional effects may cause our mana to regenerate or decay.
+      iManaPerTick += piMana_Rate;
+
+      // Disable regeneration when sitting at or above max mana.
+      if bMaxMana
+      {
+         iManaPerTick = Bound(iManaPerTick,$,0);
+
+         // Add a decay of 1 point per 5 seconds if sitting above the max.
+         if piMana > 100 * piMax_mana
+         {
+            iManaPerTick -= 200;
+         }
+      }
+
+      // Stop any decay if we are already sitting at 0 mana.
+      if piMana = 0
+      {
+         iManaPerTick = Bound(iManaPerTick,0,$);
+      }
+
+      return iManaPerTick;
+   }
+
+   CalculateManaTime()
+   "Calculate # of milliseconds until user will gain a Mana point."
+   {
+      local iManaPerTick, iTime;
+
+      iManaPerTick = Send(Self,@CalculateManaPerTick);
+
+      // Let's set reasonable limits for how small the minimum Mana gained
+      // per tick can be. If it is greater than 0.01 per second, let's
+      // calculate the time it takes to gain one hp.
+      if Abs(iManaPerTick) > 10
+      {
+         iTime = 1000000 / iManaPerTick;
+      }
+      // If it's smaller, return $ so that NewMana knows not to start a timer.
+      else
+      {
+         return $;
+      }
+
+      return Send(self,@GetTickFactor,#i=iTime);
+   }
+
+   ManaRegen()
+   {
+      ptMana = $;
+
+      if Send(self,@IsInCannotInteractMode) OR poOwner = $
+      {
+         return;
+      }
+
+      piMana = Bound(piMana + Send(self,@GetTickFactor,#i=100),$,100 * piMax_mana);
+      Send(self,@NewMana);
+
+      return;
+   }
+
+   ManaDecay()
+   {
+      local iAbility, oSpell;
+
+      ptMana = $;
+
+      if Send(self,@IsInCannotInteractMode) OR poOwner = $
+      {
+         return;
+      }
+
+      piMana -= Send(self,@GetTickFactor,#i=100);
+
+      // Give crystallize mana a chance to kick in.
+      iAbility = Send(self,@GetSpellAbility,#spell_num=SID_CRYSTALIZE_MANA);
+      if piMana < 1 AND iAbility > 0
+         AND NOT Send(self,@IsCrystalizeManaSurging)
+      {
+         oSpell = Send(SYS,@FindSpellByNum,#num=SID_CRYSTALIZE_MANA);
+         Send(oSpell,@DoManaSurge,#who=self,#triggered=TRUE);
+      }
+
+      // We've run out of mana. Check what happens now.
+      if piMana < 1
+      {
+         Send(self,@ZeroMana);
+      }
+
+      piMana = Bound(piMana,0,$);
+
+      Send(self,@NewMana);
+
+      return;
+   }
+
+   ZeroMana()
+   "Uh oh! Are we in trouble?"
+   {
+      // Cancel any maintained spells that drain mana.
+      Send(self,@CancelMaintainedSpells);
+
+      return;
+   }
+
+   // Vigor related code.
+   GetVigor()
+   {
+      return piVigor/100;
+   }
+
+   GetExactVigor()
+   {
+      return piVigor;
+   }
+
+   LoseVigor(amount = 0, precision = FALSE)
+   {
+      if Send(self,@IsInCannotInteractMode)
+      {
+         Send(self,@NewVigor);
+
+         return 0;
+      }
+
+      if NOT precision
+      {
+         amount *= 100;
+      }
+
+      // Faction discount of up to 30% for players.
+      if IsClass(self,&Player)
+      {
+         amount = Send(Send(SYS,@GetParliament),@ModifyVigorCost,
+                        #who=self,#amount=amount);
+      }
+
+      if piVigor > 0 AND amount >= piVigor
+      {
+         amount = piVigor;
+         piVigor = 0;
+         Send(self,@ZeroVigor);
+      }
+      else
+      {
+         piVigor -= amount;
+      }
+
+      Send(self,@NewVigor);
+
+      if precision
+      {
+         return amount;
+      }
+
+      return amount / 100;
+   }
+
+   GainVigor(amount=0, precision = FALSE, bCapped=TRUE)
+   "If uncapped, still respects the hardcap."
+   {
+      if Send(self,@IsInCannotInteractMode)
+      {
+         Send(self,@NewVigor);
+
+         return 0;
+      }
+
+      if NOT precision
+      {
+         amount *= 100;
+      }
+
+      if bCapped AND piVigor + amount > 100 * piMax_vigor
+      {
+         amount = 100 * piMax_vigor - piVigor;
+         piVigor = 100 * piMax_vigor;
+      }
+      else if piVigor + amount > 200 * piMax_vigor
+      {
+         amount = 200 * piMax_vigor - piVigor;
+         piVigor = 200 * piMax_vigor;
+      }
+      else
+      {
+         piVigor += amount;
+      }
+
+      Send(self,@NewVigor);
+
+      if precision
+      {
+         return amount;
+      }
+
+      return amount / 100;
+   }
+
+   HasVigor(amount = 0, precision = FALSE)
+   {
+      if NOT precision
+      {
+         amount *= 100;
+      }
+
+      return piVigor >= amount;
+   }
+
+   SetVigor(amount=$)
+   {
+      if amount <> $
+      {
+         piVigor = Bound(amount*100,0,$);
+      }
+
+      Send(self,@DrawVigor);
+
+      return;
+   }
+
+   SetExactVigor(amount=$)
+   {
+      if amount <> $
+      {
+         piVigor = Bound(amount,0,$);
+      }
+
+      Send(self,@DrawVigor);
+
+      return;
+   }
+
+   GetVigorRestThreshold(base=TRUE)
+   {
+      if base
+      {
+         return piVigor_rest_threshold;
+      }
+
+      return piVigor_rest_threshold + (piWind + 1) * 20 / 100;
+   }
+
+   SetVigorRestThreshold(amount = 0)
+   {
+      piVigor_rest_threshold = Bound(amount,10,$);
+
+      if IsClass(self,&Player)
+      {
+         Send(self,@DrawVigor);
+      }
+
+      return;
+   }
+
+   // Check if target is currently suffering from a vigor curse.
+   // Curses stop natural regeneration of the specified resource.
+   GetVigorCurse()
+   {
+      return piBattlerFlags & BFLAG_VIGOR_CURSE;
+   }
+
+   NewVigor()
+   {
+      local iTime;
+
+      if (poOwner = $)
+      {
+         return;
+      }
+
+      iTime = Send(self,@CalculateVigorTime);
+
+      // Let's make sure we aren't negative. That'd be absurd!
+      // Also, don't allow temporary vigor beyond 2xMaxVigor.
+      piVigor = Bound(piVigor,0,200 * piMax_vigor);
+
+      // iTime can only be negative or positive, never zero.
+      if iTime <> $
+      {
+         // iTime is positive, that means vigor is below max.
+         if iTime > 0
+         {
+            if ptVigor = $
+            {
+               piBattlerFlags |= BFLAG_VIGOR_REGEN;
+               ptVigor = CreateTimer(self,@VigorRegen,iTime);
+            }
+            else
+            {
+               // We reset the current timer if:
+               // a) The rate swings (+ to - or vice versa).
+               // b) Time left on the timer exceeds updated time.
+               if ((NOT (piBattlerFlags & BFLAG_VIGOR_REGEN))
+                  OR iTime < GetTimeRemaining(ptVigor))
+               {
+                  piBattlerFlags |= BFLAG_VIGOR_REGEN;
+                  DeleteTimer(ptVigor);
+                  ptVigor = CreateTimer(self,@VigorRegen,iTime);
+               }
+            }
+         }
+         else
+         {
+            iTime = -iTime;
+
+            if ptVigor = $
+            {
+               piBattlerFlags &= ~BFLAG_VIGOR_REGEN;
+               ptVigor = CreateTimer(self,@VigorDecay,iTime);
+            }
+            else
+            {
+               // We reset the current timer if:
+               // a) The rate swings (+ to - or vice versa).
+               // b) Time left on the timer exceeds updated time.
+               if ((piBattlerFlags & BFLAG_VIGOR_REGEN)
+                  OR iTime < GetTimeRemaining(ptVigor))
+               {
+                  piBattlerFlags &= ~BFLAG_VIGOR_REGEN;
+                  DeleteTimer(ptVigor);
+                  ptVigor = CreateTimer(self,@VigorDecay,iTime);
+               }
+            }
+         }
+      }
+
+      Send(self,@DrawVigor);
+
+      // A change in vigor may cause a change in health and mana rates.
+      Post(self,@NewHealth);
+      Post(self,@NewMana);
+
+      return;
+   }
+
+   CalculateVigorPerTick()
+   {
+      local iNatural, iExertion, iVigorPerTick, iHaste, iStamina, iBonus,
+            iLimit, i, iVigor, iState;
+
+      // Natural regeneration only takes effect up to this value.
+      iLimit = piVigor_rest_threshold + (piWind + 1)/5;
+      iVigor = piVigor / 100;
+
+      // Unlike health and mana. We don't regenerate vigor unless we
+      // rest or have a beneficial effect (invigorate/second wind).
+      iVigorPerTick = 0;
+      iNatural = 0;
+      iExertion = 0;
+
+      // Natural regeneration through resting and second wind only occurs
+      // if we aren't suffering from a vigor curse.
+      if (NOT (piBattlerFlags & BFLAG_VIGOR_CURSE))
+      {
+         iNatural += viNaturalVigorRegeneration;
+
+         iStamina = Send(self,@GetStamina);
+
+         // Resting is the most traditional way of replenishing vigor.
+         // Rate is based on stamina (up to a point per second).
+         if (piBattlerFlags & BFLAG_RESTING)
+         {
+            iBonus = 500 + 10 * iStamina;
+
+            // Resting in safe rooms and cozy inns gives us an additional boost.
+            if poOwner <> $
+            {
+               if Send(poOwner,@CheckRoomFlag,#flag=ROOM_SANCTUARY)
+               {
+                  iBonus *= 2;
+               }
+
+               if Send(poOwner,@CheckRoomFlag,#flag=ROOM_TRIPLE_HEAL)
+               {
+                  iBonus *= 3;
+               }
+            }
+
+            iNatural += iBonus;
+         }
+
+         // Second wind allows us to recover vigor even without resting.
+         // At max stamina and SW ability, we gain 1 point every 5 secs.
+         // The recovery rate will increase dramatically with vigor
+         // dropping to critical levels up to a maximum rate of 5 points
+         // per second.
+         if piWind
+         {
+            iBonus = 50 * Bound(iLimit - iVigor,0,iLimit) / iLimit;
+            iBonus *= iBonus;
+            iBonus = Bound(iBonus,100,2500) * (2 * iStamina + piWind + 1) / 100;
+
+            iNatural += iBonus;
+         }
+      }
+
+      // Factor in invigorate. Invigorate will not be inhibited by a vigor
+      // curse, but only works up to the rest threshold. That's why we
+      // add it to our natural regeneration. It does, however, increase
+      // the rest threshold by up to 20 points while active.
+      foreach i in plRadiusEnchantments
+      {
+         // Check the battler's REs for invigorate.
+         if IsClass(Nth(i,2),&Invigorate)
+         {
+            // Get the RE's state.
+            iState = Nth(Nth(i,3),5) + 10;
+            iNatural += iState;
+            iLimit += iState / 25;
+            break;
+         }
+      }
+
+      // Running is straining and drains our vigor slowly.
+      // We handle exertion as a vigor dot for players to clean up
+      // visual feedback and keep the vigor bar steady.
+      // Exertion is handled separately for non-players.
+      // (Each move action taken by the monster costs vigor.)
+      if IsClass(self,&Player)
+         AND Abs(piLastMoveUpdateTime - GetTickCount()) < 1000
+      {
+         iExertion = EXERTION_PER_MOVE * 9 * piSpeed / 2500;
+
+         // If we are hasted, our vigor drain will be reduced.
+         if (Send(self,@CheckPlayerFlag,#flag=PFLAG2_HASTED,#flagset=2))
+         {
+            iHaste = Send(self,@GetEnchantedState,
+                           #what=Send(SYS,@FindSpellByNum,#num=SID_HASTE));
+
+            if iHaste <> $
+            {
+               iExertion = (iExertion * (100 - iHaste)) / 100;
+            }
+         }
+      }
+
+      // Vigor below limit, proceed as normal - unless we are a monster.
+      if (iVigor < iLimit)
+      {
+         iVigorPerTick = iNatural;
+         iVigorPerTick -= iExertion;
+         iVigorPerTick += piVigor_Rate;
+      }
+      // Vigor at limit. Make sure our natural regeneration stops,
+      // but allow it to counteract drains.
+      else if (iVigor = iLimit)
+      {
+         // External effects help us. Let's not mix them with natural
+         // regen which only counteracts drains, but add later.
+         if piVigor_Rate > 0
+         {
+            iVigorPerTick = Bound(iNatural-iExertion,$,0);
+            iVigorPerTick += piVigor_Rate;
+         }
+         // External effects hinder us. Bunch them up with exertion
+         // and see how much of it natural regen can counter. As
+         // before, natural regen can only offset, never surpass drain.
+         else
+         {
+            iVigorPerTick = Bound(iNatural-iExertion+piVigor_Rate,$,0);
+         }
+      }
+      // We are above the limit, forget natural regeneration entirely.
+      else
+      {
+         iVigorPerTick = piVigor_Rate - iExertion;
+      }
+
+      // Disable regeneration when sitting at or above max vigor.
+      if (iVigor >= piMax_vigor)
+      {
+         iVigorPerTick = Bound(iVigorPerTick,$,0);
+
+         // Add a decay of 1 point per 5 seconds if sitting above the max.
+         if iVigor > piMax_vigor
+         {
+            iVigorPerTick -= 200;
+         }
+      }
+
+      // Stop any decay if we are already sitting at 0 vigor.
+      if (piVigor = 0)
+      {
+         iVigorPerTick = Bound(iVigorPerTick,0,$);
+      }
+
+      return iVigorPerTick;
+   }
+
+   CalculateVigorTime()
+   "Calculate # of milliseconds until user will gain a Vigor point."
+   {
+      local iVigorPerTick, iTime;
+
+      iVigorPerTick = Send(Self,@CalculateVigorPerTick);
+
+      // Let's set reasonable limits for how small the minimum Vigor gained
+      // per tick can be. If it is greater than 0.01 per second, let's
+      // calculate the time it takes to gain one point.
+      if Abs(iVigorPerTick) > 10
+      {
+         iTime = 1000000 / iVigorPerTick;
+      }
+      // If it's smaller, return $ so that NewVigor knows not to start a timer.
+      else
+      {
+         return $;
+      }
+
+      return Send(self,@GetTickFactor,#i=iTime);
+   }
+
+   VigorRegen()
+   {
+      local iLimit, iPenalty;
+
+      ptVigor = $;
+
+      if Send(self,@IsInCannotInteractMode) OR poOwner = $
+      {
+         return;
+      }
+
+      piVigor = Bound(piVigor + Send(self,@GetTickFactor,#i=100),$,100 * piMax_vigor);
+
+      // Grant a chance to improve Second Wind if regenerating below threshold.
+      // No improvement if we don't have the skill or are regenerating from rest.
+      if (piWind AND NOT (piBattlerFlags & BFLAG_RESTING))
+      {
+         // Since regeneration speeds up progressively with low vigor, factor that in.
+         iLimit = 100 * piVigor_rest_threshold + 20 * (piWind + 1);
+         iPenalty = 50 * (iLimit - piVigor) / iLimit;
+         iPenalty *= iPenalty;
+         iPenalty = Bound(iPenalty / 100,1,25);
+
+         if piVigor < iLimit AND Random(0,30*iPenalty) = 0
+         {
+            Send(Send(SYS,@FindSkillByNum,#num=SKID_SECOND_WIND),
+                  @ImproveAbility,#who=self);
+         }
+      }
+
+      Send(self,@NewVigor);
+
+      return;
+   }
+
+   VigorDecay()
+   {
+      ptVigor = $;
+
+      if Send(self,@IsInCannotInteractMode) OR poOwner = $
+      {
+         return;
+      }
+
+      piVigor = Bound(piVigor - Send(self,@GetTickFactor,#i=100),0,$);
+
+      // We've run out of vigor. Check what happens now.
+      if piVigor < 1
+      {
+         Send(self,@ZeroVigor);
+      }
+
+      Send(self,@NewVigor);
+
+      return;
+   }
+
+   ZeroVigor()
+   "Uh oh! Are we in trouble?"
+   {
+      return;
+   }
+
+   DrawHealth()
+   "Just a dummy for non players."
+   {
+      return;
+   }
+
+   DrawMana()
+   "Just a dummy for non players."
+   {
+      return;
+   }
+
+   DrawVigor()
+   "Just a dummy for non players."
+   {
+      return;
+   }
+
+   IsInCannotInteractMode()
+   "Just a dummy for non players."
+   {
+      return FALSE;
+   }
+
+   //// The following messages handle DoTs and HoTs.
+   // Instead of recalculating rates on ever NewHealth,
+   // NewMana and NewVigor, we only do that whenever an
+   // over time effect is added, removed or modified.
+   // Since the properties are reset with each check,
+   // we remove the risk of being left with a permanent
+   // rate shift.
+   UpdateRates()
+   {
+      local i, iType, iStrength, iCurse;
+
+      piHealth_Rate = 0;
+      piMana_Rate = 0;
+      piVigor_Rate = 0;
+
+      // Unset curse flags.
+      piBattlerFlags &= ~BFLAG_CURSE_MASK;
+
+      foreach i in plOverTimeEffects
+      {
+         iType = Nth(i,2);
+         iStrength = Nth(i,3);
+         iCurse = Nth(i,9);
+
+         switch(iType)
+         {
+            case 0:
+               piHealth_Rate += iStrength;
+               break;
+
+            case 1:
+               piMana_Rate += iStrength;
+               break;
+
+            case 2:
+               piVigor_Rate += iStrength;
+               break;
+         }
+
+         if iCurse <> $
+         {
+            switch(iCurse)
+            {
+               case 0:
+                  piBattlerFlags |= BFLAG_HEALTH_CURSE;
+                  break;
+
+               case 1:
+                  piBattlerFlags |= BFLAG_MANA_CURSE;
+                  break;
+
+               case 2:
+                  piBattlerFlags |= BFLAG_VIGOR_CURSE;
+                  break;
+            }
+         }
+      }
+
+      Send(self,@NewVigor);
+
+      return;
+   }
+
+   // This allows us to modify the strength of existing over time effects.
+   SetOverTimeEffect(effect=$,strength=$,state=$)
+   {
+      // This should never be called without an effect.
+      if effect <> $
+      {
+         // Set our values appropriately.
+         SetNth(effect,3,strength);
+         SetNth(effect,4,state);
+
+         // No more effect. Prepare for deletion.
+         if state = 0
+         {
+            Send(self,@DeleteOverTimeEffect);
+         }
+         // Rates are already updated when the effect is deleted.
+         // No need to do it twice.
+         else
+         {
+            Send(self,@UpdateRates);
+         }
+      }
+
+      return;
+   }
+
+   // Checks if the battler is affected by a specific over time effect.
+   // If a caster is specified, will only return true if cast by caster.
+   // Effect can either by fed directly or as ID.
+   HasOverTimeEffect(who=$,what=$,num=0)
+   {
+      local oEffect, i;
+
+      if num = 0
+      {
+         oEffect = what;
+      }
+      else if num < SKID_MINIMUM
+      {
+         oEffect = Send(SYS,@FindSpellByNum,#num=num);
+      }
+      else
+      {
+         oEffect = Send(SYS,@FindSkillByNum,#num=num);
+      }
+
+      foreach i in plOverTimeEffects
+      {
+         if Nth(i,5) = oEffect
+            AND (who = $ OR who = Nth(i,6))
+         {
+            return TRUE;
+         }
+      }
+
+      return FALSE;
+   }
+
+   // Returns the list of over time effects that are
+   // currently affecting the battler.
+   GetOverTimeEffects()
+   {
+      return plOverTimeEffects;
+   }
+
+   // Returns the first specified over time effect.
+   // A caster can be specified to distinguish between effects.
+   GetOverTimeEffect(who=$,what=$)
+   {
+      local i;
+
+      if what <> $
+      {
+         foreach i in plOverTimeEffects
+         {
+            if Nth(i,5) = what
+               AND (who = $ OR who = Nth(i,6))
+            {
+               return i;
+            }
+         }
+      }
+
+      return;
+   }
+
+   SetOverTimeEffectDuration(who=$,what=$,duration=$,strength=$,illusion=FALSE)
+   {
+      local i, tTimer;
+
+      if what <> $
+         AND duration <> $
+      {
+         foreach i in plOverTimeEffects
+         {
+            if Nth(i,5) = what
+               AND (Bound(Nth(i,10),0,1) = illusion)
+            {
+               if strength*duration < Nth(i,3)*GetTimeRemaining(First(i))
+               {
+                  DeleteTimer(First(i));
+                  tTimer = CreateTimer(self,@DeleteOverTimeEffect,duration);
+                  SetFirst(i,tTimer);
+                  SetNth(i,3,strength);
+                  SetNth(i,6,who);
+                  Send(self,@UpdateRates);
+               }
+
+               return TRUE;
+            }
+         }
+      }
+
+      return FALSE;
+   }
+
+   // Adds a new over time effect to the battler.
+   // Notes:
+   // 'duration' specifies the length of the timer that is being created. A duration
+   // of $ translates to an infinite duration, which, among other uses, handles
+   // maintenance of mana draining spells.
+   // 'type' decides what resource is affected: 0 => health, 1 => mana, 2 => vigor
+   // If no type is specified, the message will start a health effect.
+   // 'strength' determines how much resource is gained/lost each second with a
+   // precision of milliunits. Negative numbers translate to a loss.
+   // 'state' is important for removal. A removal may lower the state of an OTE
+   // which will, in turn, lower its strength. A state of 0 will result in deletion.
+   // 'what' is the spell that causes the effect. It is not a requirement for a OTE,
+   // but will allow an OTE effect to be tracked through its associated spell.
+   // 'who' is the source of the OTE. This is mostly useful for distinguishing between
+   // OTEs of the same type but from different sources.
+   // 'removable' stores the means by which an effect can be removed. 0 means that the
+   // effect is not intended to be removed by traditional means. 1 means it can be
+   // removed by spells. 2 indicates internal removal (such as a maintained spell).
+   // 'showicon' keeps track of whether an effect comes with an associated icon.
+   // 'curse' means that the effect stops natural resource regeneration. $ means no
+   // curse, 0 is a health curse, 1 a mana curse and 2 a vigor curse.
+   // 'illusion' means that the caused damage will be restored after the effect wears
+   //   off. 'illusion' stores the time stamp of the DoTs creation so we can calculate 
+   // the actual damage that was done.
+   // Template: Send(who,@StartOverTimeEffect,#duration=,#type=,#strength=,
+   // #state=,#what=,#who=,#removable=,#showicon=,#curse=,#illusion=);
+   StartOverTimeEffect(duration=$,type=TYPE_HEALTH,strength=0,state=100,what=0,
+                       who=0,removable=REMOVE_PLAYER,showicon=TRUE,curse=$,
+                       bReport=TRUE,illusion=FALSE)
+   {
+      local tTimer, lEffect;
+
+      if duration <> $
+      {
+         tTimer = CreateTimer(self,@DeleteOverTimeEffect,duration);
+      }
+      else
+      {
+         tTimer = duration;
+      }
+
+      lEffect = [tTimer,type,strength,state,what,who,removable,showicon,curse,illusion];
+
+      plOverTimeEffects = Cons(lEffect,plOverTimeEffects);
+
+      if what <> 0
+      {
+         if IsClass(self,&Player)
+            AND showicon
+         {
+            Send(self,@ShowAddEnchantment,#what=what,#type=ENCHANTMENT_PLAYER);
+         }
+
+         // Optional effects caused by the onset of the over time effect.
+         Send(what,@OverTimeEffectStarting,#who=self,#bReport=bReport,
+            #overtimeeffect=lEffect);
+
+         if Send(what,@IsLightSource)
+         {
+            Send(self,@SetFlickerFlag);
+
+            if poOwner <> $
+            {
+               Send(poOwner,@SomethingChanged,#what=self);
+            }
+         }
+      }
+
+      // If 'who' cast a damage over time, set their flags accordingly.
+      if who <> 0
+      {
+         if IsClass(who,&Player)
+            AND strength < 0
+            AND NOT type
+         {
+            Send(who,@SetPlayerFlag,#flag=PFLAG_DID_DAMAGE,#value=TRUE);
+            Send(who,@SetKillTarget,#target=self);
+         }
+      }
+
+      Send(self,@UpdateRates);
+
+      return;
+   }
+
+   // Deletes over time effects. Further explanation on conditions below.
+   DeleteOverTimeEffect(what=$,who=$,timer=0,clear=FALSE,removal=REMOVE_PLAYER,
+                        curse=FALSE,bReport=TRUE,type=TYPE_HEALTH)
+   {
+      local i, oSpell, oCaster, bRemoved, iIllusion, bRecalc;
+
+      bRemoved = FALSE;
+      bRecalc = FALSE;
+
+      foreach i in plOverTimeEffects
+      {
+         oSpell = Nth(i,5);
+         oCaster = Nth(i,6);
+         iIllusion = Nth(i,10);
+
+         // Case 1: Expires naturally due to timer running out.
+         if timer = First(i)
+         // Case 2: Removed by admin.
+            OR clear
+         // Case 3: Removed because effect state equals 0.
+            OR Nth(i,4) = 0
+         // Case 4: Removed because spell was specified and removal type matches.
+         // Types being 0 (not intended to be removed by traditional means),
+         // 1 (removable by cures) or 2 (removable by internal mechanics only).
+         // Either the caster wasn't specified or it matches.
+            OR (what = oSpell AND (who = $ OR who = oCaster) AND Nth(i,7) = removal)
+         // Case 5: Removed because caster was specified and removal type matches.
+         // No specific spell was specified. Allows removal of effects caused
+         // by a specific caster, even if the effects' states aren't relevant.
+            OR (what = $ AND who = oCaster AND Nth(i,7) = removal)
+         // Case 6: Removed because a curse has been lifted.
+            OR (curse AND Nth(i,9) <> $ AND Nth(i,7) = removal)
+         // Case 7: Removed because effect expires at max health.
+            OR (removal = REMOVE_AT_MAX AND type = Nth(i,2) AND Nth(i,7) = REMOVE_AT_MAX)
+         // Case 8: Removed because it was an illusionary effect.
+            OR (removal = iIllusion)
+         {
+            if oSpell <> 0
+            {
+               if Nth(i,8)
+               {
+                  Send(self,@ShowRemoveEnchantment,#what=oSpell,#type=ENCHANTMENT_PLAYER);
+               }
+
+               Send(oSpell,@OverTimeEffectWearingOff,#who=self,#bReport=bReport,
+                  #overtimeeffect=i);
+
+               if Send(oSpell,@IsLightSource)
+               {
+                  bRecalc = TRUE;
+               }
+            }
+
+            if timer = 0
+            {
+               if First(i) <> $ AND IsTimer(First(i))
+               {
+                  DeleteTimer(First(i));
+                  SetFirst(i,$);
+               }
+            }
+
+            plOverTimeEffects = DelListElem(plOverTimeEffects,i);
+            bRemoved = TRUE;
+         }
+      }
+
+      if bRemoved
+      {
+         Send(self,@UpdateRates);
+      }
+
+      if bRecalc
+      {
+         Send(self,@RecalcFlickerFlag);
+
+         if poOwner <> $
+         {
+            Send(poOwner,@SomethingChanged,#what=self);
+         }
+      }
+
+      return;
+   }
+
+   DeleteAllOverTimeEffects()
+   {
+      local i, oSpell, bRemoved;
+
+      bRemoved = FALSE;
+
+      foreach i in plOverTimeEffects
+      {
+         if Nth(i,8)
+         {
+            Send(self,@ShowRemoveEnchantment,#what=Nth(i,5),#type=ENCHANTMENT_PLAYER);
+         }
+
+         if First(i) <> $ AND IsTimer(First(i))
+         {
+            DeleteTimer(First(i));
+            SetFirst(i,$);
+         }
+
+         plOverTimeEffects = DelListElem(plOverTimeEffects,i);
+         bRemoved = TRUE;
+      }
+
+      if bRemoved
+      {
+         Send(self,@RecalcFlickerFlag);
+         Send(self,@UpdateRates);
+
+         if poOwner <> $
+         {
+            Send(poOwner,@SomethingChanged,#what=self);
+         }
+      }
+
+      return;
+   }
+
+   //// Combat functionality.
+
+   // All conditions have been checked at this point and the battler is eligible
+   // to attack his target. TryAttack figures out whether he hits the target
+   // based on his offense and the target's defense and passes this information
+   // on to AssessDamage, AssessHit/AssessMiss etc.
+   //
+   // NOTES on settings: piEqualChanceToHit, piBaseRating and piDamageScaling can
+   // be adjusted in settings.kod to tweak the calculations.
+   // piEqualChanceToHit: This is the chance for an attacker to hit his target if
+   // his defense equals the target's offense. A setting of 500 is equivalent to 
+   // a 50 percent chance to hit.
+   // piBaseRating: This is a flat number that serves as a base value for defense
+   // and offense, softening the effect of any modifiers and avoiding
+   // pathological ratios when one of the two battler's rating is extremely low.
+   // piDamageScaling: This allows damage to scale when chance to hit exceeds 100
+   // percent, allowing offense to be useful even when the target has very low
+   // defense and we hit with every attack. People are less and less likely to 
+   // run into this cap as piBaseRating is increased though.
+   //
+   // NOTE: For a monster, the stroke_obj is the monster itself for now.
+   TryAttack(what=$,stroke_obj=$,ambush=FALSE,factor=100,bGuaranteed=FALSE)
+   {
+      local iOffense, iDefense, iChanceToHit, iDamage, iScalefactor, oWeapon;
+
+      oWeapon = Send(self,@GetWeapon);
+
+      iOffense = Send(self,@GetOffense,#what=what,#stroke_obj=stroke_obj) 
+         + Send(SETTINGS_OBJECT,@GetBaseRating);
+      iDefense = Send(what,@GetDefense,#what=self,#stroke_obj=stroke_obj) 
+         + Send(SETTINGS_OBJECT,@GetBaseRating);
+      iChanceToHit = iOffense * Send(SETTINGS_OBJECT,@GetEqualChanceToHit) / iDefense;
+      iChanceToHit = Bound(iChanceToHit,125,2000);
+
+      // Increased miss chance against invisible players if the attacker doesn't
+      // have detect invisible, makes cheating fairly pointless.
+      if IsClass(self,&Player)
+         AND IsClass(what,&Player)
+         AND Send(what,@CheckPlayerFlag,#flag=PFLAG_INVISIBLE)
+         AND NOT Send(self,@CheckPlayerFlag,#flag=PFLAG2_DETECT_INVIS,#flagset=2)
+      {
+         iChanceToHit = iChanceToHit / 2;
+      }
+
+      if iChanceToHit >= Random(1,1000) OR bGuaranteed OR Send(what,@IsResting)
+      {
+         // We hit!
+         iDamage = Send(self,@GetDamage,#what=what,#stroke_obj=stroke_obj)*factor/100;
+         iScalefactor = 1000;
+
+         // Scale damage with chance to hit beyond 100 percent.
+         if iChanceToHit > 1000 AND Send(SETTINGS_OBJECT,@GetDamageScaling)
+         {
+            iScalefactor = iChanceToHit;
+         }
+
+         if ambush
+         {
+            iDamage *= 2;
+
+            // Inform the battlers!
+            if IsClass(self,&Player)
+            {
+               Send(self,@MsgSendUser,#message_rsc=battler_ambush_attacker);
+            }
+
+            if IsClass(what,&Player)
+            {
+               Send(what,@MsgSendUser,#message_rsc=battler_ambush_victim);
+            }
+         }
+
+         iDamage = Send(what,@AssessDamage,#what=self,#damage=iDamage,
+            #atype=Send(self,@GetAttackType),#stype=Send(self,@GetSpellType),
+            #scalefactor=iScalefactor,#precision=TRUE);
+
+         Send(self,@AssessHit,#what=what,#stroke_obj=stroke_obj,#damage=iDamage);
+
+         if iDamage = $
+         {
+            Send(self,@KilledSomething,#what=what,#use_weapon=oWeapon,
+                  #stroke_obj=stroke_obj);
+         }
+         else
+         {
+            Send(self,@DidDamage,#amount=iDamage,#what=what);
+         }
+      }
+      else
+      {
+         // Oops, a miss.  See if something happens.
+         Send(self,@AssessMiss,#what=what,#stroke_obj=stroke_obj);
+      }
+
+      if poOwner <> $
+      {
+         Send(poOwner,@SomethingAttacked,#what=self,#victim=what,
+              #use_weapon=oWeapon,#stroke_obj=stroke_obj);
+      }
+
+      return TRUE;
+   }
+   
+   GetLevel()
+   {
+      return 65;
+   }
+
+   GetOffense(what = $, stroke_obj=$)
+   "Returns the battler's ability to-hit.  Ranges from 1 to 3000."
+   {
+      return 1;
+   }
+
+   GetDefense(what = $, stroke_obj=$)
+   "Returns the battler's ability to avoid being hit.  Ranges from 1 to 3000."
+   {
+      return 1;
+   }
+
+   GetDamage(what = $, stroke_obj=$)
+   "Returns the damage done to target 'what'."
+   {
+      return 0;
+   }
+
+   GetAttackType(what = $)
+   "Returns the weapon type of damage done."
+   {
+      // Default type for the stub function.
+      return ATK_TYPE_HIT;
+   }
+
+   GetSpellType(what = $)
+   "This is the magical type of damage done."
+   {
+      // Default, no spells
+      return 0;
+   }
+
+   AssessDamage(what = $,damage = $,atype = $, stype= $)
+   "This applies damage to the battler, calculating appropriate resistances.  "
+   "Return $ if we were killed."
+   {
+      return 0;
+   }
+
+   GetDamageDesc(damage=0, type=0)
+   "This returns the severity of damage by type.  Gives a verb descriptor."
+   {
+      // For each type, Send unique words to describe the damage
+      if type < 0
+      {
+         type = -type;
+         if (type & SPL_TYPE_FIRE)
+         {
+            if damage = $
+            {
+               return battler_fire_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_fire_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_fire_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_fire_nick;
+            }
+
+            return battler_fire_fail;
+         }
+
+         if (type & SPL_TYPE_SHOCK)
+         {
+            if damage = $
+            {
+               return battler_shock_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_shock_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_shock_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_shock_nick;
+            }
+
+            return battler_shock_fail;
+         }
+
+         if (type & SPL_TYPE_COLD)
+         {
+            if damage = $
+            {
+               return battler_cold_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_cold_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_cold_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_cold_nick;
+            }
+
+            return battler_cold_fail;
+         }
+
+         if (type & SPL_TYPE_ACID)
+         {
+            if damage = $
+            {
+               return battler_acid_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_acid_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_acid_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_acid_nick;
+            }
+
+            return battler_acid_fail;
+         }
+
+         if (type & SPL_TYPE_HOLY)
+         {
+            if damage = $
+            {
+               return battler_holy_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_holy_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_holy_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_holy_nick;
+            }
+
+            return battler_holy_fail;
+         }
+
+         if (type & SPL_TYPE_UNHOLY)
+         {
+            if damage = $
+            {
+               return battler_unholy_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_unholy_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_unholy_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_unholy_nick;
+            }
+
+            return battler_unholy_fail;
+         }
+
+         if (type & SPL_TYPE_QUAKE)
+         {
+            if damage = $
+            {
+               return battler_quake_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_quake_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_quake_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_quake_nick;
+            }
+
+            return battler_quake_fail;
+         }
+      }
+      else
+      {
+         if (type & ATK_TYPE_BITE)
+         {
+            if damage = $
+            {
+               return battler_bite_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_bite_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_bite_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_bite_nick;
+            }
+
+               return battler_bite_fail;
+         }
+
+         if (type & ATK_TYPE_CLAW)
+         {
+            if damage = $
+            {
+               return battler_claw_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_claw_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_claw_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_claw_nick;
+            }
+
+            return battler_claw_fail;
+         }
+
+         if (type & ATK_TYPE_STING)
+         {
+            if damage = $
+            {
+               return battler_sting_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_sting_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_sting_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_sting_nick;
+            }
+
+            return battler_sting_fail;
+         }
+
+         // Repeat the acid spell words here
+         if (type & ATK_TYPE_ACID)
+         {
+            if damage = $
+            {
+               return battler_acid_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_acid_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_acid_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_acid_nick;
+            }
+
+            return battler_acid_fail;
+         }
+
+         // Repeat the cold spell words here
+         if (type & ATK_TYPE_COLD)
+         {
+            if damage = $
+            {
+               return battler_cold_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_cold_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_cold_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_cold_nick;
+            }
+
+            return battler_cold_fail;
+         }
+
+         if (type & ATK_TYPE_PUNCH)
+         {
+            if damage = $
+            {
+               return battler_punch_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_punch_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_punch_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_punch_nick;
+            }
+
+            return battler_punch_fail;
+         }
+
+         if (type & ATK_TYPE_SLASH)
+         {
+            if damage = $
+            {
+               return battler_slash_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_slash_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_slash_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_slash_nick;
+            }
+
+            return battler_slash_fail;
+         }
+
+         if (type & ATK_TYPE_BLUDGEON)
+         {
+            if damage = $
+            {
+               return battler_bludgeon_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_bludgeon_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_bludgeon_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_bludgeon_nick;
+            }   
+
+            return battler_bludgeon_fail;
+         }
+
+         if (type & ATK_TYPE_THRUST)
+         {
+            if damage = $
+            {
+               return battler_thrust_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_thrust_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_thrust_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_thrust_nick;
+            } 
+
+            return battler_thrust_fail;
+         }
+
+         if (type & ATK_TYPE_PIERCE)
+         {
+            if damage = $
+            {
+               return battler_pierce_slay;
+            }
+
+            if damage > DAMAGE_THRESHOLD_DAMAGE
+            {
+               return battler_pierce_damage;
+            }
+
+            if damage > DAMAGE_THRESHOLD_WOUND
+            {
+               return battler_pierce_wound;
+            }
+
+            if damage > 99
+            {
+               return battler_pierce_nick;
+            }
+            
+            return battler_pierce_fail;
+         }
+      }
+      
+      // Use these as the "default"
+      if damage = $
+      {
+         return battler_slay;
+      }
+
+      if damage > DAMAGE_THRESHOLD_DAMAGE
+      {
+         return battler_damage;
+      }
+
+      if damage > DAMAGE_THRESHOLD_WOUND
+      {
+         return battler_wound;
+      }
+
+      if damage > 99
+      {
+         return battler_nick;
+      }
+
+      return battler_fail;
+   }
+
+   // This returns defense reason of why opponent missed this battler.
+   GetDefenseDesc(stroke_obj=$)
+   {
+      local iRandom, iParry, iBlock, iDodge;
+      
+      iParry = Send(self,@GetParryAbility,#stroke_obj=stroke_obj);
+      iBlock = Send(self,@GetBlockAbility,#stroke_obj=stroke_obj);
+      iDodge = Send(self,@GetDodgeAbility,#stroke_obj=stroke_obj);
+      iRandom = iParry + iBlock + iDodge + BATTLER_AVOID_CHANCE;
+      iRandom = Random(0,iRandom);
+
+      if iRandom < iParry
+      {
+         return battler_parried;
+      }
+
+      if iRandom < (iParry + iBlock)
+      {
+         return battler_blocked;
+      }
+
+      if iRandom < (iParry + iBlock + iDodge)
+      {
+         return battler_dodged;
+      }
+      
+      return battler_misses;
+   }
+
+   // The next three messages deal with the three defense skills.  These
+   //  messages return the relative values of the three skills.  Used in
+   //  player for defense, used in battler for defense messages.
+
+   GetParryAbility(stroke_obj=$)
+   {
+      return 0;
+   }
+
+   GetBlockAbility(stroke_obj=$)
+   {
+      return 0;
+   }
+
+   GetDodgeAbility(stroke_obj=$)
+   {
+      return 0;
+   }
+
+   AssessHit(what = $, stroke_obj = $, damage = $, use_weapon=$)
+   "This does the fallout of a hit, gives appropriate message, etc.  "
+   "Called on self when hit opponent."
+   {
+      local rColor, oWeapon, rWeaponName, iDmg, rDamageDesc, iType;
+
+      if use_weapon = $
+      {
+         oWeapon = Send(self,@GetWeapon);
+      }
+      else
+      {
+         oWeapon = use_weapon;
+      }
+
+      if oWeapon = $
+      {
+         rWeaponName = battler_punch;
+      }
+      else
+      {
+         // This returns the name of a melee weapon, the ammo of a ranged
+         //  weapon, or the attack name for a monster.
+         rWeaponName = Send(oWeapon,@GetAttackName);
+      }
+
+      // Spell types are usually represented by negative values, to
+      //  differentiate between physical and spell damage.
+      iType = Send(self,@GetSpellType,#use_weapon=use_weapon);
+
+      // We only want to use a unique word if the spell damage is NOT generic
+      //  or Hunter sword damage.  Otherwise, use the physical damage type.
+      if (iType & (~SPL_TYPE_HUNTERSWORD | ~SPL_TYPE_ALL)) = 0
+      {
+         iType = Send(self,@GetAttackType,#use_weapon=use_weapon);
+      }
+      else
+      {
+         // Make it negative to distinguish between physical types.
+         iType = -iType;
+      }
+
+      if IsClass(what,&User)
+         AND damage <> $
+         AND damage >= (Send(what,@GetMaxHealth)*33)
+      {
+         // If we did at least 1/3 a player's hps in damage, then give
+         //  the best damage message.
+         iDmg = (DAMAGE_THRESHOLD_DAMAGE + 1);
+      }
+      else
+      {
+         iDmg = damage;
+      }
+
+      rDamageDesc = Send(self,@GetDamageDesc,#damage=iDmg,#type=iType);
+      rColor = battler_blue_text;
+
+      if IsClass(self,&User)
+      {
+         if Send(self,@CheckPlayerFlag,#flag=PFLAG_MORPHED)
+         {
+            // Don't use "punch" if we're morphed, use a more generic term.
+            if oWeapon = $
+            {
+               rWeaponName = battler_attack;
+            }
+         }
+
+
+         if IsClass(what,&User)
+            AND NOT Send(what,@CheckPlayerFlag,#flag=PFLAG_MORPHED)
+         {
+            rColor = battler_plain_text;
+         }
+         else
+         {
+            rColor = battler_blue_text;
+         }
+
+         if what <> self
+         {
+            if damage = $
+            {
+               if (IsClass(what,&User))
+               {
+                  Send(self,@MsgSendUser,#message_rsc=battler_attacker_slay,
+                        #parm1=rColor,#parm2=rWeaponName,#parm3=rDamageDesc,
+                        #parm4=Send(what,@GetDef),#type5=STRING_RESOURCE,
+                        #parm5=Send(what,@GetName));
+               }
+               else
+               {
+                  Send(self,@MsgSendUser,#message_rsc=battler_attacker_slay_mob,
+                        #parm1=rColor,#parm2=rWeaponName,#parm3=rDamageDesc,
+                        #parm4=Send(what,@GetDef),#parm5=Send(what,@GetName));
+               }
+            }
+            else if damage > 99
+            {
+               if (IsClass(what,&User))
+               {
+                  Send(self,@MsgSendUser,#message_rsc=battler_attacker_hit,
+                        #parm1=rColor,#parm2=rWeaponName,#parm3=rDamageDesc,
+                        #parm4=Send(what,@GetDef),#type5=STRING_RESOURCE,
+                        #parm5=Send(what,@GetName),#parm6=damage/100,#parm7=rColor);
+               }
+               else
+               {
+                  Send(self,@MsgSendUser,#message_rsc=battler_attacker_hit_mob,
+                        #parm1=rColor,#parm2=rWeaponName,#parm3=rDamageDesc,
+                        #parm4=Send(what,@GetDef),#parm5=Send(what,@GetName),
+                        #parm6=damage/100,#parm7=rColor);
+               }
+            }
+            else
+            {
+               if (IsClass(what,&User))
+               {
+                  Send(self,@MsgSendUser,#message_rsc=battler_attacker_fail,
+                        #parm1=rColor,#parm2=rWeaponName,#parm3=rDamageDesc,
+                        #parm4=Send(what,@GetDef),#type5=STRING_RESOURCE,
+                        #parm5=Send(what,@GetName));
+               }
+               else
+               {
+                  Send(self,@MsgSendUser,#message_rsc=battler_attacker_fail_mob,
+                        #parm1=rColor,#parm2=rWeaponName,#parm3=rDamageDesc,
+                        #parm4=Send(what,@GetDef),#parm5=Send(what,@GetName));
+               }
+            }
+         }
+      }
+
+      if IsClass(what,&User)
+      {
+         if IsClass(self,&User)
+            AND NOT Send(self,@CheckPlayerFlag,#flag=PFLAG_MORPHED) 
+         {
+            rColor = battler_plain_text;
+         }
+         else
+         {
+            rColor = battler_blue_text;
+         }
+
+         if damage = $
+         {
+            if (IsClass(self,&User))
+            {
+               Send(what,@MsgSendUser,#message_rsc=battler_defender_slay,
+                     #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                     #type3=STRING_RESOURCE,#parm3=Send(self,@GetName),
+                     #parm4=rWeaponName,#parm5=rDamageDesc);
+            }
+            else
+            {
+               Send(what,@MsgSendUser,#message_rsc=battler_defender_slay_mob,
+                     #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                     #parm3=Send(self,@GetName),#parm4=rWeaponName,
+                     #parm5=rDamageDesc);
+            }
+         }
+         else if damage > 99
+         {
+            if (IsClass(self,&User))
+            {
+               Send(what,@MsgSendUser,#message_rsc=battler_defender_hit,
+                     #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                     #type3=STRING_RESOURCE,#parm3=Send(self,@GetName),
+                     #parm4=rWeaponName,#parm5=rDamageDesc,
+                     #parm6=damage/100,#parm7=rColor);
+            }
+            else
+            {
+               Send(what,@MsgSendUser,#message_rsc=battler_defender_hit_mob,
+                     #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                     #parm3=Send(self,@GetName),#parm4=rWeaponName,
+                     #parm5=rDamageDesc,#parm6=damage/100,#parm7=rColor);
+            }
+         }
+         else
+         {
+            if (IsClass(self,&User))
+            {
+               Send(what,@MsgSendUser,#message_rsc=battler_defender_fail,
+                     #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                     #type3=STRING_RESOURCE,#parm3=Send(self,@GetName),
+                     #parm4=rWeaponName,#parm5=rDamageDesc);
+            }
+            else
+            {
+               Send(what,@MsgSendUser,#message_rsc=battler_defender_fail_mob,
+                     #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                     #parm3=Send(self,@GetName),#parm4=rWeaponName,
+                     #parm5=rDamageDesc);
+            }
+         }
+      }
+
+      return;
+   }
+
+   AssessMiss(what = $, stroke_obj = $)
+   "This does the fallout of a miss, gives appropriate message, etc. "
+   "Called on self when missing."
+   {
+      local rColor;
+
+      // This is kinda kludgy, should call messages in subclasses instead.
+      if IsClass(self,&User)
+      {
+         if IsClass(what,&User)
+            AND NOT Send(what,@CheckPlayerFlag,#flag=PFLAG_MORPHED) 
+         {
+            rColor = battler_plain_text;
+         }
+         else
+         {
+            rColor = battler_blue_text;
+         }
+
+         if (IsClass(what,&User))
+         {
+            Send(self,@MsgSendUser,#message_rsc=battler_attacker_miss,#parm1=rColor,
+                  #parm2=Send(what,@GetDefenseDesc,#stroke_obj=stroke_obj),
+                  #parm3=Send(what,@GetDef),#type4=STRING_RESOURCE,
+                  #parm4=Send(what,@GetName));
+         }
+         else
+         {
+            Send(self,@MsgSendUser,#message_rsc=battler_attacker_miss_mob,
+                  #parm1=rColor,#parm2=Send(what,@GetDefenseDesc,#stroke_obj=stroke_obj),
+                  #parm3=Send(what,@GetDef),#parm4=Send(what,@GetName));
+         }
+
+         Send(stroke_obj,@SendMissMessageToAttacker,#who=self,#victim=what,
+               #color_rsc=rColor,#weapon_used=Send(self,@LookupPlayerWeapon),
+               #bText=FALSE);
+      }
+
+      if IsClass(what,&User)
+      {
+         if IsClass(self,&User)
+            AND NOT Send(self,@CheckPlayerFlag,#flag=PFLAG_MORPHED)
+         {
+            rColor = battler_plain_text;
+         }
+         else
+         {
+            rColor = battler_blue_text;
+         }
+
+         if (IsClass(self,&User))
+         {
+            Send(what,@MsgSendUser,#message_rsc=battler_defender_miss,
+                  #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                  #type3=STRING_RESOURCE,#parm3=Send(self,@GetName),
+                  #parm4=Send(what,@GetDefenseDesc,#stroke_obj=stroke_obj));
+         }
+         else
+         {
+            Send(what,@MsgSendUser,#message_rsc=battler_defender_miss_mob,
+                  #parm1=rColor,#parm2=Send(self,@GetCapDef),
+                  #parm3=Send(self,@GetName),
+                  #parm4=Send(what,@GetDefenseDesc,#stroke_obj=stroke_obj));
+         }
+
+         // Flag them as "dodging", so they can potentially improve.
+         Send(what,@SetPlayerFlag,#flag=PFLAG_DODGED,#value=TRUE);
+      }
+
+      // Add half a point of damage to our hurt me list. This allows
+      // us to keep track of who attacked whom regardless of misses.
+      Send(what,@AddHurtMeRecently,#who=self,#amount=50);
+
+      return;
+   }
+
+   // This function handles when damage is done by attacker.
+   DidDamage(what=$, amount=0)
+   {
+      return;
+   }
+
+   // This function is called when we killed something.
+   KilledSomething(what=$,use_weapon=$,stroke_obj=$)
+   {
+      return;
+   }
+
+   // This returns the wielded weapon
+   GetWeapon()
+   {
+      return self;
+   }
+
+   // Oo, 'e died
+   Killed(what = $)
+   {
+      return;
+   }
+
+   MsgPlayerHitResisted()
+   {
+      return;
+   }
+
+   GetResistances()
+   {
+      return Send(self,@GetCurrentResistances);
+   }
+
+   GetResistanceValueByType(type=$)
+   {
+      local lResist;
+
+      lResist = GetListNode(Send(self,@GetCurrentResistances), 1, type);
+      if lResist <> $
+      {
+         return Nth(lResist,2);
+      }
+
+      return 0;
+   }
+
+   // This section deals with minion control code.
+   // Player and Monster both have a copy of CommandMinionAttack.
+
+   NewControlledMinion(minion=$)
+   {
+      if ptMinionControlCheck = $
+      {
+         ptMinionControlCheck = CreateTimer(self,@MinionControlCheck,2000);
+      }
+
+      plControlledMinions = Cons(minion,plControlledMinions);
+
+      return;
+   }
+
+   RemoveControlledMinion(what=$)
+   {
+      if plControlledMinions <> $
+      {
+         // Use FindListElem; there are rare cases where we have
+         // a valid minion that doesn't go on our control list.
+         if FindListElem(plControlledMinions,what)
+         {
+            plControlledMinions = DelListElem(plControlledMinions,what);
+         }
+      }
+
+      return;
+   }
+
+   RemoveAllMinions()
+   "Removes all minions, including seduced, charmed, dragonfly queens etc."
+   {
+      local i;
+
+      // Delete our reflections.
+      Send(SYS,@DeletePlayerReflections,#who=self);
+
+      foreach i in plControlledMinions
+      {
+         // Reflections.
+         if (IsClass(i,&Reflection)
+            OR IsClass(i,&EvilTwin))
+         {
+            // Release captured evil twins/reflections.
+            Send(i,@SetMaster,#oMaster=$);
+         }
+         else if (Send(i,@IsIllusion))
+         {
+            // Delete illusions.
+            Send(i,@Delete);
+         }
+         else
+         {
+            // Release anything else.
+            Send(i,@SetMaster,#oMaster=$);
+         }
+      }
+
+      plControlledMinions = $;
+
+      return;
+   }
+
+   GetControlledMinions()
+   {
+      return plControlledMinions;
+   }
+
+   CheckBattlerMinionCount()
+   {
+      local i,iMinionCount;
+
+      iMinionCount = 0;
+
+      foreach i in plControlledMinions
+      {
+         if NOT IsClass(i,&Reflection)
+         {
+            ++iMinionCount;
+         }
+      }
+
+      return iMinionCount;
+   }
+
+   MinionControlCheck(timer = $)
+   {
+      local i;
+
+      if (ptMinionControlCheck <> timer)
+      {
+         DeleteTimer(ptMinionControlCheck);
+      }
+
+      if Length(plControlledMinions) > 0
+      {
+         foreach i in plControlledMinions
+         {
+            if Send(i,@GetMaster) <> self
+            {
+               Send(self,@RemoveControlledMinion,#what=i);
+
+               continue;
+            }
+         }
+         ptMinionControlCheck = CreateTimer(self,@MinionControlCheck,2000);
+      }
+      else
+      {
+         ptMinionControlCheck = $;
+      }
+
+      return;
+   }
+
+   // This section deals with illusions cast by/on the battler
+
+   AddEvilTwin(what=$)
+   "If something casts evil twin on us, we store it here."
+   {
+      if poEvilTwin = $
+      {
+         poEvilTwin = what;
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   RemoveAttackingEvilTwin()
+   {
+      // Don't set poEvilTwin to $, ClearEvilTwin does that.
+      if (poEvilTwin <> $)
+      {
+         // Sanity check on deletion.
+         if (IsClass(poEvilTwin,&EvilTwin))
+         {
+            Send(poEvilTwin,@Delete);
+         }
+         else
+         {
+            Debug(self, Send(self,@GetTrueName)," tried to delete non-evil twin ",
+                  poEvilTwin," class ",GetClass(poEvilTwin));
+         }
+      }
+
+      return;
+   }
+
+   ClearEvilTwin()
+   "Clears the poEvilTwin property, called when ET is deleted."
+   {
+      if poEvilTwin <> $
+      {
+         poEvilTwin = $;
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   HasEvilTwin()
+   {
+      return poEvilTwin <> $;
+   }
+
+   EvilTwinsCreated(what=$)
+   "If we cast evil twin on something, we add the ET to our "
+   "list of created evil twins."
+   {
+      if what <> $
+      {
+         plEvilTwins = Cons(what,plEvilTwins);
+      }
+
+      return;
+   }
+
+   RemoveCreatedEvilTwin(what=$)
+   "Remove an evil twin from our list of created evil twins."
+   {
+      local i;
+
+      if plEvilTwins <> $
+         AND FindListElem(plEvilTwins,what)
+      {
+         plEvilTwins = DelListElem(plEvilTwins,what);
+      }
+
+      return;
+   }
+
+   RemoveAllCreatedEvilTwins()
+   {
+      if plEvilTwins <> $
+      {
+         // Use the 'ByClass' call since we're sending Delete.
+         SendListByClass(plEvilTwins,0,&EvilTwin,@Delete);
+         plEvilTwins = $;
+      }
+
+      return;
+   }
+
+   // If Apparition is cast on the monster, this list keeps track of it.
+   AddApparition(what=$)
+   {
+      if what <> $
+      {
+         plApparitionList = Cons(what,plApparitionList);
+      }
+
+      return;
+   }
+
+   // If this monster is an Apparition, this keeps track of the original target.
+   AddApparitionOriginal(what=$)
+   {
+      poApparitionOriginal = what;
+
+      return;
+   }
+
+   // If an Apparition targeting this monster is deleted, remove it from list.
+   RemoveApparition(what=$)
+   {
+      local i;
+
+      foreach i in plApparitionList
+      {
+         if i = what
+         {
+            plApparitionList = DelListElem(plApparitionList,i);
+         }
+      }
+
+      return;
+   }
+
+   RemoveAllApparitions()
+   {
+      if plApparitionList <> $
+      {
+         // Use the 'ByClass' call since we're sending Delete.
+         SendListByClass(plApparitionList,0,&Monster,@Delete);
+         plApparitionList = $;
+      }
+
+      return;
+   }
+
+   GetBoostedLevel()
+   {
+      return 0;
+   }
+
+   CreateReputationHash()
+   {
+      phReputation = CreateTable();
+
+      return phReputation;
+   }
+
+   GetReputationHash()
+   {
+      return phReputation;
+   }
+
+   GetReputation(faction=$)
+   {
+      if (faction <> $)
+      {
+         return GetTableEntry(phReputation,faction);
+      }
+
+      return;
+   }
+
+   SetReputation(faction=$,value=$)
+   {
+      if (faction <> $ AND value <> $)
+      {
+         AddTableEntry(phReputation,faction,value);
+      }
+
+      return;
+   }
+
+   GetHurtMeRecentlyAmount(who=$)
+   {
+      local lNode;
+
+      lNode = GetListNode(plHurtMeRecently,1,who);
+      if (lNode <> $)
+      {
+         return Nth(lNode,2);
+      }
+
+      return 0;
+   }
+
+   GetHurtMeRecentlyLastAmount(who=$)
+   {
+      local lNode;
+
+      lNode = GetListNode(plHurtMeRecently,1,who);
+      if (lNode <> $)
+      {
+         return Nth(lNode,4);
+      }
+
+      return 0;
+   }
+
+   AddHurtMeRecently(who=$,amount=0)
+   {
+      local i, iTime;
+
+      iTime = piHurtMeTime;
+
+      // No point adding if mob died already.
+      if (poOwner = $)
+      {
+         return;
+      }
+
+      // Only add battlers.
+      if (NOT IsClass(who,&Battler))
+      {
+         return;
+      }
+
+      // Player-specific stuff.
+      if IsClass(self,&Player)
+      {
+         // Attackers in PvP are tracked for a longer time.
+         if Send(self,@IsRecentPvPCombatant)
+         {
+            iTime = Send(SETTINGS_OBJECT,@GetRecentPvPTime)*1000;
+         }
+
+         // Don't record damage from players if we are using a token.
+         if Send(self,@FindUsing,#class=&Token) <> $
+            AND IsClass(who,&Player)
+         {
+            return;
+         }
+      }
+
+      foreach i in plHurtMeRecently
+      {
+         if First(i) = who
+         {
+            if Nth(i,2) + amount > 100000
+            {
+               // Somebody is doing something stupid. Let's return this.
+               // Catch for players botting attacks on alts, shenanigans.
+               return;
+            }
+            SetNth(i,2,Nth(i,2)+amount);
+            DeleteTimer(Nth(i,3));
+            SetNth(i,3,CreateTimer(self,@RemoveHurtMeRecently,iTime));
+            SetNth(i,4,amount);
+
+            return;
+         }
+      }
+
+      // 4th entry keeps track of the last hit.
+      plHurtMeRecently = Cons([who,amount,CreateTimer(self,
+                               @RemoveHurtMeRecently,iTime),amount],
+                               plHurtMeRecently);
+
+      return;
+   }
+
+   RemoveHurtMeRecently(timer=$)
+   {
+      local i;
+
+      foreach i in plHurtMeRecently
+      {
+         if Nth(i,3) = timer
+         {
+            SetFirst(i,$);
+            SetNth(i,3,$);
+            plHurtMeRecently = DelListElem(plHurtMeRecently,i);
+
+            return;
+         }
+      }
+
+      return;
+   }
+
+   ModifyHurtMeRecently(who=$,iAmount=$,iPercentage=$)
+   {
+      local i;
+
+      foreach i in plHurtMeRecently
+      {
+         if First(i) = who
+         {
+            if iPercentage <> $
+            {
+               iPercentage = bound(Nth(i,2)*(100 + iPercentage)/100,0,$);
+               SetNth(i,2,iPercentage);
+            }
+
+            if iAmount <> $
+            {
+               iAmount = bound(Nth(i,2) + iAmount,0,$);
+               SetNth(i,2,iAmount);
+            }
+
+            if Nth(i,2) = 0
+            {
+               if IsTimer(Nth(i,3))
+               {
+                  DeleteTimer(Nth(i,3));
+               }
+               SetFirst(i,$);
+               SetNth(i,3,$);
+               plHurtMeRecently = DelListElem(plHurtMeRecently,i);
+            }
+
+            return;
+         }
+      }
+
+      return;
+   }
+
+   CanBeAttackedByAnyHurter(who=$)
+   "Determines whether a potential helper ('who') can fight any of the damage "
+   "sources in this battler's plHurtMeRecently list.  Ignores damage from "
+   "non-battler sources."
+   {
+      local bFound, i, oAttacker;
+
+      if (plHurtMeRecently = $
+         OR who = $
+         OR who = self)
+      {
+         return TRUE;
+      }
+
+      bFound = FALSE;
+      foreach i in plHurtMeRecently
+      {
+         oAttacker = First(i);
+         if (NOT IsClass(oAttacker,&Battler)
+            OR Send(oAttacker,@GetOwner) = $)
+         {
+            continue;
+         }
+
+         // Found at least one live Battler.
+         bFound = TRUE;
+
+         // Return true if 'who' can fight the Battler.
+         if (Send(oAttacker,@AllowBattlerAttack,#victim=who,
+                  #oRoomOverride=poOwner,#report=FALSE,#actual=FALSE))
+         {
+            return TRUE;
+         }
+      }
+
+      // No Battler sources in plHurtMeRecently, can help.
+      if (NOT bFound)
+      {
+         return TRUE;
+      }
+
+      // Getting here means there are Battler entries in
+      // plHurtMeRecently, but 'who' can't fight any of them.
+      return FALSE;
+   }
+
+   IsDrainImmune()
+   {
+      return FALSE;
+   }
+
+   GetSkillAbility()
+   "Just a dummy. Might want to extend this to monsters at some point."
+   {
+      return 0;
+   }
+
+   GetSpellAbility()
+   "Just a dummy. Might want to extend this to monsters at some point."
+   {
+      return 0;
+   }
+
+   CancelMaintainedSpells()
+   {
+      local i;
+
+      foreach i in plControlledMinions
+      {
+         if IsClass(i,&Reflection)
+         {
+            Send(i,@Delete);
+         }
+      }
+
+      return;
+   }
+
+   IsCrystalizeManaSurging()
+   "Just a dummy. Might want to extend this to monsters at some point."
+   {
+      return FALSE;
+   }
+
+   IsResting()
+   {
+      return piBattlerFlags & BFLAG_RESTING;
+   }
+
+   SetSecondWind(i=$,bReset=FALSE)
+   {
+      if i <> $
+      {
+         piWind = i;
+      }
+
+      if bReset
+      {
+         piWind = Send(self,@GetSkillAbility,#skill_num=SKID_SECOND_WIND);
+      }
+
+      Send(self,@NewVigor);
+
+      return;
+   }
+
+   GetSpeed()
+   {
+      return piSpeed;
+   }
+
+   CanPoison()
+   {
+      local i, iNumPoison, oSpell;
+
+      oSpell = Send(SYS,@FindSpellByNum,#num=SID_POISON);
+
+      iNumPoison = 0;
+
+      // Cap health poisons only.
+      foreach i in plOverTimeEffects
+      {
+         if (Nth(i,5) = oSpell
+            AND Nth(i,2) = TYPE_HEALTH)
+         {
+            ++iNumPoison;
+         }
+      }
+
+      return iNumPoison < MAX_POISON_STACKS;
+   }
+
+   CanBleed()
+   {
+      return TRUE;
+   }
+
+   CanSiphon()
+   {
+      return TRUE;
+   }
+
+   CanFatigue()
+   {
+      return TRUE;
+   }
+
+   CanBurn()
+   {
+      return TRUE;
+   }
+
+   GetLightLevel()
+   "Personal modifier to room light. Allows players to see better"
+   "and monsters to detect stealth more easily. Default value of 5."
+   {
+      return 5;
+   }
+
+   GetTerrain()
+   {
+      return Send(poOwner,@GetSectorIDAtLocation,#row=piRow,#col=piCol,
+                  #fine_row=piFine_row,#fine_col=piFine_col);
+   }
+
+   GetBonusXP()
+   {
+      return 0;
+   }
+
+   GetBonusTP()
+   {
+      return 0;
+   }
+
+   GetHurtMeRecently()
+   {
+      return plHurtMeRecently;
+   }
+
+   ClearHurtMeRecently()
+   {
+      local i;
+
+      foreach i in plHurtMeRecently
+      {
+         if IsTimer(Nth(i,3))
+         {
+            DeleteTimer(Nth(i,3));
+         }
+         SetFirst(i,$);
+         SetNth(i,3,$);
+      }
+
+      plHurtMeRecently = $;
+
+      return;
+   }
+
+   ResetActiveSummons()
+   {
+      if piActiveSummons = 0
+      {
+         return FALSE;
+      }
+
+      piActiveSummons = 0;
+
+      return TRUE;
+   }
+
+   GetActiveSummons()
+   {
+      return piActiveSummons;
+   }
+
+   AddActiveSummons(i=1)
+   {
+      piActiveSummons += i;
+
+      return;
+   }
+
+   RemoveActiveSummons(i=1)
+   {
+      piActiveSummons -= i;
+
+      return;
+   }
+
+   GetSummoningLimit()
+   {
+      return (Send(self,@GetMysticism)*2 + Send(self,@GetStamina))/3;
+   }
+
+   // By what percentage are we exceeding our summoning limit?
+   BeyondSummoningLimit()
+   {
+      return Bound(100 * piActiveSummons / Send(self,@GetSummoningLimit)
+         - 100,0,$);
+   }
+
+   SetFlickerFlag()
+   {
+      piDrawEffectFlag |= OF_FLICKERING;
+
+      return;
+   }
+
+   RecalcFlickerFlag()
+   "Called by anything that sets the flag when it wants to unset it. "
+   "Checks if we still have anything that still requires the flag."
+   {
+      local i, oLightObject;
+
+      // Unset flag.
+      piDrawEffectFlag &= ~OF_FLICKERING;
+
+      foreach i in Send(self,@GetPlayerUsing)
+      {
+         if Send(i,@IsLightSource)
+         {
+            piDrawEffectFlag |= OF_FLICKERING;
+
+            return;
+         }
+      }
+
+      foreach i in plEnchantments
+      {
+         if Send(Nth(i,2),@IsLightSource)
+         {
+            piDrawEffectFlag |= OF_FLICKERING;
+
+            return;
+         }
+      }
+
+      foreach i in plRadiusEnchantments
+      {
+         if Nth(Nth(i,3),RE_STATE_SOURCE) = self
+         {
+            piDrawEffectFlag |= OF_FLICKERING;
+
+            return;
+         }
+      }
+
+      foreach i in plOverTimeEffects
+      {
+         oLightObject = Nth(i,5);
+
+         if (oLightObject <> 0) AND IsClass(oLightObject,&Spell)
+         {
+            if Send(oLightObject,@IsLightSource)
+            {
+               piDrawEffectFlag |= OF_FLICKERING;
+
+               return;
+            }
+         }
+      }
+
+      if poOwner <> $
+      {
+         Send(poOwner,@SomethingChangedFlags,#what=self);
+      }
+
+      return;
+   }
+
+   SendLightingInformation()
+   {
+      local i, iRed, iGreen, iBlue, oLightObject, iColor, iIntensity,
+         iTotalIntensity, iState, oIllusion;
+
+      oIllusion = Send(self,@GetIllusionSet);
+
+      if oIllusion <> $
+      {
+         if NOT Send(oIllusion,@IllusionGetLightingInformation,#who=self)
+         {
+            // No lighting information
+            propagate;
+         }
+
+         return;
+      }
+
+      // Bitflag check, don't need to check anything if not set.
+      if NOT (piDrawEffectFlag & OF_FLICKERING)
+      {
+         propagate;
+      }
+
+      iTotalIntensity = 0;
+      iRed = 0;
+      iGreen = 0;
+      iBlue = 0;
+
+      foreach i in Send(self,@GetPlayerUsing)
+      {
+         if Send(i,@IsLightSource)
+         {
+            iIntensity = Send(i,@GetLightIntensity);
+            iColor = Send(i,@GetLightColor);
+            iRed += iIntensity*((iColor/1024)%32);
+            iGreen += iIntensity*((iColor/32)%32);
+            iBlue += iIntensity*(iColor%32);
+            iTotalIntensity += iIntensity;
+         }
+      }
+
+      foreach i in plEnchantments
+      {
+         oLightObject = Nth(i,2);
+
+         if Send(oLightObject,@IsLightSource)
+         {
+            iState = Nth(i,3);
+            iIntensity = Send(oLightObject,@GetLightIntensity,#state=iState);
+            iColor = Send(oLightObject,@GetLightColor,#state=iState);
+            iRed += iIntensity*((iColor/1024)%32);
+            iGreen += iIntensity*((iColor/32)%32);
+            iBlue += iIntensity*(iColor%32);
+            iTotalIntensity += iIntensity;
+         }
+      }
+
+      foreach i in plOverTimeEffects
+      {
+         oLightObject = Nth(i,5);
+
+         if (oLightObject <> 0) AND IsClass(oLightObject,&Spell)
+         {
+            if Send(oLightObject,@IsLightSource)
+            {
+               iIntensity = Send(oLightObject,@GetLightIntensity);
+               iColor = Send(oLightObject,@GetLightColor);
+               iRed += iIntensity*((iColor/1024)%32);
+               iGreen += iIntensity*((iColor/32)%32);
+               iBlue += iIntensity*(iColor%32);
+               iTotalIntensity += iIntensity;
+            }
+         }
+      }
+
+      foreach i in plRadiusEnchantments
+      {
+         oLightObject = Nth(i,2);
+         if Nth(Nth(i,3),RE_STATE_SOURCE) = self
+         {
+            iIntensity = Send(oLightObject,@GetLightIntensity);
+            iColor = Send(oLightObject,@GetLightColor);
+            iRed += iIntensity*((iColor/1024)%32);
+            iGreen += iIntensity*((iColor/32)%32);
+            iBlue += iIntensity*(iColor%32);
+            iTotalIntensity += iIntensity;
+         }
+      }
+
+      if iTotalIntensity > 0
+      {
+         iRed /= iTotalIntensity;
+         iGreen /= iTotalIntensity;
+         iBlue /= iTotalIntensity;
+         iColor = iRed*1024 + iGreen*32 + iBlue;
+
+         iTotalIntensity = Bound(iTotalIntensity,1,255);
+
+         AddPacket(2,(LIGHT_FLAG_ON | LIGHT_FLAG_DYNAMIC),
+                   1,iTotalIntensity, 2,iColor);
+
+         return;
+      }
+
+      propagate;
+   }
+
+   GetPlayerUsing()
+   {
+      return;
+   }
+
+   GetIllusionSet()
+   {
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

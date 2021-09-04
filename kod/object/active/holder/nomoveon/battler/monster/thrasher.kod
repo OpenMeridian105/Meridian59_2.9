@@ -1,0 +1,309 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Thrasher is Monster
+
+constants:
+
+   include blakston.khd
+   ANIM_SPIN = 2
+   
+   PALSY_CHANCE = 20
+
+   // These are high precision damage amounts, with two 'decimal places'.
+   // Actual damage shown to player will be (default) 5-9.
+   SPIN_DAMAGE_MIN = 500
+   SPIN_DAMAGE_MAX = 900
+
+resources:
+
+   include thrasher.lkod
+
+   thrasher_koc_name_rsc = "teotixleoc"
+   thrasher_name_rsc = "thrasher"
+   thrasher_icon_rsc = res0001a.bgf
+   thrasher_desc_rsc = \
+      "The powerful smell of rotted flesh and embalming herbs assault your "
+      "nostrils.  This shambling horror in front of you seems like it was "
+      "crafted in madness, and birthed in nightmares. Various limbs, none of "
+      "them matching, sprout from this monster in disarray, and in its eye a "
+      "strange malignance glows.  Run for your life. "
+
+   thrasher_shield_overlay = res0001e.bgf
+   thrasher_mace_overlay = res0001c.bgf
+   thrasher_scimitar_overlay = res0001d.bgf
+
+   thrasher_dead_icon_rsc = res0001b.bgf
+   thrasher_dead_name_rsc = "dead thrasher"
+
+   thrasher_sound_attack = res0001b.ogg
+   thrasher_sound_death = res0001c.ogg
+   thrasher_sound_aware = res0001a.ogg
+
+   thrasher_spin_message = \
+      "~bThe thrasher spins, damaging you with its attack."
+
+classvars:
+
+   vrKocName = thrasher_koc_name_rsc
+   vrName = thrasher_name_rsc
+   vrIcon = thrasher_icon_rsc
+   vrDesc = thrasher_desc_rsc
+   vrDead_icon = thrasher_dead_icon_rsc
+   vrDead_name = thrasher_dead_name_rsc
+
+   viTreasure_type = TID_THRASHER
+   viCashmin = -9000
+   viCashmax = 4000
+   viNormalSpeed = SPEED_FAST
+   viAttack_type = ATK_TYPE_BLUDGEON
+   viVisionDistance = 25
+   viSocial = 1
+   // Attack range of 192, or 3 row/col.
+   viMeleeRange = 192
+   viAttributes = 0
+   viKarma = -75
+   vbIsUndead = TRUE
+   viDefault_behavior = AI_FIGHT_AGGRESSIVE | AI_FIGHT_LASHOUT | AI_MOVE_FLEE_FRIGHTENERS
+
+   vrSound_hit = thrasher_sound_attack
+   vrSound_miss = thrasher_sound_attack
+   vrSound_aware = thrasher_sound_aware
+   vrSound_death = thrasher_sound_death
+
+   vbCanSiphon = FALSE
+
+   // Doesn't have eyes, senses prey some other way.
+   viNightVision = 255
+
+properties:
+
+   viSpeed = SPEED_FAST
+   viLevel = 150
+   viDifficulty = 8
+   viBonusSwing = 0
+   vbSpin = TRUE
+
+   piAnimation = ANIM_NONE
+   // Default shield or $ for default.
+   prShieldOverlay = $
+
+messages:
+
+   Constructor(bAwake=TRUE)
+   {
+      if NOT bAwake
+      {
+         viSpeed = SPEED_NONE;
+      }
+
+      propagate;
+   }
+
+   Constructed()
+   {
+
+      // Think brainless frankenstein type mob.  Smash me, beat me, FIRE BAD!!!
+      plResistances = [ [ATK_TYPE_PIERCE, 50 ],
+                        [ATK_TYPE_SLASH, 50 ],
+                        [ATK_TYPE_BLUDGEON, 50 ],
+                        [-SPL_TYPE_UNHOLY, 50 ],
+                        [-SPL_TYPE_SHOCK, 90 ],
+                        [-SPL_TYPE_FIRE, -20 ],
+                        [-SPL_TYPE_HOLY, -15 ]
+                      ];
+
+      Send(self,@SelectAdditionalWeapon);
+      Send(self,@TweakBehavior);
+
+      if prShieldOverlay <> thrasher_shield_overlay
+      {
+         viBonusSwing = 100;
+      }
+
+      propagate;
+   }
+
+   SelectAdditionalWeapon()
+   "Decides which shield/weapon/drumstick is part of the thrasher and sets "
+   "the appropriate overlay and stat adjustments."
+   {
+      local iRandom, oObject;
+
+      // Choose randomly
+      iRandom = Random(0,2);
+      if iRandom = 0
+      {
+         // Shield: Increase hps.
+         viLevel += 10;
+         oObject = Create(&GoldShield);
+         Send(self,@NewHold,#what=oObject);
+         prShieldOverlay = thrasher_shield_overlay;
+      }
+      else if iRandom = 1
+      {
+         // Mace: No change in stats, we just get a second attack.
+         oObject = Create(&Mace);
+         Send(self,@NewHold,#what=oObject);
+         prShieldOverlay = thrasher_mace_overlay;
+      }
+      else
+      {
+         // Scimitar: Get second attack.
+         ++viDifficulty;
+         oObject = Create(&Scimitar);
+         Send(self,@NewHold,#what=oObject);
+         prShieldOverlay = thrasher_scimitar_overlay;
+      }
+
+      return;
+   }
+
+   //// Thrasher dormant code.
+
+   // Stolen from Living Statue, but with a 100% chance of waking up, and none
+   // of that going back to sleep crap. Wussy statues. =)
+
+   TweakBehavior()
+   "Our default behavior is to not be noticable as a monster."
+   {
+      if viSpeed = SPEED_NONE
+      {
+         piBehavior |= (AI_NOMOVE | AI_NOFIGHT | AI_NPC);
+      }
+
+      return;
+   }
+
+   SomethingMoved(what = $,new_row = $,new_col = $)
+   {
+      local iDelay;
+
+      // Only care about moving stuff if we're not already moving
+      // Only care about non-immortal players we can see and are "close"
+      // We only care about players within 7 squares of us.
+      if viSpeed = SPEED_NONE
+         AND what <> $
+         AND IsClass(what,&Player)
+         AND NOT (IsClass(what,&DM) AND Send(what,@PlayerIsImmortal))
+         AND Send(poOwner,@LineOfSight,#obj1=self,#obj2=what)
+         AND Send(self,@SquaredDistanceTo,#what=what) <= 49
+      {
+         // Set our intruder as our target if we don't have another one.
+         // 25 hatred is pretty low.
+         if Send(self,@GetHatred) <= 25
+         {
+            Send(self,@TargetSwitch,#what=what,#iHatred=25);
+         }
+
+         // Someone walked close enough!  Spring to life!
+         Send(self,@WakeUp);
+      }
+
+      propagate;
+   }
+
+   WakeUp()
+   {
+      // Make ourselves mobile!
+      viSpeed = viNormalSpeed;
+      piBehavior &= ~(AI_NOMOVE | AI_NOFIGHT | AI_NPC);
+      Send(poOwner,@SomethingChanged,#what=self);
+      Send(self,@EnterStateEngage,#target=poTarget,#actnow=TRUE);
+
+      return;
+   }
+
+   GetBlockAbility(stroke_obj=$)
+   {
+      // Thrasher blocking code, only active if the overlay is a shield.
+      // Otherwise, 0 is returned, and the mob doesn't block.  Neat, eh?
+
+      if (stroke_obj <> $ AND Send(stroke_obj,@CanBlock))
+         AND prShieldOverlay = thrasher_shield_overlay
+      {
+         return (viDifficulty*10);
+      }
+
+      return 0;
+   }
+
+   //// Animation and overlays
+
+   SendMoveAnimation()
+   {
+      if piColor_Translation <> 0
+      {
+         AddPacket(1,ANIMATE_TRANSLATION,1,piColor_Translation);
+      }
+
+      // Walk is frames 1-5
+      AddPacket(1,ANIMATE_CYCLE, 4,80, 2,1, 2,5);
+
+      return;
+   }
+
+   SendAnimation()
+   {
+      if piColor_Translation <> 0
+      {
+         AddPacket(1,ANIMATE_TRANSLATION, 1,piColor_Translation);
+      }
+
+      if piAnimation = ANIM_ATTACK
+      {
+         // Attacking is frames 6-8 then back to standing, (9)
+         AddPacket(1,ANIMATE_ONCE, 4,150, 2,6, 2,8, 2,9);
+
+         return;
+      }
+
+      if piAnimation = ANIM_SPIN
+      {
+         // 7 was the proper frizzame, I think.
+         AddPacket(1,ANIMATE_NONE, 2,7);
+
+         return;
+      }
+
+      // Standing is frame 9
+      AddPacket(1,ANIMATE_NONE, 2,9);
+
+      return;
+   }
+
+   SendMoveOverlays()
+   {
+      // Also walking, 1-5 I assume. currently 1, 2, 1 to test
+      AddPacket(1,1, 4,prShieldOverlay, 1,HS_HEAD, 1,ANIMATE_NONE, 2,1);
+
+      return;
+   }
+
+   SendOverlays()
+   {
+      if piAnimation = ANIM_ATTACK
+      {
+         // Shield and Mace have no attack frames.
+         // Scimitar animates from group 2-4 for an attack.
+         AddPacket(1,1, 4,prShieldOverlay, 1,HS_HEAD, 1,ANIMATE_ONCE, 4,150,
+                   2,1, 2,1, 2,1);
+
+         return;
+      }
+
+      // Default setting: no animation.  This includes when spinning.
+      AddPacket(1,1, 4,prShieldOverlay, 1,HS_HEAD, 1,ANIMATE_NONE, 2,1);
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

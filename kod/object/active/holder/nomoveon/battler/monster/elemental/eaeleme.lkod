@@ -1,0 +1,7 @@
+earthelemental_name_rsc = de "Der Erdgolem"
+earthelemental_desc_rsc = de \
+   "Der Boden bebt mit jedem Schritt, als sich der gewaltige Gigant aus "
+   "lebender Erde mit steifen Schritten auf dich zu bewegt.  Jeder seiner "
+   "Bewegungen wird von einem mahlenden Geräusch begleitet, und der Duft "
+   "von frisch aufgeworfenem Boden dringt in deine Nase."
+earthelemental_dead_name_rsc = de "toter Erdgolem"

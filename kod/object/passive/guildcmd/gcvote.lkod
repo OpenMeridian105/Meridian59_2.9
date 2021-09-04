@@ -1,0 +1,4 @@
+guildvote_name_rsc = de "Wählen"
+guildvote_desc_text_rsc = de \
+   "Mit diesem Befehl kannst Du deine Unterstützung für die Führung für eine "
+   "Person angeben."

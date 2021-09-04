@@ -1,0 +1,102 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+SummonCow is MultiCastSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include summcow.lkod
+
+   SummonCow_name_rsc = "summon bovine"
+   SummonCow_icon_rsc = cow.bgf
+   SummonCow_desc_rsc = \
+      "Summons a pygmy cow for the amusement of all nearby.  The casters' "
+      "mystical energies must be focused through a prism."
+   SummonCow_sound = lichres.ogg
+   summoncow_failed_rsc = \
+      "There are too many creatures in this room to bring a cow into existence."
+
+classvars:
+
+   vrName = SummonCow_name_rsc
+   vrIcon = SummonCow_icon_rsc
+   vrDesc = SummonCow_desc_rsc
+
+   vrSucceed_wav = SummonCow_sound
+
+   // Mana is amount used upon inititiation
+   viMana = 5
+
+   viSpell_num = SID_SUMMON_COW
+   viSchool = SS_RIIJA
+   viSpell_level =6
+
+   viSpellExertion = 10
+   viCast_time = 20000
+   viChance_To_Increase = 15
+
+   // Mana drained per second (10^3)
+   viManaDrain = 1000
+   // in milliseconds
+   viCast_time = 2000
+
+properties:
+
+   // (20 min, 5 casters) This is the total sum of spellpower
+   viMultiCast_Spellpower = 2250000
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&PolishedSeraphym,5],plReagents);
+
+      return;
+   }
+
+   // Remember - this number could be MASSIVE
+   PrismCast(spellpower = 0, lCasters=$)
+   {
+      local oCow, oRoom, iRow, iCol, iFine_Row, iFine_Col, who;
+
+      who = First(lCasters);
+      oRoom = Send(who,@GetOwner);
+
+      iRow = Send(who,@GetRow);
+      iCol = Send(who,@GetCol);
+      iFine_Row = Send(who,@GetFineRow);
+      iFine_Col = Send(who,@GetFineCol);
+
+      if (Send(oRoom,@CountHoldingHowMany,#class=&Monster) > 25)
+         OR (Send(oRoom,@CountHoldingHowMany,#class=&Cow) > 5)
+      {
+         foreach who in lCasters
+         {
+            Send(who,@MsgSendUser,#message_rsc=summoncow_failed_rsc);
+         }
+      }
+      else
+      {
+         oCow = Create(&Cow);
+         Send(oCow,@SetSummoned,#value=TRUE);
+         Send(oRoom,@NewHold,#what=oCow,#new_row=iRow,#new_col=iCol,
+               #fine_row=iFine_Row,#fine_col=iFine_Col);
+      }
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

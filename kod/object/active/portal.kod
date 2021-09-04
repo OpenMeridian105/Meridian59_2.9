@@ -1,0 +1,320 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Portal is ActiveObject
+
+constants:
+
+   include blakston.khd
+
+   // Time we wait before removing a user from recently teleported list.
+   PORTAL_CD_TIME = 2500
+
+resources:
+
+   include portal.lkod
+
+   portal_name_rsc = "portal"
+   portal_icon_rsc = portal.bgf
+   portal_desc_rsc = \
+      "The portal flickers coldly, eerily inviting you to some unknown locale."
+   portal_dead = "This archway stands cold and inanimate."
+
+classvars:
+
+   vrName = portal_name_rsc
+
+   viMoveOn_type = MOVEON_TELEPORTER
+
+   viAnimationSpeed = 100
+   viMaxDistance = 3
+   vrDead = portal_dead
+
+properties:
+
+   vrIcon = portal_icon_rsc
+   vrDesc = Portal_desc_rsc
+
+   pbAnimate = TRUE
+
+   piDest_room = RID_DEFAULT
+   piDest_angle = ANGLE_NORTH
+   piDest_row = $
+   piDest_col = $
+   piDest_fine_row = FINENESS_HALF
+   piDest_fine_col = FINENESS_HALF
+
+   ptAnimate = $
+
+   // Track teleported objects for a short period of time so we don't
+   // repeatedly teleport the same one.
+   // Examples of where this might occur are lagging users sending multiple
+   // moves on the portal, or incorrectly set portal destinations.
+   plTeleportCD = $
+
+messages:
+
+   Constructor(dest_room_num = RID_DEFAULT, dest_row = 1, dest_col = 1,
+               dest_angle = $, dest_fine_row = FINENESS_HALF,
+               dest_fine_col = FINENESS_HALF, desc = $, icon=$)
+   {
+      piDest_room = dest_room_num;
+      piDest_row = dest_row;
+      piDest_col = dest_col;
+      piDest_fine_row = dest_fine_row;
+      piDest_fine_col = dest_fine_col;
+      piDest_angle = dest_angle;
+
+      if desc <> $
+      {
+         vrdesc = desc;
+      }
+
+      if icon <> $
+      {
+         vrIcon = icon;
+      }
+
+      propagate;
+   }
+
+   Delete()
+   {
+      if (ptAnimate <> $)
+      {
+         DeleteTimer(ptAnimate);
+         ptAnimate = $;
+      }
+
+      plTeleportCD = $;
+
+      propagate;
+   }
+
+   ReqNewOwner(what = $)
+   {
+      return IsClass(what,&Room);
+   }
+
+   GetMoveOnType()
+   {
+      if NOT pbAnimate
+      {
+         return (viMoveOn_type | MOVEON_NO);
+      }
+
+      propagate;
+   }
+
+   ShowDesc()
+   {
+      if pbAnimate
+      {
+         propagate;
+      }
+      else
+      {
+         AddPacket(4,vrDead);
+      }
+
+      return;
+   }
+
+   SetAnimation(what = $)
+   {
+      pbAnimate = what;
+      Send(poOwner,@SomethingChanged,#what=self);
+
+      return;
+   }
+
+   ReanimatePortal(timer=$)
+   "Turns the portal's animation back on."
+   {
+      if (timer <> ptAnimate)
+      {
+         DeleteTimer(ptAnimate);
+      }
+
+      ptAnimate = $;
+
+      Send(self,@SetAnimation,#what=TRUE);
+
+      return;
+   }
+
+   SomethingMoved(what = $,new_row = $,new_col = $,fine_row = $, fine_col = $,
+      old_row = $, old_col = $, old_finerow = $, old_finecol = $,
+      cause = CAUSE_UNKNOWN)
+   {
+      if NOT pbAnimate
+      {
+         return;
+      }
+
+      if (plTeleportCD <> $
+         AND Send(self,@HasTeleportCooldown,#what=what))
+      {
+         return;
+      }
+
+      if (IntersectLineCircle(Send(self,@GetRow), Send(self,@GetCol),
+                  Send(self,@GetFineRow), Send(self,@GetFineCol),
+                  old_row, old_col, old_finerow, old_finecol, new_row,
+                  new_col, fine_row, fine_col, 32))
+      {
+         // Add cooldown even if we don't do the move.
+         Send(self,@AddTeleportCooldown,#what=what);
+
+         // Something moved on top of us. Post this so the user's
+         // new coordinates get set correctly if moving in the same room.
+         Post(self,@TeleportSomething,#what=what);
+      }
+
+      return;
+   }
+
+   TeleportSomething(what=$)
+   "Called when something walks on top of us."
+   {
+      // Test if the move is OK first (do_move=FALSE)
+      if NOT Send(SYS,@UtilGoNearSquare,#what=what,
+                  #where=Send(SYS,@FindRoomByNum,#num=piDest_room),
+                  #new_row=piDest_row,#new_col=piDest_col,
+                  #fine_row=piDest_fine_row,#fine_col=piDest_fine_col,
+                  #new_angle=piDest_angle, #max_distance=viMaxDistance,
+                  #do_move=FALSE)
+      {
+         Debug("Portal",self,"unable to move",what);
+      }
+      else
+      {
+         // Now actually do the move
+         Send(SYS,@UtilGoNearSquare,#what=what,
+              #where=Send(SYS,@FindRoomByNum,#num=piDest_room),
+              #new_row=piDest_row,#new_col=piDest_col,
+              #fine_row=piDest_fine_row,#fine_col=piDest_fine_col,
+              #new_angle=piDest_angle, #max_distance=viMaxDistance);
+      }
+
+      return;
+   }
+
+   HasTeleportCooldown(what = $)
+   {
+      return GetListNode(plTeleportCD,1,what) <> $;
+   }
+
+   AddTeleportCooldown(what = $)
+   "Adds a cooldown for 'what' using this portal."
+   {
+      local tCooldown, lEntry;
+
+      if (what = $)
+      {
+         Debug("Called AddTeleportCooldown with no data to add!");
+
+         return;
+      }
+
+      // Don't add same object more than once.
+      lEntry = GetListNode(plTeleportCD,1,what);
+      if (lEntry <> $)
+      {
+         Debug("AddTeleportCooldown tried to add same object ",
+            Send(what,@GetTrueName), " twice to list.");
+
+         return;
+      }
+
+      tCooldown = CreateTimer(self,@RemoveTeleportCooldown,PORTAL_CD_TIME);
+      plTeleportCD = Cons([what, tCooldown], plTeleportCD);
+
+      return;
+   }
+
+   RemoveTeleportCooldown(what = $, timer = $)
+   {
+      local lEntry;
+
+      if (timer = $)
+      {
+         if (what = $)
+         {
+            Debug("Called RemoveTeleportCooldown with no data to remove!");
+
+            return;
+         }
+
+         lEntry = GetListNode(plTeleportCD,1,what);
+         if (lEntry <> $)
+         {
+            DeleteTimer(Nth(lEntry,2));
+            plTeleportCD = DelListElem(plTeleportCD,lEntry);
+            SetNth(lEntry,2,$);
+         }
+      }
+      else
+      {
+         lEntry = GetListNode(plTeleportCD,2,timer);
+         if (lEntry <> $)
+         {
+            plTeleportCD = DelListElem(plTeleportCD,lEntry);
+            SetNth(lEntry,2,$);
+         }
+      }
+
+      return;
+   }
+
+   ClearTeleportCooldowns()
+   {
+      local i;
+
+      foreach i in plTeleportCD
+      {
+         DeleteTimer(Nth(i,2));
+         SetNth(i,2,$);
+      }
+      plTeleportCD = $;
+
+      return;
+   }
+
+   SendAnimation()
+   {
+      if NOT pbAnimate
+      {
+         propagate;
+      }
+
+      AddPacket(1,ANIMATE_CYCLE, 4,viAnimationSpeed, 2,1, 2,1);
+
+      return;
+   }
+
+   SendLightingInformation()
+   {
+      // Intensity (out of 255)
+      // 10 if active, 5 if not.
+      if pbAnimate
+      {
+         AddPacket(2,LIGHT_FLAG_ON, 1,10, 2,LIGHT_PURPLE);
+      }
+      else
+      {
+         AddPacket(2,LIGHT_FLAG_ON, 1,5, 2,LIGHT_PURPLE);
+      }
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

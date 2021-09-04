@@ -1,0 +1,168 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+CurePoison is Spell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include cpoison.lkod
+
+   curepoison_name_rsc = "cure poison"
+   curepoison_icon_rsc = icurpoi.bgf
+   curepoison_desc_rsc = \
+      "Pure, healing energy fights the effects of poison in the target."
+   curepoison_on = \
+      "The power of Shal'ille fights the effects of poison in your blood."
+   curepoison_unnecessary = "%s%s is not suffering from poison."
+   curepoison_abates = "You feel the poison grow weaker."
+   curepoison_spell_intro = \
+      "Shal'ille Lv. 2: Fights the effects of any poisons which may flow "
+      "through the target's body."
+
+classvars:
+
+   vrName = curepoison_name_rsc
+   vrIcon = curepoison_icon_rsc
+   vrDesc = curepoison_desc_rsc
+
+   vrSpell_intro = curepoison_spell_intro
+   viSpell_num = SID_CURE_POISON
+   viSchool = SS_SHALILLE
+   viSpell_level = 2
+   viMana = 10
+
+   viChance_To_Increase = 30
+   viMeditate_ratio = 20
+
+   viFlash = FLASH_GOOD_SELF
+
+properties:
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&Herbs,2],plReagents);
+      plReagents = Cons([&Elderberry,1],plReagents);
+
+      return;
+   }
+
+   GetNumSpellTargets()
+   {
+      return 1;
+   }
+
+   CanPayCosts(who = $, lTargets = $)
+   {
+      local oTarget;
+
+      // Can cast spell if the 1 target item is a user.
+      if Length(lTargets) <> 1
+      {
+         return FALSE;
+      }
+
+      oTarget = First(lTargets);
+      if NOT IsClass(oTarget, &User)
+      {
+         Send(who,@MsgSendUser,#message_rsc=spell_bad_target,#parm1=vrName,
+               #parm2=Send(oTarget,@GetDef),#parm3=Send(oTarget,@GetName));
+
+         return FALSE;
+      }
+
+      // Make sure target is indeed poisoned.
+      if NOT Send(oTarget,@HasOverTimeEffect,#num=SID_POISON)
+      {
+         if IsClass(who,&User)
+         {
+            Send(who,@MsgSendUser,#message_rsc=curepoison_unnecessary,
+                  #parm1=Send(oTarget,@GetCapDef),#parm2=Send(oTarget,@GetName));
+         }
+
+         return FALSE;
+      }
+
+      propagate;
+   }
+
+   DoSpellEffects(who = $, lTargets = $, iSpellpower = $)
+   {
+      local i, iState, iNewState, oTarget, iStrength;
+
+      oTarget = First(lTargets);
+
+      Send(who,@MsgSendUser,#message_rsc=spell_cast_on_target,
+           #parm1=Send(self,@GetName),#parm2=Send(oTarget,@GetDef),
+           #parm3=Send(oTarget,@GetName));
+
+      Send(oTarget,@MsgSendUser,#message_rsc=curepoison_on);
+
+      Send(self,@DoCurePoison,#who=oTarget,#iSpellPower=iSpellpower);
+
+      return TRUE;
+   }
+
+   DoCurePoison(who=$,iSpellPower=0)
+   {
+      local i, iState, iNewState, iStrength, oEffect;
+
+      foreach i in Send(who,@GetOverTimeEffects)
+      {
+         oEffect = Nth(i,5);
+
+         if (oEffect <> 0) AND IsClass(oEffect,&Poison) AND iSpellPower > 0
+         {
+            iState = Nth(i,4);
+            iNewState = iState - iSpellPower;
+            if iNewState < 0
+            {
+               iSpellPower = -iNewState;
+               iNewState = 0;
+            }
+            else
+            {
+               iSpellPower = 0;
+            }
+
+            iStrength = Nth(i,3) * iNewState / iState;
+
+            Send(who,@SetOverTimeEffect,#effect=i,#strength=iStrength,
+                  #state=iNewState);
+
+            // If there is some poison left and it's legit, report it.
+            if iStrength <> 0 AND Nth(i,7) = 1
+            {
+              Send(who,@MsgSendUser,#message_rsc=curepoison_abates);
+            }
+         }
+      }
+
+      return;
+   }
+
+   GetPotionClass()
+   {
+      return &CurePoisonPotion;
+   }
+
+   GetCombatType()
+   {
+      return COMBAT_ACTION_BUFF;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

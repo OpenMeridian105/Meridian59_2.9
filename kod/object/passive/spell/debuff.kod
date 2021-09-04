@@ -1,0 +1,185 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Debuff is Spell
+
+// Spells that target another player, and have some negative effect but do not
+// directly do damage go here.
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include debuff.lkod
+
+   debuff_name_rsc = "debuff"
+   debuff_icon_rsc = iheat.bgf
+   debuff_desc_rsc = \
+      "An enchantment which is cast on another player."
+
+   debuff_already_enchanted_rsc = "You are already enchanted."
+   debuff_On_rsc = "Your body tingles with magical energy."
+   debuff_Off_rsc = "You feel your magical field crackle and dissipate."
+   debuff_Success_rsc = "You enchant %s%s."
+   debuff_display_duration = \
+      "Duration of ~k~B%s~n is ~k~B%i~n milliseconds."
+
+classvars:
+
+   vrName = debuff_name_rsc
+   vrIcon = debuff_icon_rsc
+   vrDesc = debuff_desc_rsc
+
+   // Overwrite these in subclasses to give specific messages.
+   vrAlreadyEnchanted = debuff_already_enchanted_rsc
+   vrEnchantment_On = debuff_On_rsc
+   vrEnchantment_Off = debuff_Off_rsc
+   vrSuccess = debuff_Success_rsc
+   vrNoSelfTarget = spell_no_self_target
+
+   viDebuff = TRUE
+   viOutlaw = TRUE
+   viHarmful = TRUE
+   viNoNewbieOffense = TRUE
+
+properties:
+
+messages:
+
+   GetNumSpellTargets()
+   {
+      return 1;
+   }
+
+   CanPayCosts(who=$,lTargets=$,bItemCast=FALSE)
+   {
+      local oTarget, i;
+
+      if Length(lTargets) <> 1
+      {
+         return FALSE;
+      }
+
+      oTarget = First(lTargets);
+      if NOT IsClass(oTarget,&Battler)
+         OR IsClass(oTarget,&Revenant)
+      {
+         if NOT bItemCast
+         {
+            Send(who,@MsgSendUser,#message_rsc=spell_bad_target,#parm1=vrName,
+                  #parm2=Send(oTarget,@GetDef),#parm3=Send(oTarget,@GetName));
+         }
+
+         return FALSE;
+      }
+
+      if oTarget = who
+      {
+         if NOT bItemCast
+         {
+            Send(who,@MsgSendUser,#message_rsc=vrNoSelfTarget,#parm1=vrName);
+         }
+
+         return FALSE;
+      }
+
+      // Check for over time effect already applied
+      if Send(oTarget,@HasOverTimeEffect,#what=self)
+      {
+         Send(who,@MsgSendUser,#message_rsc=vrAlreadyEnchanted,
+            #parm1=Send(oTarget,@GetCapDef),#parm2=Send(oTarget,@GetName));
+
+         return FALSE;
+      }
+
+      // Check for enchantment already applied
+      if Send(oTarget,@IsEnchanted,#what=self)
+      {
+         if NOT bItemCast
+         {
+            if IsClass(self,&Seduce)
+               AND NOT (Send(oTarget,@GetEnchantedState,#what=self) = who)
+            {
+               propagate;
+            }
+
+            if IsClass(self,&ForgetSpell)
+            {
+               Send(who,@MsgSendUser,#message_rsc=vrAlreadyEnchanted,
+                     #parm1=Send(oTarget,@GetDef),
+                     #parm2=Send(oTarget,@GetName));
+            }
+            else
+            {
+               Send(who,@MsgSendUser,#message_rsc=vrAlreadyEnchanted,
+                     #parm1=Send(oTarget,@GetCapDef),
+                     #parm2=Send(oTarget,@GetName));
+            }
+         }
+
+         return FALSE;
+      }
+
+      propagate;
+   }
+
+   DoSpellEffects(who=$,lTargets=$)
+   {
+      local i, iDuration, oList, oTarget;
+
+      if Send(SETTINGS_OBJECT,@DisplaySpellData)
+      {
+         oTarget = First(lTargets);
+         oList = Send(oTarget,@GetEnchantmentList);
+
+         foreach i in oList
+         {
+            if Nth(i,2) = self
+            {
+               iDuration = First(i);
+               if (IsTimer(iDuration))
+               {
+                  iDuration = GetTimeRemaining(First(i));
+               }
+            }
+         }
+
+         if (who <> $)
+         {
+            Send(who,@MsgSendUser,#message_rsc=debuff_display_duration,
+                  #parm1=Send(self,@GetName),#parm2=iDuration);
+         }
+
+         if oTarget <> $
+            AND oTarget <> who
+            AND IsClass(oTarget,&Player)
+         {
+            Send(oTarget,@MsgSendUser,#message_rsc=debuff_display_duration,
+               #parm1=Send(self,@GetName),#parm2=iDuration);
+         }
+      }
+
+      return TRUE;
+   }
+
+   SendEffectData()
+   {
+      return;
+   }
+
+   GetLightIntensity(state=$)
+   {
+      return viBaseLightIntensity;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

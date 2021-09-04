@@ -1,0 +1,5 @@
+SporeBurst_name_rsc = de "Sporenwolke"
+SporeBurst_desc_rsc = de \
+   "Lähmt vorübergehend jedem in der Wolke, einschließlich den Beschwörer selbst."
+SporeBurst_cast_rsc = de \
+   "Nach einem lauten Knall, ist der Raum mit einer Sporenwolke gefüllt."

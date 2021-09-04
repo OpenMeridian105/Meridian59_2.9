@@ -1,0 +1,222 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+EvilFairy is Monster
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include evfairy.lkod
+
+   dark_fairy_koc_name_rsc = "teotimixlal"
+   dark_fairy_name_rsc = "fey dirhai"
+
+   dark_fairy_icon_rsc = faerie-e.bgf
+   dark_fairy_desc_rsc = \
+      "Dark, mischievous and ultimately malicious, these imps have but "
+      "one goal - to bring the Quilicia wood into permanent darkness, so "
+      "they can claim the Vale of Sorrows as their own.  They hate their "
+      "kinsmen, the fey elhai, with a fervent passion."
+
+   darkfairy_fireball = feyball.bgf
+
+   darkfairy_dead_icon_rsc = faerieXE.bgf
+   darkfairy_dead_name_rsc = "dead fey"
+
+   darkfairy_sound_hit = evl_atkh.ogg
+   darkfairy_sound_miss = evl_atkm.ogg
+   darkfairy_sound_death = evl_die.ogg
+   darkfairy_sound_aware = evl_awr.ogg
+
+classvars:
+
+   vrDesc = dark_fairy_desc_rsc
+   vrName = dark_fairy_koc_name_rsc
+   vrName = dark_fairy_name_rsc
+   vrIcon = dark_fairy_icon_rsc
+
+   vrDead_icon = darkfairy_dead_icon_rsc
+   vrDead_name = darkfairy_dead_name_rsc
+
+   viTreasure_type = TID_FAIRY
+
+   viSpeed = SPEED_VERY_FAST
+   viAttack_type = 0
+   viSpell_type = SPL_TYPE_UNHOLY
+
+   viLevel = 80
+   viDifficulty = 5
+   viVisionDistance = 15
+   // Attack range of 192, or 3 row/col.
+   viMeleeRange = 0
+   viFireRange = 192
+   viDefault_behavior = AI_FIGHT_KARMA_AGGRESSIVE
+   viWimpy = 10
+   viCashmin = 300
+   viCashmax = 600
+   vrSound_hit = darkfairy_sound_hit
+   vrSound_miss = darkfairy_sound_miss
+   vrSound_aware = darkfairy_sound_aware
+   vrSound_death = darkfairy_sound_death
+
+   // Airborne. Don't care if hovering above water or not.
+   vbAquatic = TRUE
+
+   // Used to dark places.
+   viNightVision = 100
+
+properties:
+
+   piDrawEffectFlag = OF_BOUNCING
+   viKarma = -50
+   piAnimation = ANIM_NONE
+
+   piMana = 6000
+   piMax_Mana = 60
+
+   piReputationGroup = REP_FEY_EVIL
+
+messages:
+
+   Constructor()
+   {
+      plResistances = [ [-SPL_TYPE_HOLY, -30 ],
+                        [-SPL_TYPE_ALL, 30 ],
+                        [ATK_TYPE_MAGIC, 30 ],
+                        [-SPL_TYPE_UNHOLY, 30 ]
+                      ];
+
+      plReputationEnemies = [REP_FEY_GOOD];
+
+      propagate;
+   }
+
+   Constructed()
+   {
+      plActions = [ [SID_VAMPIRIC_DRAIN],
+                    [SID_DARKNESS] ];
+
+      propagate;
+   }
+
+   DoMissileAnimation()
+   "Handles ranged attack animation. Default is same as melee."
+   {
+      piAnimation = ANIM_ATTACK;
+      Send(poOwner,@SomethingChanged,#what=self);
+      piAnimation = ANIM_NONE;
+      Send(poOwner,@SomethingShot,#who=self,#target=poTarget,
+         #projectile=self,#flags=PROJ_FLAG_LIGHT_SOURCE);
+
+      return;
+   }
+
+   SendLookAnimation()
+   {
+      AddPacket(1,ANIMATE_CYCLE,4,100,2,3,2,4);
+
+      return;
+   }
+
+   SendMoveAnimation()
+   {
+      AddPacket(1,ANIMATE_CYCLE,4,100,2,3,2,4);
+
+      return;
+   }
+
+   SendAnimation()
+   {
+      if piAnimation = ANIM_ATTACK
+      {
+         AddPacket(1,ANIMATE_ONCE,4,100,2,5,2,8,2,1);
+
+         return;
+      }
+
+      AddPacket(1,ANIMATE_CYCLE,4,100,2,1,2,2);
+                
+      return;
+   }
+
+   GetProjectileSpeed()
+   {
+      return 7;
+   }
+
+   SendProjectileAnimation()
+   {
+      AddPacket(1,ANIMATE_CYCLE,4,50,2,1,2,4);
+
+      return;
+   }
+
+   GetProjectileIcon()
+   {
+      return darkfairy_fireball;
+   }
+
+   GetProjectileLightFlags()
+   {
+      // General lighting information.
+      return LIGHT_FLAG_ON | LIGHT_FLAG_DYNAMIC;
+   }
+
+   GetProjectileLightIntensity()
+   {
+      // Fairly small light radius for projectile.  Out of 255 levels.
+      return 50;
+   }
+
+   GetProjectileLightColor()
+   {
+      // Color is orange.
+      return LIGHT_ORANGE;
+   }
+
+   SendLightingInformation()
+   {
+      // Intensity is 30 out of 255.
+      AddPacket(2,(LIGHT_FLAG_ON | LIGHT_FLAG_DYNAMIC), 1,30, 2,LIGHT_BLUE);
+
+      return;
+   }
+
+   CanMorphTo()
+   {
+      return FALSE;
+   }
+
+   IsEnemy(what=$)
+   {
+      /// Fey Dirhai hate Fey Elhai.
+      if IsClass(what,&Fairy)
+      {
+         return TRUE;
+      }
+
+      propagate;
+   }
+
+   CanBeWebbed()
+   {
+      return FALSE;
+   }
+
+   CanBeTangled()
+   {
+      return FALSE;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

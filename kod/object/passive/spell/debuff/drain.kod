@@ -1,0 +1,102 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Drain is Debuff
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+classvars:
+
+   viOutlaw = FALSE
+   viFlash = FLASH_NONE
+   viMeditate_ratio = 0
+   viSpell_level = 99
+   vrDrain_wav = $
+   vrDrain_end_wav = $
+   vrDrain_wav_duration = 3000
+
+   viBaseLightIntensity = 30
+
+properties:
+
+   vbIsLightSource = FALSE
+
+messages:
+
+   ShowDesc()
+   "Just the description, please..."
+   {
+      AddPacket(4,vrDesc);
+
+      return;
+   }
+
+   OverTimeEffectWearingOff(who=$,overtimeeffect=$,bReport=TRUE)
+   {
+      local iIllusion;
+
+      if (who <> $)
+      {
+         if bReport
+            AND IsClass(who,&Player)
+         {
+            Send(who,@MsgSendUser,#message_rsc=vrEnchantment_Off);
+         }
+
+         iIllusion = Nth(overtimeeffect,10);
+
+         if iIllusion
+            AND (Nth(overtimeeffect,2) = TYPE_HEALTH)
+         {
+            Send(who,@StartEnchantment,#lastcall=TRUE,#addicon=FALSE,
+               #what=Send(SYS,@FindSpellByNum,#num=SID_ILLUSIONARY_WOUNDS),
+               #state=(iIllusion-GetTime())*Nth(overtimeeffect,3)/10,
+               #time=Bound(30000 - 400*Send(who,@GetIntellect),5000,$));
+         }
+      }
+
+      return;
+   }
+
+   OverTimeEffectStarting(who=$,overtimeeffect=$,bReport=TRUE)
+   {
+      local iIllusion;
+
+      if bReport
+         AND (who <> $)
+         AND IsClass(who,&Player)
+      {
+         Send(who,@PeriodicSounds);
+      }
+
+      return;
+   }
+
+   GetPeriodicSound()
+   {
+      return vrDrain_wav;
+   }
+
+   GetPeriodicSoundEnd()
+   {
+      return vrDrain_end_wav;
+   }
+
+   GetPeriodicSoundDuration()
+   {
+      return vrDrain_wav_duration;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

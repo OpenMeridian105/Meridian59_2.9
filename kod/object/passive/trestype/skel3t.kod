@@ -1,0 +1,46 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Skeleton3Treasure is TreasureType
+
+constants:
+
+   include blakston.khd
+
+classvars:
+
+   viTreasure_num = TID_SKELETON3
+
+properties:
+
+   piItem_att_chance = 3
+   piDIff_seed = 6
+
+messages:
+
+   Constructed()
+   {
+      plTreasure = [ [ &NeruditeArrow, 23 ],
+                     [ &ShortSword, 2 ],
+                     [ &InkyCap, 10 ],
+                     [ &Hammer, 15 ],
+                     [ &KnightShield, 15 ],
+                     [ &Scimitar, 15 ],
+                     [ &ScaleArmor, 15 ],
+                     [ &EnfeebleWand, 2 ],
+                     [ &ForgetWand, 1 ],
+                     [ &DispellIllusionScroll, 2 ]
+                   ];
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

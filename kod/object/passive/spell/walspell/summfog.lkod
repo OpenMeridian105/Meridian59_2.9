@@ -1,0 +1,6 @@
+SummonFog_name_rsc = de "Nebel"
+SummonFog_desc_rsc = de \
+   "Erschafft eine Wolke aus Nebel die fälschlicherweise häufig für giftigen "
+   "Nebel gehalten wird."
+SummonFog_cast_rsc = de "Eine große Nebelwolke schwebt vor Dir."
+SummonFog_spell_intro_rsc = de "Faren Level 1: Erschafft eine Wolke aus Nebel."

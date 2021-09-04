@@ -1,0 +1,742 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Brambles is Monster
+
+// This has code borrowed from ActiveWallElement.  Since brambles are considered
+// monsters (you can attack them), they must be located here.
+
+constants:
+
+   include blakston.khd
+   ANIM_BRAMBLE_GROW = 2
+
+resources:
+
+   include bramble.lkod
+
+   brambles_name_rsc = "patch of bramble"
+   brambles_icon_rsc = wothorns.bgf
+   brambles_desc_rsc = \
+      "The patch of bramble looms dangerously, "
+      "hoping to tear into your skin if you walk by."
+
+   Brambles_damage0 = "You walk through the patch of bramble without incident."
+   Brambles_damage2 = \
+      "As you walk through the patch of bramble, they scratch at that hard to "
+      "reach itch for you."
+   Brambles_damage3 = "Thats okay, you didn't need that piece of skin anyway."
+   Brambles_damage4 = \
+      "You just about lose your pants as the patch of bramble grabs at them."
+   Brambles_damage5 = "Ow ow ow ow ow ow ow..."
+
+   Brambles_scratch_snd = frying.ogg
+
+   brambles_dead_name_rsc = "the ruins of some bramble"
+   brambles_monster_healing = \
+      "The patch of brambles rustles as it grows back a little."
+   bramble_dissipates = "A patch of the bramble chokes and dies."
+
+classvars:
+
+   vrName = brambles_name_rsc
+   vrIcon = brambles_icon_rsc
+   vrDesc = brambles_desc_rsc
+   vrDead_icon = $
+   vrDead_name = brambles_dead_name_rsc
+
+   viTreasure_type = TID_NONE
+   viAttack_type = ATK_TYPE_SLASH
+   viAttributes = MOB_NOMOVE | MOB_NOFIGHT | MOB_NOQUEST
+   viMoveOn_type = MOVEON_NOTIFY
+   viLevel = 25
+   viDifficulty = 4 
+   viKarma = 0
+   viDefault_behavior = AI_NOFIGHT | AI_NOMOVE
+   viCashmin = 0
+   viCashmax = 0
+   vrSound_hit = $
+   vrSound_miss = $
+   vrSound_aware = $
+   vrSound_death = $
+
+   vrMonster_healing = brambles_monster_healing
+
+   vbIsAreaEffect = TRUE
+
+   vbCanAffectCaster = TRUE
+
+   vbCanPoison = FALSE
+   vbCanBleed = FALSE
+   vbCanSiphon = FALSE
+   vbCanFatigue = FALSE
+
+   // See wallelem.kod for full documentation and comments.
+   viLimitCount = 2
+   viEffectDuration = 10000
+   viEffectDamage = 2000
+   viEffectInterval = 1500
+
+properties:
+
+   poCaster = $
+   ptExpire = $
+   //piBrambleHits = 15
+
+   piAnimation = ANIM_BRAMBLE_GROW
+   ptNoGrow = $
+
+   vbSummoned = TRUE
+
+   // See wallelem.kod for full documentation and comments.
+   ptPeriodic = $
+   plAffected = $
+   plInvalidTargets = $
+   piRange = FINENESS_HALF
+   plSeed = $
+   plSecondarySeed = $
+   ptSeed = $
+   ptSecondarySeed = $
+
+messages:
+
+   Constructor(seed=$)
+   {
+      local oCaster, iCharges, iTime;
+
+      plSeed = ListCopy(seed);
+
+      ptNoGrow = CreateTimer(self,@NoGrow,2000);
+
+      iTime = Nth(plSeed,3)*Random(Bound(901+Nth(plSeed,2),0,1000),1000)/1000;
+
+      oCaster = First(seed);
+
+      if oCaster <> $
+      {
+         poCaster = oCaster;
+         vbSummoned = IsClass(oCaster,&Player);
+
+         if IsClass(poCaster,&Battler) AND viLimitCount
+         {
+            // If caster was at their limit, reduce duration.
+            iTime = Bound(100 * iTime / (100 + Send(poCaster,
+               @BeyondSummoningLimit)),1500,$);
+
+            Send(poCaster,@AddActiveSummons,#i=viLimitCount);
+         }
+      }
+      else
+      {
+         poCaster = self;
+      }
+
+      if iTime
+      {
+         ptExpire = CreateTimer(self,@Expire,iTime);
+      }
+
+      // Base the affected radius of our element on step size.
+      // To allow full coverage, we need a radius > iStep*0.5*sqrt(2).
+      piRange = (Nth(plSeed,7)*71/100) + 1;  // Add one for good measure.
+
+      // If we have a charge left, create a new element after an amount of ms
+      // specified in speed.
+      iCharges = Nth(plSeed,4);
+      if iCharges > 0 
+      {
+         // Subtract a charge and set a timer to spawn the new element.
+         SetNth(plSeed,4,iCharges-1);
+         ptSeed = CreateTimer(self,@SpawnNextElement,Nth(plSeed,5));
+      }
+
+      // If we have a secondary plSeed, spawn it afer the time specified.
+      // The new element's angle is relative to its parent.
+      if Length(plSeed) > 9
+      {
+         plSecondarySeed = ListCopy(Nth(plSeed,10));
+         SetNth(plSecondarySeed,6,(Nth(plSeed,6)+Nth(plSecondarySeed,6))
+            %MAX_ANGLE);
+         ptSecondarySeed = CreateTimer(self,@SpawnSecondaryElement,
+            Nth(plSecondarySeed,5));
+      }
+
+      propagate;
+   }
+
+   Constructed()
+   {
+      piMax_health = Nth(plSeed,2)/3;
+      piHealth = piMax_health*100;
+
+      propagate;
+   }
+
+   EnterStateEngage()
+   {
+      Send(self,@EnterStateWait,#delay=$);
+
+      return;
+   }
+
+   SpawnNextElement()
+   {
+      local iCurveParameters, iCurve, iCurveDelta, bContract, bCW,
+         iAngle, iRow, iCol, iFine_Row, iFine_Col, iXFineStep,
+         iYFineStep, oElement, oRoom, iStep, iNoise;
+
+      ptSeed = $;
+
+      oRoom = Send(self,@GetOwner);
+
+      if NOT Send(oRoom,@CanSummon)
+      {
+         return FALSE;
+      }
+
+      iAngle = Nth(plSeed,6);
+
+      iCurveParameters = Nth(plSeed,9);
+      bCW = FALSE;
+
+      if iCurveParameters < 0
+      {
+         iCurveParameters = -iCurveParameters;
+         bCW = TRUE;
+      }
+
+      iCurve = iCurveParameters % 10000;
+      iCurveDelta = (iCurveParameters / 10000) % 10000;
+      bContract = iCurveParameters / 100000000;
+
+      if iCurveDelta <> 0
+      {
+         if bContract
+         {
+            iCurve += (iCurveDelta*(MAX_ANGLE/4 - iCurve)/(MAX_ANGLE/4))*
+               (MAX_ANGLE/4 - iCurve)/(MAX_ANGLE/4);
+         }
+         else
+         {
+            iCurve -= (iCurveDelta*iCurve/(MAX_ANGLE/4))*
+               iCurve/(MAX_ANGLE/4);
+         }
+      }
+
+      iCurve = Bound(iCurve,0,MAX_ANGLE/4);
+
+      iCurveParameters = iCurve + iCurveDelta*10000 + bContract*100000000;
+
+      if bCW
+      {
+         iCurveParameters = -iCurveParameters;
+         iAngle += iCurve;
+      }
+      else
+      {
+         iAngle += MAX_ANGLE - iCurve;
+      }
+
+      iAngle = iAngle % MAX_ANGLE;
+
+      SetNth(plSeed,6,iAngle);
+      SetNth(plSeed,9,iCurveParameters);
+
+      iXFineStep = Send(oRoom,@GetXFineStep,#angle=iAngle);
+      iYFineStep = Send(oRoom,@GetYFineStep,#angle=iAngle);
+
+      iFine_Row = Send(self,@GetRow)*FINENESS + Send(self,@GetFineRow);
+      iFine_Col = Send(self,@GetCol)*FINENESS + Send(self,@GetFineCol);
+
+      iStep = Nth(plSeed,7);
+      iNoise = Nth(plSeed,8);
+
+      iFine_Col += iXFineStep * iStep / FINENESS + Random(-iNoise,iNoise);
+      iCol = iFine_Col / FINENESS;
+      iFine_Col = iFine_Col % FINENESS;
+
+      iFine_Row += iYFineStep * iStep / FINENESS + Random(-iNoise,iNoise);
+      iRow = iFine_Row / FINENESS;
+      iFine_Row = iFine_Row % FINENESS;
+
+      oElement = Create(GetClass(self),#seed=plSeed);
+      Send(oRoom,@NewHold,#what=oElement,#new_row=iRow,#new_col=iCol,
+         #fine_row=iFine_Row,#fine_col=iFine_Col);
+
+      return;
+   }
+
+   SpawnSecondaryElement()
+   {
+      local iAngle, iRow, iCol, iFine_Row, iFine_Col, iXFineStep, iYFineStep,
+         oElement, oRoom, iStep, iNoise;
+
+      ptSecondarySeed = $;
+
+      oRoom = Send(self,@GetOwner);
+
+      // Make sure we aren't going over the hardcap.
+      if NOT Send(oRoom,@CanSummon)
+      {
+         return FALSE;
+      }
+
+      iAngle = Nth(plSecondarySeed,6);
+
+      iXFineStep = Send(oRoom,@GetXFineStep,#angle=iAngle);
+      iYFineStep = Send(oRoom,@GetYFineStep,#angle=iAngle);
+
+      iFine_Row = Send(self,@GetRow)*FINENESS + Send(self,@GetFineRow);
+      iFine_Col = Send(self,@GetCol)*FINENESS + Send(self,@GetFineCol);
+
+      iStep = Nth(plSecondarySeed,7);
+      iNoise = Nth(plSecondarySeed,8);
+
+      iFine_Col += iXFineStep * iStep / FINENESS + Random(-iNoise,iNoise);
+      iCol = iFine_Col / FINENESS;
+      iFine_Col = iFine_Col % FINENESS;
+
+      iFine_Row += iYFineStep * iStep / FINENESS + Random(-iNoise,iNoise);
+      iRow = iFine_Row / FINENESS;
+      iFine_Row = iFine_Row % FINENESS;
+
+      oElement = Create(GetClass(self),#seed=plSecondarySeed);
+      Send(oRoom,@NewHold,#what=oElement,#new_row=iRow,#new_col=iCol,
+         #fine_row=iFine_Row,#fine_col=iFine_Col);
+
+      return;
+   }
+
+   SomethingMoved(what = $,new_row = $,new_col = $ ,fine_row = $, fine_col = $,
+                  old_row = $, old_col = $, old_finerow = $, old_finecol = $,
+                  cause = CAUSE_UNKNOWN)
+   {
+      // Only want to check players and mobs making manual movements,
+      // not teleports etc.
+      if (cause <> CAUSE_USER_INPUT AND cause <> CAUSE_MOB_MOVEMENT)
+      {
+         return;
+      }
+      
+      if NOT (Send(what,@CanBleed) AND Send(what,@CanBeTangled))
+      {
+         return;
+      }
+
+      if (new_row = $ OR new_col = $ OR fine_row = $ OR fine_col = $
+         OR old_row = $ OR old_col = $ OR old_finerow = $ OR old_finecol = $)
+      {
+         Debug("Missing params in ", GetClass(self), " SomethingMoved");
+      }
+
+      // Check for range
+      if IsClass(what,&Battler)
+         AND NOT (IsClass(what,&Player)
+                  AND Send(what,@IsInCannotInteractMode))
+         AND IntersectLineCircle(Send(self,@GetRow), Send(self,@GetCol),
+                     Send(self,@GetFineRow), Send(self,@GetFineCol),
+                     old_row, old_col, old_finerow, old_finecol, new_row,
+                     new_col, fine_row, fine_col, piRange)
+      {
+         Send(self,@CheckForEffect,#what=what,#new_row=new_row,#new_col=new_col);
+      }
+
+      return;
+   }
+
+   CheckForEffect(what = $, new_row = $, new_col = $)
+   "Check for range to see if we apply the effect."
+   {
+      // Might not affect caster.
+      if (NOT IsClass(what,&Battler))
+         OR ((NOT vbCanAffectCaster) AND what = poCaster)
+      {
+         return FALSE;
+      }
+
+      // Don't affect them again this cycle.
+      if plAffected <> $
+         AND FindListElem(plAffected,what) <> 0
+      {
+         return FALSE;
+      }
+
+      // Don't affect people we've already found to be invalid targets.
+      if plInvalidTargets <> $
+         AND FindListElem(plInvalidTargets,what) <> 0
+      {
+         return FALSE;
+      }
+
+      // This is harmful. If both caster and victim are players, then
+      // disallow effect if caster's safety is on or if he cannot attack.
+      // AllowBattlerAttack also performs all the other required checks,
+      // so they are no longer needed in this class.
+      if NOT Send(poCaster,@AllowBattlerAttack,#victim=what,#report=FALSE,
+         #stroke_obj=self)
+      {
+         // We can't interact with this target. Take note.
+         plInvalidTargets = Cons(what,plInvalidTargets);
+
+         if IsClass(what,&Player)
+            AND NOT Send(what,@IsInCannotInteractMode)
+         {
+            Send(what,@MsgSendUser,#message_rsc=Brambles_damage0);
+         }
+
+         return FALSE;
+      }
+
+      Send(self,@ScratchPerson,#what=what);
+
+      return TRUE;
+   }
+
+   PeriodicEffect()
+   {
+      local i;
+
+      ptPeriodic = CreateTimer(self,@PeriodicEffect,viEffectInterval);
+      plAffected = $;
+
+      return;
+   }
+
+   ScratchPerson(what = $)
+   {
+      local iDamage, oEffect, iSpellpower, iDuration, iStrength;
+
+      // Keep track that we've affected this object.
+      plAffected = cons(what,plAffected);
+
+      iSpellpower = Nth(plSeed,2);
+
+      if IsClass(poCaster,&Battler)
+      {
+         iDamage = Send(what,@AssessDamage,#what=poCaster,#precision=TRUE,
+            #report=FALSE,#damage=Random(iSpellpower,iSpellpower*4),
+            #atype=ATK_TYPE_PIERCE,#report_resistance=FALSE);
+      }
+      else
+      {
+         iDamage = Send(what,@AssessDamage,#what=self,#precision=TRUE,
+            #damage=Random(iSpellpower,iSpellpower*4),#atype=ATK_TYPE_PIERCE,
+            #report=FALSE,#report_resistance=FALSE);
+      }
+
+      if iDamage = $
+      {
+         Send(poCaster,@KilledSomething,#what=what);
+
+         return;
+      }
+
+      oEffect = Send(SYS,@FindSpellByNum,#num=SID_BLEED);
+
+      iDuration = iSpellpower*viEffectDuration/100;
+      iDuration = Random(iDuration/2,iDuration);
+
+      iStrength = iSpellpower*viEffectDamage/100;
+      iStrength = Random(iStrength*3/4,iStrength);
+
+      Send(oEffect,@StartBleed,#who=what,#source=poCaster,#strength=iStrength,
+         #duration=iDuration);
+
+      if (IsClass(poCaster,&Player)) AND (iSpellpower > 0)
+      {
+         Send(poCaster,@SetPlayerFlag,#flag=PFLAG_DID_DAMAGE,#value=TRUE);
+      }
+
+      if IsClass(what,&Player)
+      {
+         if iSpellpower > 0
+         {
+            Send(what,@WaveSendUser,#wave_rsc=Brambles_scratch_snd);
+         }
+
+         if iSpellpower = 0
+         {
+            Send(what,@MsgSendUser,#message_rsc=Brambles_damage0);
+
+            return;
+         }
+
+         if iSpellpower < 25
+         {
+            Send(what,@MsgSendUser,#message_rsc=Brambles_damage2);
+
+            return;
+         }
+
+         if iSpellpower < 50
+         {
+            Send(what,@MsgSendUser,#message_rsc=Brambles_damage3);
+
+            return;
+         }
+
+         if iSpellpower < 75
+         {
+            Send(what,@MsgSendUser,#message_rsc=Brambles_damage4);
+
+            return;
+         }
+
+         Send(what,@MsgSendUser,#message_rsc=Brambles_damage5);
+      }
+
+      return;
+   }
+
+   NoGrow()
+   {
+      ptNoGrow = $;
+      piAnimation = ANIM_NONE;
+
+      return;
+   }
+
+   InRange(what = $, iRow = $, iCol = $, iFineRow = $, iFineCol = $)
+   "Checks if we can see the target and if so if they are in range."
+   {
+      local iFineRow_diff, iFineCol_diff, iDistanceSquared;
+
+      iFineRow += iRow * FINENESS;
+      iFineCol += iCol * FINENESS;
+
+      iFineRow_diff = Send(self,@GetRow) * FINENESS + Send(self,@GetFineRow)
+         - iFineRow;
+      iFineCol_diff = Send(self,@GetCol) * FINENESS + Send(self,@GetFineCol)
+         - iFineCol;
+
+      iDistanceSquared = iFineRow_diff * iFineRow_diff + iFineCol_diff *
+         iFineCol_diff;
+
+      if (iDistanceSquared <= piRange * piRange)
+         AND Send(poOwner,@LineOfSight,#obj1=self,#obj2=what)
+      {
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   Expire()
+   {
+      ptExpire = $;
+      Send(self,@Delete);
+
+      return;
+   }
+
+   HitPointThresholdDamage()
+   "Shows physical damage instead of a message."
+   {
+      return;
+   }
+
+   HitPointThresholdHeal()
+   "Shows physical damage instead of a message."
+   {
+      return;
+   }
+
+   SendMoveAnimation()
+   {
+      Send(self,@SendAnimation);
+
+      return;
+   }
+
+   SendAnimation()
+   {
+      local iMaxHPDiv;
+
+      iMaxHPDiv = 20 * piMax_health;
+
+      if piAnimation = ANIM_BRAMBLE_GROW
+      {
+         AddPacket(1,ANIMATE_ONCE, 4,250, 2,1, 2,5, 2,5);
+
+         return;
+      }
+
+      if piHealth < iMaxHPDiv
+      {
+         AddPacket(1,ANIMATE_NONE, 2,1);
+
+         return;
+      }
+
+      if piHealth < iMaxHPDiv * 2
+      {
+         AddPacket(1,ANIMATE_NONE, 2,2);
+
+         return;
+      }
+
+      if piHealth < iMaxHPDiv * 3
+      {
+         AddPacket(1,ANIMATE_NONE, 2,3);
+
+         return;
+      }
+
+      if piHealth < iMaxHPDiv * 4
+      {
+         AddPacket(1,ANIMATE_NONE, 2,4);
+
+         return;
+      }
+
+      AddPacket(1,ANIMATE_NONE, 2,5);
+
+      return;
+   }
+
+   Delete()
+   {
+      if (poCaster = self)
+      {
+         Send(poOwner,@BrambleKilled,#row=Send(self,@GetRow),
+               #col=Send(self,@GetCol));
+      }
+      else if IsClass(poCaster,&Battler)
+      {
+         Send(poCaster,@RemoveActiveSummons,#i=viLimitCount);
+      }
+
+      Send(poOwner,@RemoveActiveSummons);
+
+      poCaster = $;
+      plAffected = $;
+      plInvalidTargets = $;
+      plSeed = $;
+      plSecondarySeed = $;
+
+      if ptSeed <> $
+      {
+         DeleteTimer(ptSeed);
+         ptSeed = $;
+      }
+
+      if ptSecondarySeed <> $
+      {
+         DeleteTimer(ptSecondarySeed);
+         ptSecondarySeed = $;
+      }
+
+      if ptPeriodic <> $
+      {
+         DeleteTimer(ptPeriodic);
+         ptPeriodic = $;
+      }
+
+      if ptExpire <> $
+      {
+         DeleteTimer(ptExpire);
+         ptExpire = $;
+      }
+
+      if ptNoGrow <> $
+      {
+         DeleteTimer(ptNoGrow);
+         ptNoGrow = $;
+      }
+
+      propagate;
+   }
+
+   ReqNewOwner(what = $)
+   {
+      return IsClass(what,&Room);
+   }
+
+   NewOwner(what = $)
+   {
+      Send(what,@AddActiveSummons);
+      Post(self,@LocationCheck,#where=what);
+
+      propagate;
+   }
+
+   LocationCheck(where = $)
+   {
+      local iTime;
+
+      if (IsClass(where,&GuildHall)
+            AND Send(where,@InFoyer,#who=poCaster))
+         OR (Send(where,@IsArena)
+            AND NOT Send(where,@InPlay,#what=self,#bNonPlayerOkay=TRUE))
+      {
+         if IsClass(poCaster,&Player)
+         {
+            Send(poCaster,@MsgSendUser,#message_rsc=bramble_dissipates);
+         }
+
+         Post(self,@Delete);
+      }
+      // We have used up at least half of the rooms total summoning limit.
+      // Let's get rid off the wall element after no more than five seconds.
+      // If we were at the actual limit, this element wouldn't have been
+      // spawned to begin with.
+      else
+      {
+         if NOT Send(where,@CanSummon,#bHalf=TRUE)
+         {
+            if ptExpire <> $
+            {
+               iTime = GetTimeRemaining(ptExpire);
+               DeleteTimer(ptExpire);
+               ptExpire = CreateTimer(self,@Expire,Bound(iTime,0,5000));
+            }
+            else
+            {
+               ptExpire = CreateTimer(self,@Expire,5000);
+            }
+         }
+
+         // Trigger the first periodic effect right after spawn.
+         Send(self,@PeriodicEffect);
+      }
+
+      return;
+   }
+
+   CanMorphTo()
+   {
+      return FALSE;
+   }
+
+   DrawHealth()
+   {
+      Send(poOwner,@SomethingChanged,#what=self);
+
+      propagate;
+   }
+
+   DestroyDisposable()
+   {
+      // Don't destroy me if I'm guarding a shrine!
+      if poCaster = self
+      {
+         return;
+      }
+
+      propagate;
+   }
+
+   CanPlayerAdvanceOnMe()
+   {
+      return FALSE;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

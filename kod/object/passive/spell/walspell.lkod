@@ -1,0 +1,13 @@
+WallSpell_outlaw = de \
+   "\nHINWEIS: Wenn deine Sicherheit an ist, wird dieser Zauber keine Unschuldigen "
+   "verletzen. Sollte allerdings deine Sicherheit aus sein, wirst du gesetzlos, wenn andere "
+   "Spieler dadurch verletzt werden."
+WallSpell_outlaw_murderer = de \
+   "\nHINWEIS: Wenn deine Sicherheit an ist, wird dieser Zauber keine Unschuldigen "
+   "verletzen. Sollte allerdings deine Sicherheit aus sein, wirst du gesetzlos, wenn "
+   "andere Spieler dadurch verletzt werden. Oder sogar zu einem Mörder, wenn du "
+   "jemanden tötest."
+WallSpell_cast_rsc = de "Eine glühend heiße Feuerwand erscheint vor dir!"
+WallSpell_increased_cost_rsc = de \
+   "Du bemerkst wie der Versuch, weitere Beschwörungsmagie zu wirken, an deinen magischen Kräften "
+   "zehrt."

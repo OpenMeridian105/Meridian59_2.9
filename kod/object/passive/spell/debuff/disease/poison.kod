@@ -1,0 +1,160 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+/////////////////////////////////////////////////////////////////////////////////
+Poison is Disease
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include poison.lkod
+
+   poison_on = "Fresh poison courses through your veins like fire."
+   poison_off  = "The poison abates somewhat."
+   poison_icon = ipoison.bgf
+   poison_name = "poison"
+
+   poison_kraanan = \
+      "~IKraanan's magic fortifies you against the accursed venom!"
+   poison_desc = \
+      "Like fire under your skin, the poison burns with dangerous "
+      "strength, slowly sapping away at your strength, your health, "
+      "and your will to live.  "
+
+   poison_sound = poisoned.ogg
+
+classvars:
+
+   vrIcon = poison_icon
+   viShow_enchantment_icon = 0x02
+   vrName = poison_name
+   vrDesc = poison_desc
+
+   vrEnchantment_On = poison_on
+   vrEnchantment_Off = poison_off
+   vrSucceed_wav = poison_sound
+
+   viSpell_num = SID_POISON
+   viSchool = SS_QOR
+   viSpell_level = 99
+   viMeditate_ratio = 0
+
+   viFlash = FLASH_NONE
+
+   vbDisease = TRUE
+   viOutlaw = FALSE
+
+properties:
+
+   // Infrastructure for poison effect only.
+   pbCanBeLearned = FALSE
+
+messages:
+
+   ShowDesc()
+   "Just the description, please..."
+   {
+      AddPacket(4,vrDesc);
+
+      return;
+   }
+
+   StartPoison(who=$,source=0,healthloss=0,manaloss=0,vigorloss=0,duration=0,state=$)
+   "Healthloss is in units of 10^-3 health points per second."
+   "Duration is in milliseconds. Returns TRUE if the target was poisoned."
+   {
+      local i, oSpell;
+
+      oSpell = Send(SYS,@FindSpellByNum,#num=SID_RESIST_POISON);
+      if Send(who,@IsEnchanted,#what=oSpell) AND IsClass(who,&Player)
+      {
+         // Give players a decent chance to improve the spell!
+         foreach i in Send(who,@GetPassiveImprovementList)
+         {
+            if First(i) = oSpell
+            {
+               Post(First(i),@ImproveAbility,#who=who);
+            }
+         }
+
+         if (Random(1,100) < Send(who,@GetEnchantedState,#what=oSpell))
+         {
+            Send(who,@MsgSendUser,#message_rsc=poison_kraanan);
+
+            return FALSE;
+         }
+      }
+
+      i = Random(50,100);
+
+      if healthloss > 0
+      {
+         if state = $
+         {
+            state = i * healthloss / 2000;
+         }
+
+         Send(who,@StartOverTimeEffect,#strength=-healthloss,#duration=duration,
+               #what=self,#who=source,#type=TYPE_HEALTH,#state=state);
+      }
+
+      if manaloss > 0
+      {
+         if state = $
+         {
+            state = i * manaloss / 2000;
+         }
+
+         Send(who,@StartOverTimeEffect,#strength=-manaloss,#duration=duration,
+               #what=self,#who=source,#type=TYPE_MANA,#state=state);
+      }
+
+      // Vigor somewhat runs along. It doesn't create an icon
+      // and won't report being cleared or dropping off.
+      if vigorloss > 0
+      {
+         if state = $
+         {
+            state = i * vigorloss / 2000;
+         }
+
+         Send(who,@StartOverTimeEffect,#strength=-vigorloss,#duration=duration,
+               #what=self,#who=source,#type=TYPE_VIGOR,#showicon=FALSE,
+               #removable=REMOVE_INTERNAL,#state=state);
+      }
+
+      if IsClass(who,&Player)
+      {
+         Send(who,@MsgSendUser,#message_rsc=vrEnchantment_On);
+         Send(who,@WaveSendUser,#wave_rsc=vrSucceed_wav);
+         duration = healthloss + manaloss + vigorloss;
+         duration = Bound(duration / 2,100,2000);
+         Send(who,@EffectSendUserDurationAndXlat,#effect=EFFECT_FLASHXLAT,
+               #duration=duration,#xlat=86);
+      }
+
+      return TRUE;
+   }
+
+   OverTimeEffectWearingOff(who=$,overtimeeffect=$)
+   {
+      if overtimeeffect <> $
+         AND Nth(overtimeeffect,7) = 1
+      {
+         Send(who,@MsgSendUser,#message_rsc=poison_off);
+      }
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

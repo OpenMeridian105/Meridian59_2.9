@@ -1,0 +1,8 @@
+KocatanBartender_name_rsc = de "Oxal ix'Tokak"
+kocatanBartender_desc_rsc = de \
+   "Nachdem er seinen rechten Arm in der Schlacht bei Balo na'te Din verloren "
+   "hatte, wurde Oxal aus dem Dienst in der Armee von Ko'catan entlassen "
+   "und arbeitet jetzt in der Kneipe zum bellenden Monster. Es ist eine große "
+   "Ehre, als Veteran ausgewählt zu werden, diese der Armee gehörende Kneipe "
+   "zu führen.  Doch Oxal geht seiner Arbeit offensichtlich mit wenig Begeisterung nach."
+kocatanBartender_entry_welcome = de "Was willst du?"

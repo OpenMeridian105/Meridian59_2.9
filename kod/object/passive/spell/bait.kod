@@ -1,0 +1,146 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Bait is Spell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include bait.lkod
+
+   Bait_name_rsc = "bait"
+   Bait_icon_rsc = idistrac.bgf
+   Bait_desc_rsc = \
+      "Makes you mighty appetizing to nearby monsters.  The more powerful "
+      "you are, the more likely you are to get the monster's attention."
+   Bait_success = \
+      "The scent of something really yummy fills the air.  Your mouth "
+      "involuntarily begins to water, a moment before you realize that "
+      "the appetizing smell is coming from you!"
+
+   Bait_sound = rdistrac.ogg
+
+classvars:
+
+   vrName = Bait_name_rsc
+   vrIcon = Bait_icon_rsc
+   vrDesc = Bait_desc_rsc
+
+   viSpell_num = SID_BAIT
+   viSchool = SS_RIIJA
+   viSpell_level = 2
+   viMana = 8
+   viSpellExertion = 2
+
+   viCast_time = 2000
+   viChance_To_Increase = 15
+   viMeditate_ratio = 20
+
+   vrSucceed_wav = Bait_sound
+
+properties:
+
+   piBaitRange = 16
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&WebMoss,1],plReagents);
+      plReagents = Cons([&FireSand,1],plReagents);
+
+      return;
+   }
+
+   GetNumSpellTargets()
+   {
+      return 0;
+   }
+
+   DoSpellEffects(who = $,iSpellPower=0)
+   {
+      local i, iAggro, iDropOff, oBrain, oMonster, iMonsterFaction;
+
+      Send(who,@MsgSendUser,#message_rsc=Bait_success);
+
+      iAggro = iSpellPower * iSpellPower / 2;
+
+      foreach i in Send(send(who,@GetOwner),@GetHolderActive)
+      {
+         oMonster = First(i);
+
+         if (NOT IsClass(oMonster,&Monster))
+         {
+            continue;
+         }
+         // Can the monster attack the caster? If not possible to attack,
+         // don't bait them. Example would be minions with a master that
+         // can't fight the bait caster. This also checks for AI_NPC.
+         if (NOT Send(oMonster,@AllowBattlerAttack,#victim=who,#actual=FALSE,#report=FALSE))
+         {
+            continue;
+         }
+
+         // Avoid faction problems, don't make it work on aligned people.
+         iMonsterFaction = Send(oMonster,@GetFaction);
+         if NOT (iMonsterFaction = FACTION_NEUTRAL)
+            AND (send(who,@GetFaction) = iMonsterFaction)
+         {
+            continue;
+         }
+
+         // Don't allow in happyland, unless the monster has no master.
+         if NOT (Send(SYS,@IsPKAllowed) OR Send(oMonster,@GetMaster) = $)
+         {
+            continue;
+         }
+
+         // Effect fades with increased range. Scales from full effect at 0 range
+         // to zero effect at double spell range.
+         iDropOff = iAggro * (4 * piBaitRange * piBaitRange - Send(who,@SquaredDistanceTo,#what=oMonster));
+         iDropOff = iDropOff / (piBaitRange*piBaitRange);
+         iDropOff -= Random(0,2500);
+         iDropOff = bound(iDropOff,0,iAggro);
+
+         // Human mobs and minions fall for bait less often.
+         if IsClass(oMonster,&Human)
+            OR Send(oMonster,@IsMinion)
+         {
+            iDropOff /= 4;
+         }
+
+         if iDropOff = 0
+         {
+            continue;
+         }
+
+         oBrain = Send(oMonster,@GetBrain);
+         Send(oMonster,@AddHurtMeRecently,#who=who,#amount=iDropOff);
+
+         if Send(oBrain,@AttemptTargetSwitch,#mob=oMonster,#what=who,#event=8)
+         {
+            Send(oMonster,@EnterStateEngage,#target=who,#actnow=TRUE);
+         }
+      }
+
+      return TRUE;
+   }
+
+   GetPotionClass()
+   {
+      return &BaitPotion;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

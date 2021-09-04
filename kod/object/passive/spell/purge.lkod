@@ -1,0 +1,9 @@
+Purge_name_rsc = de "Beseitigen"
+Purge_desc_rsc = de \
+   "Streift hilfreiche persönliche Verzauberungen vom Ziel ab."
+Purge_on = de \
+   "Ein sanftes, heiliges Licht versucht, Deine hilfreichen Verzauberungen zu beseitigen."
+Purge_not_enchanted = de "%s%s ist nicht von hilfreichen Magien beeinflusst."
+Purge_spell_intro = de \
+   "Shal'ill Level 5: Streift hilfreiche persönliche Verzauberungen vom Ziel "
+   "ab"

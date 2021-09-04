@@ -1,0 +1,27 @@
+// Quest description.
+seraphymquest_icon_rsc = de serappol.bgf
+seraphymquest_name_rsc = de "Juwelenhandel"
+seraphymquest_desc_rsc = de \
+   "%s versucht seine Schleifkünste zu perfektionieren und sucht nach "
+   "jemandem, der ihm drei ungeschliffene Seraph zum Üben besorgen kann. "
+   "Als Gegenleistung würde %s dir einen der resultierenden geschliffenen "
+   "Seraph überlassen."
+
+seraphymquest_deliver_rsc = de \
+   "%s verbessert %sseine Schleifkünste und hat Dich gefragt, ob Du noch "
+   "ungeschliffene Seraphen übrig hast. Resultierend erhältst Du%s "
+   "ein ausgesprochen tolles Resultate eines geschliffenen Seraph."
+
+seraphymquest_completed_rsc = de \
+   "Du hast die Quest \"Juwelenhandel\" abgeschlossen."
+
+// Quest resources.
+polishquest_assign = de \
+   "Entschuldige! Ich habe meine Fähigkeiten im Schleifen von Edelsteinen "
+   "verbessert und frage mich ob Du vielleicht ungeschliffene Seraphen hast. "
+   "Wenn ja, wäre ich überaus froh sie für Dich zu Schleifen und gebe Dir einen "
+   "als Resultat zurück."
+polishquest_success = de "Ah, vielen Dank. Erlaube mir Dich zu belohnen!"
+polishquest_failure = de \
+   "Betreff: Juwelenhandel\nVergiss die ungeschliffenen Edelsteine, "
+   "ich habe welche von jemanden anderes bekommen. Trotzdem vielen Danke!"

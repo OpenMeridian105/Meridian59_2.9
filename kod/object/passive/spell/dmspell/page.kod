@@ -1,0 +1,93 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Page is DMSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include page.lkod
+
+   page_wave_rsc = god2god.ogg
+
+   page_name_rsc = "page"
+   page_icon_rsc = light.bgf
+   page_desc_rsc = \
+      "Sends your target a little funny noise, to wake them if they are "
+      "away from keyboard."
+   page_msg_DM = "You page %s%s."
+   page_msg_target = "You have been paged by %s%s."
+
+classvars:
+
+   vrName = page_name_rsc
+   vrIcon = page_icon_rsc
+   vrDesc = page_desc_rsc
+
+   viSpell_num = SID_PAGE
+   viSchool = SS_DM_COMMAND
+
+properties:
+
+messages:
+
+   GetNumSpellTargets()
+   {
+      return 1;
+   }
+
+   CanPayCosts(lTargets=$)
+   {
+      local oTarget;
+
+      oTarget = First(lTargets);
+
+      if (NOT IsClass(oTarget,&User))
+         AND NOT (IsClass(oTarget,&Reflection))
+         AND NOT (IsClass(oTarget,&EvilTwin))
+      {
+         return FALSE;
+      }
+
+      propagate;
+   }
+
+   DoSpellEffects(who = $, lTargets = $)
+   {
+      local i, oTarget;
+
+      oTarget = First(lTargets);
+
+      // redirect page to original for reflections and evil twins
+      if IsClass(oTarget,&Reflection) OR IsClass(oTarget,&EvilTwin)
+      {
+         lTargets = [Send(oTarget,@GetIllusionForm)];
+      }
+
+      // Send self the page noise.
+      Send(who,@WaveSendUser,#wave_rsc=page_wave_rsc);
+      Send(who,@MsgSendUser,#message_rsc=page_msg_dm,
+            #parm1=Send(oTarget,@GetDef),#parm2=Send(oTarget,@GetName));
+
+      foreach i in lTargets
+      {
+         Send(i,@WaveSendUser,#wave_rsc=page_wave_rsc);
+         Send(i,@MsgSendUser,#message_rsc=page_msg_target,
+               #parm1=Send(who,@GetIndef),#parm2=Send(who,@GetName));
+      }
+
+      return TRUE;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

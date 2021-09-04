@@ -1,0 +1,5 @@
+*.kod eol=lf
+*.lkod eol=lf
+*.c eol=lf
+*.h eol=lf
+*.md eol=lf

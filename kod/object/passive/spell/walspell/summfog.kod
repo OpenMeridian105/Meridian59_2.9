@@ -1,0 +1,107 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+SummonFog is WallSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include summfog.lkod
+
+   SummonFog_name_rsc = "fog"
+   SummonFog_icon_rsc = ifog.bgf
+   SummonFog_desc_rsc = \
+      "Creates a cloud of fog that is often mistaken for poisonous fog."
+
+   SummonFog_cast_rsc = \
+      "A thick fog rises from the ground before you."
+   SummonFog_sound = ffog.ogg
+
+   SummonFog_spell_intro_rsc = \
+      "Faren Lv. 1: Summons a wall of billowing fog to confuse your foes."
+
+classvars:
+
+   vrName = SummonFog_name_rsc
+   vrIcon = SummonFog_icon_rsc
+   vrDesc = SummonFog_desc_rsc
+   vrSucceed_wav = SummonFog_sound
+   vrSuccess = SummonFog_cast_rsc
+
+   vrSpell_intro = SummonFog_spell_intro_rsc
+
+   viSpell_num = SID_FOG
+   viSchool = SS_FAREN
+   viSpell_level = 1
+   viMana = 6
+   viMeditate_ratio = 10
+
+   viSpellExertion = 1
+   viCast_time = 2000
+   vrSucceed_wav = SummonFog_sound
+   viChance_To_Increase = 20
+   vbCastable_in_HappyLand = TRUE
+
+   viHarmful = TRUE
+   vbCanCastOnOthers = FALSE
+   viOutlaw = FALSE
+
+   //// Seed parameters
+   viElementDuration = 30000
+   viElementSpeed = 50
+   viElementCharges = 27
+   viElementNoise = 0
+   viElementCurve = 961024
+
+properties:
+
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&Elderberry,1], plReagents);
+
+      return;
+   }
+
+   GetNumSpellTargets()
+   {
+      return vbCanCastOnOthers;
+   }
+
+   PlaceWallElements(seed = $, lTargets = $)
+   {
+      local oCaster, oRoom, iAngle, lSeed, iXFineStep,iYFineStep;
+
+      oCaster = First(seed);
+      oRoom = Send(oCaster,@GetOwner);
+      iAngle = Nth(seed,6);
+
+      iXFineStep = Send(oRoom,@GetXFineStep,#angle=iAngle)*3;
+      iYFineStep = Send(oRoom,@GetYFineStep,#angle=iAngle)*3;
+
+      lSeed = ListCopy(seed);
+      SetNth(lSeed,6,0);
+
+      Send(self,@SpawnElement,#seed=lSeed,#who=oCaster,
+         #yfineoffset=FINENESS_HALF+iYFineStep,
+         #xfineoffset=FINENESS_HALF+iXFineStep,
+         #walltype=&FogCloud);
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

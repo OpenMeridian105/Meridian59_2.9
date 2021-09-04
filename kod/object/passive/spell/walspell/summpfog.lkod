@@ -1,0 +1,5 @@
+SummonPoisonFog_name_rsc = de "Giftnebel"
+SummonPoisonFog_desc_rsc = de \
+   "Erschafft eine Wolke beiﬂenden Giftnebels."
+SummonPoisonFog_cast_rsc = de \
+   "Eine dicke, scharf stechende Nebelwolke schwebt vor Dir"

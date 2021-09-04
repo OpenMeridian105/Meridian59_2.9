@@ -1,0 +1,27 @@
+DeathRift_name_rsc = de "Todesriss"
+DeathRift_desc_rsc = de \
+   "In seiner Verehrung der reinsten Form der Finsternis führt der Zaubernde "
+   "ein Ritual durch, das es ihm erlaubt, eine Stelle in der Wildnis mit seinem "
+   "eigenen Blut zu markieren, auf dass er zu einem späteren Zeitpunkt zum "
+   "Ort seines Blutopfers zurückkehren möge.  Von einem sicheren Ort aus kann "
+   "der Zaubernde sein Ritual sodann beenden, um ein Portal in die feurigen "
+   "Abgründe der Hölle selbst zu öffnen und auf diese Weise zu vielen verschiedenen "
+   "Zielen zu reisen, unter ihnen auch die markierte Stelle.  Im Gegensatz zu regulären "
+   "Besuchern können Qors treuste Diener die Unterwelt unbeschadet betreten und "
+   "wieder verlassen, denn sie haben ihren Preis bereits gezahlt."
+DeathRift_no_angeled = de \
+   "Du kannst nicht einen so dunklen Pakt eingehen, wenn Dein Schutzengel noch über Dich wacht."
+DeathRift_bind = de \
+   "Du hinterlässt einen blutigen Fleck direkt neben Deinen Füßen auf dem Boden. Dies bindet "
+   "einen kleinen Teil deiner Seele an diesen Ort."
+DeathRift_travel = de \
+   "Ein Riss aus Flammen öffnet sich, und Du findest Dich in der Unterwelt wieder."   
+DeathRift_travel_notify = de \
+   "Ein Riss aus Flammen erscheint für eine kurze Zeit, und schleppt %s in die Unterwelt!"
+DeathRift_travel_notify_dest = de \
+   "Für eine kurze Zeit entsteht ein Portal aus Flammen, und schleppt %s durch die Unterwelt zu der Karte \"%s\"!"
+DeathRift_generic_fail = de \
+   "Der Pakt mit dem Teufel schlägt fehlt. Irgendetwas scheint zu fehlen."
+DeathRift_warning = de \
+   "~BDu spürst eine nahegelegende Verbindung zwischen den Dimensionen!"
+deathrift_bound_desc = de "\n\nDeine Seele ist an den folgenden Ort gebunden: %s."

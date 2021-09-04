@@ -1,0 +1,18 @@
+// Quest description.
+bonepriestessquest_name_rsc = de "Der Pfad zum Riija Tempel: Ein Knochenjob"
+bonepriestessquest_desc_rsc = de \
+   "Dein Avarisch ist zwar etwas rostig, du glaubst aber, dass die "
+   "Knochenpriesterin von dir verlangt, dass du ihr den Kopf des gefürchteten "
+   "Ork Häuptlings bringst. (Silbertablett optional.)"
+
+bonepriestessquest_completed_rsc = de \
+   "Du hast die Quest \"Ein Knochenjob\" abgeschlossen und dafür einen Teil des Schwert Riijas erhalten. "
+   "Sammle alle vier Teile, um Dein Riija-Schwert zu vollenden."
+
+// Quest resources.
+bonepriestessquest_trigger_1 = de "Riija"
+bonepriestessquest_assign_2 = de \
+   "Wak-wak! Kopp von Höhlenscheff! Wak wak wa-ak!"
+bonepriestessquest_success_2 = de "Chp chp chp chp chp chp chp!"
+bonepriestessquest_failure_2 = de \
+   "Subject:  Ik ik ak\nWak wak Riija nicht ak!  Chp Chp kp ip!"

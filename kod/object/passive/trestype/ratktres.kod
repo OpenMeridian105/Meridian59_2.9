@@ -1,0 +1,42 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+RatKingTreasure is TreasureType
+
+constants:
+
+   include blakston.khd
+
+classvars:
+
+   viTreasure_num = TID_RAT_KING
+
+properties:
+
+messages:
+
+   Constructed()
+   {
+      plTreasure = [ [ &PlateArmor, 5 ],
+                     [ &OrcShield, 1 ],
+                     [ &InkyCap, 18 ],
+                     [ &Key, 5 ],
+                     [ &MysticSword, 5 ],
+                     [ &HealWand, 5 ],
+                     [ &ResistPoisonPotion, 10 ],
+                     [ &Diamond, 18 ],
+                     [ &DarkAngelFeather, 15 ],
+                     [ &PurpleMushroom, 18 ] ];
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

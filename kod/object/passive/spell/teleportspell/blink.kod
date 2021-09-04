@@ -1,0 +1,118 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Blink is TeleportationSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include blink.lkod
+
+   blink_name_rsc = "blink"
+   blink_icon_rsc = iblink.bgf
+   blink_desc_rsc = \
+      "Teleports you to a central location in the room.  "
+      "Requires nothing but a will to move."
+   blink_spell_intro = \
+      "Riija Level 1: The Trickster's most basic spell teleports you to "
+      "the local place of power."
+
+classvars:
+
+   vrName = blink_name_rsc
+   vrIcon = blink_icon_rsc
+   vrDesc = blink_desc_rsc
+
+   viCast_time = 10000
+
+   vrSpell_intro = blink_spell_intro
+
+   viSpell_num = SID_BLINK
+   viSpell_level = 1
+   viSchool = SS_RIIJA
+   viMana = 8
+   viSpellExertion = 10
+   viChance_To_Increase = 15
+   viMeditate_ratio = 20
+
+properties:
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+
+      return;
+   }
+
+   DoSpellEffects(who = $, lTargets = $)
+   {
+      local oRoom, oFollower, iNum;
+
+      oRoom = Send(who,@GetOwner);
+      oFollower = Send(who,@GetMercenary);
+
+      if oFollower <> $
+         AND (IsTimer(oFollower)
+            OR NOT IsClass(oFollower,&Follower)
+            OR (Send(oFollower,@GetOwner) <> oRoom))
+      {
+         oFollower = $;
+      }
+
+      iNum = Send(oRoom,@GetRoomNum);
+
+      if iNum = RID_KOC_HALL_OF_HEROES
+      {
+         oRoom = Send(SYS,@FindRoomByNum,#num=RID_TOS_FORGET);
+         if (oRoom <> $)
+         {
+            Post(oRoom,@Teleport,#what=who);
+         }
+      }
+      else if iNum = RID_BAZMANS_ROOM
+      {
+         oRoom = Send(SYS,@FindRoomByNum,#num=RID_FORGOTTEN_TOO);
+         if (oRoom <> $)
+         {
+            Post(oRoom,@Teleport,#what=who);
+         }
+      }
+      else
+      {
+         Send(oRoom,@Teleport,#what=who);
+      }
+
+      if oFollower <> $
+      {
+         Post(oRoom,@Teleport,#what=oFollower,#mob_override=TRUE);
+      }
+
+      return TRUE;
+   }
+
+   SuccessChance(who=$)
+   "Since Blink is a bug fix, always have it succeed."
+   {
+      return TRUE;
+   }
+
+   CanForget()
+   "Blink will not be killed by a forget potion."
+   {
+      return FALSE;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

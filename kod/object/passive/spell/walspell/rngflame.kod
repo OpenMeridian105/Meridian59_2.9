@@ -1,0 +1,95 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+RingOfFlames is WallSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include rngflame.lkod
+
+   RingOfFlames_name_rsc = "ring of flames"
+   RingOfFlames_icon_rsc = iringfir.bgf
+   RingOfFlames_desc_rsc = \
+      "Creates a devastating firestorm around the target."
+
+   RingOfFlames_cast_rsc = "A ring of twisting flames emerges!"
+
+   RingOfFlames_sound = frngfir.ogg
+
+classvars:
+
+   vrName = RingOfFlames_name_rsc
+   vrIcon = RingOfFlames_icon_rsc
+   vrDesc = RingOfFlames_desc_rsc
+
+   viSpell_num = SID_RING_OF_FLAMES
+   viSchool = SS_FAREN
+   viSpell_level = 5
+   viMana = 15
+   viSpellExertion = 2
+   viMeditate_ratio = 50
+
+   vrSucceed_wav = RingOfFlames_sound
+   vrSuccess = RingOfFlames_cast_rsc
+
+   viHarmful = TRUE
+   vbCanCastOnOthers = TRUE
+
+   //// Seed parameters
+   viElementSpellpower = 200
+   viElementDuration = 5000
+   viElementCharges = 100
+   viElementSpeed = 75
+   viElementNoise = 0
+   viElementCurve = 320512
+
+properties:
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&Firesand,2], plReagents);
+
+      return;
+   }
+
+   GetNumSpellTargets()
+   {
+      return vbCanCastOnOthers;
+   }
+
+   PlaceWallElements(seed = $, lTargets = $)
+   {
+      local oTarget, lSeed;
+
+      oTarget = First(seed);
+
+      if lTargets <> $
+      {
+         oTarget = First(lTargets);
+      }
+
+      lSeed = ListCopy(seed);
+      SetNth(lSeed,6,0);
+
+      Send(self,@SpawnElement,#seed=lSeed,#who=oTarget,#walltype=&WallOfFire,
+         #yfineoffset=FINENESS_HALF*5/2,#xfineoffset=FINENESS_HALF*3/2);
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

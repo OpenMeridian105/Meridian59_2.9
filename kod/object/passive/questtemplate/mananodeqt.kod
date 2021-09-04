@@ -1,0 +1,226 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+/////////////////////////////////////////////////////////////////////////////////
+ManaNodeQuest is QuestTemplate
+// Quest template QST_ID_MANA_NODE = 76.
+// Quest node 219 = QNT_ID_MANA_NODE_ONE
+// Not a real assignable quest.
+// Used because it can correctly handle icon display/description.
+
+// QuestTemplate is
+// [ quest template index
+//   quest template object
+//   number of players,
+//   type of quest,
+//   eligible player restrictions,
+//   quest nodes,
+//   max number active,
+//   currently active quests,
+//   percent chance of scheduling (on timer firing)
+//   special restrictions ]
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include mananodeqt.lkod
+
+   // Quest description.
+   mananodequest_icon_rsc = node.bgf
+   mananodequest_name_rsc = "Tapping into the Mana Nodes"
+   mananodequest_desc_rsc = \
+      "Mana nodes are the last remnants of the fractured connection between "
+      "this Meridian and the Nexus and the very source of any spellcaster's "
+      "magical powers.  Each node with which a mage has bonded extends their "
+      "pool of mana by an amount that is determined by their mystical talent.  "
+      "Mana nodes can be found in many different areas of the world, each of "
+      "them a site of mystical significance.  While some of the nodes are "
+      "quite easily accessible, others have eluded all but the bravest and "
+      "hardiest of adventurers.%r"
+      "\n\nYou are currently tapping into the following nodes:\n%r\n"
+      "You have yet to tap into the following nodes:\n%r"
+
+   mnq_node_name = "   %s\n"
+   mnq_lastnode_name = "   %s"
+
+   mananodequest_manadesc_rsc = \
+      "\n\nYou will gain %i.%i mana for each node and %i.%i for the "
+      "Vale of Sorrows node.  The value displayed in your mana bar will be "
+      "rounded down to the nearest number."
+
+   mananodequest_completed = \
+      "You have collected all the mana nodes!%r"
+
+classvars:
+
+   vrIcon = mananodequest_icon_rsc
+   vrName = mananodequest_name_rsc
+   vrDesc = mananodequest_desc_rsc
+   vrCompleted = mananodequest_completed
+
+   // The QST_ID constant for this quest.
+   viQuestID = QST_ID_MANA_NODE
+
+properties:
+
+   piNumPlayers = 1
+   piPlayerRestrict = Q_PLAYER_NOTSUCCEEDED
+   plSpecialRestrict = $
+   piMaxPlayers = 30
+   piSchedulePct = 0
+   piTimeLimit = 0
+
+messages:
+
+   Constructor()
+   {
+      // Quest node list to send to QuestEngine.
+      plQuestNodes = [QNT_ID_MANA_NODE_ONE];
+
+      propagate;
+   }
+
+   SendQuestNodeTemplates()
+   {
+      local oQE, oLib;
+
+      oQE = Send(SYS,@GetQuestEngine);
+
+      // Template #219 is a dummy quest node - not assignable.
+      // QNT_ID_MANA_NODE_ONE
+      if NOT Send(oQE,@AddQuestNodeTemplate,#questnode_type=QN_TYPE_SHOWUP,
+               #quest_node_index=QNT_ID_MANA_NODE_ONE)
+      {
+         Debug("Error building QN: QNT_ID_MANA_NODE_ONE");
+      }
+
+      return;
+   }
+
+   ShowDesc(who=$)
+   "Override for mana node quest to handle whole description."
+   {
+      local i, iCount, iNodeList, lDoneNodes, lNeedNodes, iNodeNum;
+
+      if who = $
+      {
+         Debug("Mana node quest got $ who in ShowDesc! Not showing anything.");
+
+         return;
+      }
+
+      iNodeList = Send(who,@GetNodeList);
+
+      if (iNodeList >= NODE_ALL)
+      {
+         AddPacket(4,vrCompleted);
+
+         // Add mana node gain to description.
+         Send(self,@ShowManaGain,#who=who);
+      }
+      else
+      {
+         AddPacket(4,vrDesc);
+
+         // Add mana node gain to description.
+         Send(self,@ShowManaGain,#who=who);
+
+         foreach i in Send(SYS,@GetNodes)
+         {
+            iNodeNum = Send(i,@GetNodeNum);
+
+            // Skip inactive nodes.
+            if (NOT (iNodeNum & NODE_ALL))
+            {
+               continue;
+            }
+
+            if (iNodeNum & iNodeList)
+            {
+               lDoneNodes = Cons(i,lDoneNodes);
+            }
+            else
+            {
+               lNeedNodes = Cons(i,lNeedNodes);
+            }
+         }
+
+         // Handles 0 too.
+         AddPacket(4,Send(SYS,@AddResourceTemplate,#iNum=Length(lDoneNodes)));
+         foreach i in lDoneNodes
+         {
+            AddPacket(4,mnq_node_name,4,Send(i,@GetLocationName));
+         }
+         // Handles 0 too.
+         AddPacket(4,Send(SYS,@AddResourceTemplate,#iNum=Length(lNeedNodes)));
+
+         // Must skip newline on last entry.
+         iCount = Length(lNeedNodes);
+         foreach i in lNeedNodes
+         {
+            if (--iCount = 0)
+            {
+               AddPacket(4,mnq_lastnode_name,4,Send(i,@GetLocationName));
+            }
+            else
+            {
+               AddPacket(4,mnq_node_name,4,Send(i,@GetLocationName));
+            }
+         }
+      }
+
+      return;
+   }
+
+   ShowManaGain(who=$)
+   {
+      local iMyst, iNormalAdd, iValeAdd, oNode;
+
+      if (who = $)
+      {
+         Debug("Mana node quest got $ who in ShowManaGain!");
+         AddPacket(system_blank_resource);
+
+         return;
+      }
+
+      iMyst = Send(who,@GetMysticism);
+
+      // Use Sentinel as standard node mana gain.
+      oNode = Send(SYS,@FindNodeByNum,#num=NODE_H9);
+      if (oNode = $)
+      {
+         Debug("Mana node quest couldn't get a standard node for description!");
+         iNormalAdd = 0;
+      }
+
+      iNormalAdd = Send(oNode,@GetManaAdjust,#who=self,#myst=iMyst);
+
+      oNode = Send(SYS,@FindNodeByNum,#num=NODE_FAERIE);
+      if (oNode = $)
+      {
+         Debug("Mana node quest couldn't get vale node for description!");
+         iValeAdd = 0;
+      }
+
+      iValeAdd = Send(oNode,@GetManaAdjust,#who=self,#myst=iMyst);
+
+      // Values are in fixed point 1 decimal, so div/mod
+      // to show properly to user.
+      AddPacket(4, mananodequest_manadesc_rsc, 4, iNormalAdd / 10,
+                4, iNormalAdd % 10, 4, iValeAdd / 10, 4, iValeAdd % 10);
+
+      return;
+   }
+
+end
+/////////////////////////////////////////////////////////////////////////////////

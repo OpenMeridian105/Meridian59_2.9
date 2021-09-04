@@ -1,0 +1,36 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+SummonPoisonFogScroll is Scroll
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include pfogscrl.lkod
+
+   SummonPoisonFogScroll_label_name_rsc = "scroll of poison fog"
+   SummonPoisonFogScroll_icon_rsc = scr06.bgf
+
+classvars:
+
+   vrLabelName = SummonPoisonFogScroll_label_name_rsc
+   vrIcon = SummonPoisonFogScroll_icon_rsc
+   viSpellEffect = SID_POISON_FOG
+   viColor = XLAT_TO_RED
+
+properties:
+
+messages:
+
+end
+////////////////////////////////////////////////////////////////////////////////

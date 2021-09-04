@@ -1,0 +1,5 @@
+OrcPitBossBody_name_rsc = de "Der Körper des Orkhäuptlings"
+OrcPitBossBody_desc_rsc = de \
+   "Dies ist der Körper des Orkhäuptling. Sein Kopf ist fast vollständig "
+   "abgetrennt."
+OrcPitBossBody_dead_name_rsc = de "Der Körper des enthaupteten Orkhäuptlings"

@@ -1,0 +1,4 @@
+fireball_name_rsc = de "Feuerball"
+fireball_desc_rsc = de \
+   "Schleudert einen Feuerball auf das Ziel."
+fireball_hit_rsc = de "Ein Feuerball trifft %s%s!"

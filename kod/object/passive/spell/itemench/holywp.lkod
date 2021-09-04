@@ -1,0 +1,11 @@
+holyweapon_cast_rsc = de "Dein %s ist nun geweiht durch Shal'ille."
+holyweapon_no_can = de "Du kannst %s%s nicht Shal'ille weihen."
+holyweapon_fails = de "Der %s bleibt unberührt von Deinem Zauber."
+holyweapon_already_done = de "Diese Waffe ist bereits von Shal'ille geweiht."
+holyweapon_name_rsc = de "Heilige Waffe"
+holyweapon_desc_rsc = de \
+   "Deine Waffe wird von Shal'ille gesegnet und verstärkt ihre Wirkung gegen die Unheiligen."
+holyweapon_spell_intro = de \
+   "Shal'ille Level 2: Deine Waffe wird von Shal'ille gesegnet und verstärkt "
+   "ihre Wirkung gegen die Unheiligen."
+holyweapon_label_rsc = de "Heilig"

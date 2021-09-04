@@ -1,0 +1,10 @@
+guildforgealliance_name_rsc = de "Allianz schmieden"
+guildforgealliance_desc_text_rsc = de \
+   "Wird verwendet, um sich mit anderen Gilden zu verbünden.  Primäres Ziel "
+   "einer Allianz - gemeinschaftliches Nutzen einer Gildenhalle."
+ally_cant_ally_self = de \
+   "Du willst ein Bündnis mit Dir selber schmieden? Sehr gern, Du akzeptierst."
+ally_on_enemy_list = de \
+   "Du wirst keine Allianz mit %s%q eingehen bis du die Feindseligkeiten "
+   "beigelegt hast."
+ally_on_ally_list = de "Die Krieger von %s%q sind bereits Deine Verbündeten!"

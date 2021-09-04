@@ -1,0 +1,30 @@
+// Quest description.
+madscientistdflyquest_name_rsc = de \
+   "Der Pfad zum Riija Tempel: \"Eine gute Nachricht, Freund!\""
+madscientistdflyquest_desc_rsc = de \
+   "Bahal zax'Ot hat versprochen dich fürstlich zu entlohnen, sollte es dir "
+   "gelingen, ihm ein lebendiges Exemplar einer Drachenfliegenkönigin für "
+   "seine Experimente zu bringen. Leider gelten Drachenfliegenköniginnen als "
+   "extrem scheu und wurden bisher zudem ausschließlich auf den berüchtigten "
+   "Klippen im Nordwesten der Insel angetroffen. "
+   "Laut Bahal \"...ist alles ganz einfach! Gib ihr 'nen Trollkeks und sie "
+   "folgt dir bis ans Ende der Welt!\". Trotzdem hast du das schleichende "
+   "Gefühl, dass deine Aufgabe alles andere als einfach sein wird.."
+
+madscientistdflyquest_completed_rsc = de \
+   "Du hast die Quest \"Eine gute Nachricht, Freund!\" abgeschlossen und dafür einen Teil des Schwert Riijas erhalten. "
+   "Sammle alle vier Teile, um Dein Riija-Schwert zu vollenden."
+
+// Quest resources.
+madscientistquest_trigger_1 = de "Kohuzotz"
+madscientistquest_assign_2 = de \
+   "Ich bin stets bemüht mit meinen Haustieren zu experimentieren. Wenn "
+   "Du mir ein lebendes Exemplar bringst, könnte ich Dir im Gegenzug etwas "
+   "sehr Interessantes anbieten."
+madscientistquest_success_2 = de "Ausgezeichnet! Gute Arbeit, Lehrling."
+madscientistquest_failure_2 = de \
+   "Betreff: Exemplar einer Drachenfliegenkönigin\nDu hast einfach zu lange gebraucht, "
+   "um mir eine Drachenfliegenkönigin zu besorgen, sodass ich mich "
+   "schon anderweitig umgesehen habe. In der nächsten Zeit werde ich mit diesem "
+   "prachtvollen Exemplar sehr beschäftigt sein. Also mach Dir keine Mühe mir ein "
+   "weiteres Exemplar zu bringen.."

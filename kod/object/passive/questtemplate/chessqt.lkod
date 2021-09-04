@@ -1,0 +1,29 @@
+// Quest description.
+chessqt_desc_rsc = de \
+   "%s spielt eine Partie Fernschach gegen einen Freund und sucht nach "
+   "einem zuvorkommenden Abenteurer, der ihm bei der Übermittlung eines "
+   "Spielzuges behilflich sein könnte."
+
+chessqt_nodetwo_rsc = de \
+   "%s%s spielt eine Partie Schach und wäre überaus froh, wenn Du "
+   "%sden nächsten Zug seinem Gegner %s übermittelst. Akzeptierst du?"
+
+chessqt_nodethree_rsc = de \
+   "Gehe zu %s%s und teile %smit, das der nächster Schachzug \"%q\" sein wird."
+
+chessqt_nodefour_rsc = de \
+   "Gehe zurück zu %s%s und teile %s mir, das der nächster Schachzug in "
+   "dieser Partie \"%q\" sein wird."
+
+// Quest resources.
+chess_assign_2 = de \
+   "Ich spiele eine Runde Schach mit einem Freund. Wärst Du bereit meinen "
+   "nächsten Zug meinem Gegner mitzuteilen?"
+chess_assign_3 = de \
+   "Wunderbar! Bitte sag %NPC mein nächster Zug lautet: %CARGO."
+chess_assign_4 = de \
+   "Ein interessanter Trick, aber leicht zu kontern.. Sag %NPC mein nächster "
+   "Zug ist: %CARGO."
+chess_failure = de \
+   "Betreff:  Mein Schachzug\nDu kannst es vergessen meinen nächsten Zug weiterzugeben. "
+   "Ich habe schon einen anderen Kurier gefunden."

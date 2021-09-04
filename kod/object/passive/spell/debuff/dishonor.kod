@@ -1,0 +1,132 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+MarkOfDishonor is Debuff
+
+constants:
+
+   include blakston.khd
+
+   DISHONOR_LOWEST_VIGOR_REST_THRESHOLD = 10
+   DISHONOR_VIGOR_LOSS = 40
+
+resources:
+
+   include dishonor.lkod
+
+   MarkOfDishonor_name_rsc = "mark of dishonor"
+   MarkOfDishonor_icon_rsc = imarkdis.bgf
+   MarkOfDishonor_desc_rsc = \
+      "Allows caster to cast Shal'ille's displeasure upon a target.  Will "
+      "prevent target's life force from replenishing by natural means.  For "
+      "evil targets, Shal'ille will see to further punishment."
+   MarkOfDishonor_sound = smarkdis.ogg
+   MarkOfDishonor_start = \
+      "Shal'ille singles you out for punishment.  Your life energies ebb."
+   MarkOfDishonor_stop  = \
+      "Shal'ille's attention turns to more pressing matters."
+   MarkOfDishonor_success = "The eyes of Shal'ille turn towards %s%s."
+   MarkOfDishonor_already_enchanted = "%s%s is already marked."
+   MarkOfDishonor_no_self = \
+      "You cannot cast mark of dishonor upon yourself; if you were truly "
+      "dishonorable you would not be able to cast Shal'ille's spells."
+
+classvars:
+
+   vrName = MarkOfDishonor_name_rsc
+   vrIcon = MarkOfDishonor_icon_rsc
+   vrDesc = MarkOfDishonor_desc_rsc
+
+   vrAlreadyEnchanted = MarkOfDishonor_already_enchanted
+   vrEnchantment_On = MarkOfDishonor_start
+   vrEnchantment_Off = MarkOfDishonor_stop
+   vrSuccess = MarkOfDishonor_success
+   vrNoSelfTarget = MarkOfDishonor_no_self
+
+   viSchool = SS_SHALILLE
+   viSpell_num = SID_MARK_OF_DISHONOR
+   viSpell_level = 4
+   viMana = 12
+   viChance_To_Increase = 25
+   viMeditate_ratio = 40
+
+   viFlash = FLASH_BAD
+
+   vrSucceed_wav = MarkOfDishonor_sound
+
+properties:
+
+   piBaseDuration = 5000 // in ms, old value 15000
+   piSpellPowerModifier = 50 // ms per spellpower point, old value 150
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&Emerald,1],plReagents);
+
+      return;
+   }
+
+   DoSpellEffects(who=$,lTargets=$,iDuration=0,iSpellPower=0)
+   {
+      local iKarma, oTarget;
+
+      oTarget = First(lTargets);
+
+      // Put a DoT based on their karma and stop their health regeneration.
+      iKarma = Bound(Send(oTarget,@GetKarma),-100,0);
+      Send(oTarget,@StartOverTimeEffect,#strength=(iSpellPower*iKarma/5),
+            #duration=iDuration,#what=self,#who=who,#curse=TYPE_HEALTH);
+
+      if IsClass(oTarget,&Player)
+      {
+         Send(oTarget,@MsgSendUser,#message_rsc=MarkOfDishonor_start);
+      }
+      else
+      {
+         // EnterStateWait will make the monster stop aggro players and put
+         // them on wait-state waiting to aggro again.
+         // No memory wipe though. Once the spell wears off,
+         // the target engages.
+         // Post it because the spell counts as an attack.
+         // We don't want the spell to break its own pacify effect.
+         Post(oTarget,@EnterStateWait,#delay=iDuration);
+      }
+
+      Send(who,@MsgSendUser,#message_rsc=MarkOfDishonor_success,
+            #parm1=Send(oTarget,@GetDef),#parm2=Send(oTarget,@GetName));
+
+      propagate;
+   }
+
+   GetDuration(iSpellPower=0)
+   {
+      return piBaseDuration + iSpellPower * piSpellPowerModifier;
+   }
+
+   OverTimeEffectWearingOff(who=$,overtimeeffect=$,report=TRUE)
+   {
+      if report
+      {
+         Send(who,@MsgSendUser,#message_rsc=MarkOfDishonor_stop);
+      }
+
+      return;
+   }
+
+   CausesAggression(iSpellpower=0)
+   {
+      return iSpellpower / 5;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,144 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+/////////////////////////////////////////////////////////////////////////////////
+BowmakerEvilQuest is BowmakerQuestTemplate
+// Quest template QST_ID_BOW_MAKER_EVIL = 22.
+// Quest nodes 38, 41.
+// QNT_ID_BOWMAKER_KICKOFF, QNT_ID_BOWMAKER_EVIL
+
+// QuestTemplate is
+// [ quest template index
+//   quest template object
+//   number of players,
+//   type of quest,
+//   eligible player restrictions,
+//   quest nodes,
+//   max number active,
+//   currently active quests,
+//   percent chance of scheduling (on timer firing)
+//   special restrictions ]
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include bowmakerevilqt.lkod
+
+   // Quest description.
+   bowmakerevilquest_icon_rsc = avfeathr.bgf
+   bowmakerevilquest_desc_rsc = \
+      "It is common knowledge that the most powerful magical arrows require "
+      "the tail feathers of equally powerful magical creatures.  If you were "
+      "to obtain such a tail feather and bring it to Hanla zax'Ta, the master "
+      "fletcher, she might be willing to reward you with a magical item.  The "
+      "likes of you might find it easiest to acquire said tail feather by "
+      "unceremoniously murdering its original owner.  You have heard that "
+      "Avar shamans are quite magical - and feathery."
+   bowmakerevilquest_kill_rsc = \
+      "Hanla zax'Ta has asked you to obtain the tail feather of an "
+      "avar shaman for her. Seek out and kill avar shamans until you "
+      "find an undamaged tail feather on the corpse."
+   bowmakerevilquest_return_rsc = \
+      "Return to Hanla zax'Ta with the avar shaman tail feather."
+
+   // Quest resources.
+   bowmaker_assign_4 = \
+      "I use special materials to make my best arrows.  The tail feathers "
+      "of an avar magician are reputed to offer magical properties to any "
+      "arrow they fletch.  Go, kill avar shamans until you find one which "
+      "offers a suitably undamaged tail feather."
+   bowmaker_failure_4 = \
+      "Subject: Avar feather\n"
+      "Clearly, you were unable get an avar feather for me.  I understand, "
+      "avar shamans are formidable opponents.  If you wish, return later, "
+      "perhaps I will need more."
+
+classvars:
+
+   vrIcon = bowmakerevilquest_icon_rsc
+   vrDesc = bowmakerevilquest_desc_rsc
+
+   vrKill = bowmakerevilquest_kill_rsc
+   vrReturn = bowmakerevilquest_return_rsc
+
+   // The QST_ID constant for this quest.
+   viQuestID = QST_ID_BOW_MAKER_EVIL
+
+   viIcon_Animation_start = 1
+
+properties:
+
+   piPlayerRestrict = Q_PLAYER_NOTTRIED_RECENTLY | Q_PLAYER_KARMA_EVIL
+
+messages:
+
+   Constructor()
+   {
+      // Quest node list to send to QuestEngine.
+      plQuestNodes = [QNT_ID_BOWMAKER_KICKOFF, QNT_ID_BOWMAKER_EVIL];
+
+      propagate;
+   }
+
+   SendQuestNodeTemplates()
+   {
+      local oQE, oLib;
+
+      oQE = Send(SYS,@GetQuestEngine);
+      oLib = Send(SYS,@GetLibrary);
+
+      // Template #41 is bow maker quest (evil)
+      // QNT_ID_BOWMAKER_EVIL
+      if Send(oQE,@AddQuestNodeTemplate,#questnode_type=QN_TYPE_MONSTER_ITEMCLASS,
+               #monsterlist=[ &AvarShaman ],
+               #cargolist=[ [ QN_PRIZETYPE_ITEMCLASS, &AvarShamanFeather, 1 ] ],
+               #prizelist=[ [ QN_PRIZETYPE_ITEMCLASS, &SwordShardD, 1 ] ],
+               #quest_node_index=QNT_ID_BOWMAKER_EVIL)
+      {
+         Send(oQE,@SetQuestNodeNPCModifier,#index=QNT_ID_BOWMAKER_EVIL,
+               #new_mod=QN_NPCMOD_SAME);
+         Send(oQE,@SetQuestNodeAssignHint,#index=QNT_ID_BOWMAKER_EVIL,
+               #new_hint=bowmaker_assign_4);
+         Send(oQE,@SetQuestNodeSuccessHint,#index=QNT_ID_BOWMAKER_EVIL,
+               #new_hint=bowmaker_success_3);
+         Send(oQE,@SetQuestNodeFailureHint,#index=QNT_ID_BOWMAKER_EVIL,
+               #new_hint=bowmaker_failure_4);
+         Send(oQE,@SetQuestNodeTimeLimit,#index=QNT_ID_BOWMAKER_EVIL,
+               #new_limit=10800);
+      }
+      else
+      {
+         Debug("Error building QN: QNT_ID_BOWMAKER_EVIL");
+      }
+
+      propagate;
+   }
+
+   MainDesc(who=$,index=$,oQuestNode=$)
+   {
+      local oMob;
+
+      oMob = Send(oQuestNode,@GetQuestMonster);
+      if oMob = $
+      {
+         AddPacket(4,vrReturn);
+      }
+      else
+      {
+         AddPacket(4,vrKill);
+      }
+
+      return;
+   }
+
+end
+/////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,112 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+FireStorm is RadiusProjectile
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include firestorm.lkod
+
+   firestorm_name_rsc = "fire storm"
+   firestorm_icon_rsc = ifirestorm.bgf
+   firestorm_projectile_rsc = fireball.bgf
+   firestorm_desc_rsc = \
+      "Call upon the magic of Faren and propel forth a devastating "
+      "barrage of fireballs, searing the flesh of those around you."
+   firestorm_first_rsc = \
+      "You channel the power of Faren and unleash a barrage of fire!"
+   firestorm_third_rsc = \
+      "%s%s channels the power of Faren and unleashes a barrage of fire!"
+
+   // These aren't in use at the moment.
+   firestorm_killed_someone = \
+      "The flames consume %s%s."
+   firestorm_cast_rsc = \
+      "You let out a cry of pain as flames sear your flesh, "
+      "causing ~r~B%i~n damage."
+   firestorm_hit_rsc = \
+      "%s%s lets out a cry of pain as flames sear %s flesh "
+      "for ~k~B%i~n damage."
+
+   firestorm_sound = ffirebal.ogg
+
+classvars:
+
+   vrName = firestorm_name_rsc
+   vrDesc = firestorm_desc_rsc
+   vrIcon = firestorm_icon_rsc
+
+   vrAttackFirst = firestorm_first_rsc
+   vrAttackThird = firestorm_third_rsc
+
+   viSpell_num = SID_FIRE_STORM
+   viSchool = SS_FAREN
+   viSpell_level = 6
+   viMana = 30
+
+   viChance_to_increase = 10
+   viMeditate_ratio = 100
+   vrSucceed_wav = firestorm_sound
+
+   viSpell_type = SPL_TYPE_ALL+SPL_TYPE_FIRE
+   viOutlaw = TRUE
+   viHarmful = TRUE
+   viNoNewbieOffense = TRUE
+
+   // Projectile lighting information.
+   viProjectileLightFlags = LIGHT_FLAG_ON | LIGHT_FLAG_DYNAMIC
+   // Medium light range, out of 255.
+   viProjectileLightIntensity = 175
+   // Color is orange.
+   viProjectileLightColor = LIGHT_BORANGE
+
+   vrProjectile_icon = firestorm_projectile_rsc
+   vbIsAreaEffect = TRUE
+
+properties:
+
+   // Range in FINENESS units, default 6 row/col units.
+   piRange = 640
+
+   piSpeed = 6
+
+   piDamageMin = 22
+   piDamageMax = 30
+
+   piNumber = 16
+
+   pbAccessible = FALSE
+   pbEnabled = FALSE
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&RedMushroom,2],plReagents);
+      plReagents = Cons([&OrcTooth,2],plReagents);
+      plReagents = Cons([&GreenMushroom,1],plReagents);
+
+      return;
+   }
+
+   SendProjectileAnimation()
+   {
+      AddPacket(1, ANIMATE_CYCLE, 4,40, 2,1, 2,2);  // 40ms between animations
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

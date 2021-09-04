@@ -1,0 +1,14 @@
+BetaPotion_name_rsc = de "Der berühmte BETATRANK!"
+BetaPotion_desc_rsc = de \
+   "Dieser Trank soll das Beta-Testen erleichtern, indem den Spielern die "
+   "Möglichkeit gegeben wird, die fortgeschritteneren Abschnitte des Spiels "
+   "zu testen.\n\n"
+BetaPotion_drink = de \
+   "Du stürzt den Inhalt der Phiole in einem einzigen Zug herunter."
+BetaPotion_worked = de "Du fühlst Dich plötzlich ein bisschen größer."
+BetaPotion_select_schools = de \
+   "Füge dir Schulen hinzu, bist du keine Punkte mehr hast.  Du kannst nur so "
+   "viele Schulen und Zirkel lernen, wie dein Intelligenz Wert zulässt.  Sage "
+   "eines der folgenden Dinge\n~B\"[Shal'ill, Qor, Kraanan, Faren, Riija, "
+   "Jala, Waffenfertigkeiten]\"~n gefolgt von ~B\"Zirkel [Eins, Zwei, Drei, "
+   "Vier, Fünf, Sechs]\""

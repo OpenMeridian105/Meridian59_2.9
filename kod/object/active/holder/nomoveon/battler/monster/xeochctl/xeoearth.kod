@@ -1,0 +1,77 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+XeoEarth is Xeochicatl
+
+constants:
+
+   include blakston.khd
+
+   ANIM_CAST = 2     /// Cast spell animation.
+
+resources:
+
+   include xeoearth.lkod
+
+   XeoEarth_name_rsc = "te'xeochicatl"
+   XeoEarth_koc_name_rsc = "te'xeo'chicatl"
+   XeoEarth_desc_rsc = \
+      "Before you is a te'xeochicatl, a fearsome monster given life by the "
+      "chaotic magic of the Meridian.  The te'xeochicatl is the embodiment of "
+      "destruction, a violent monster that seems uncontrollable.  These "
+      "monsters feed off of the magic of the lands which makes them very "
+      "powerful.  Rumors abound about the origin of these monsters, but you "
+      "have little time to contemplate these rumors in the presence of "
+      "such destructive power!"
+
+   XeoEarth_sound_aware = xeo2awr.ogg
+
+ classvars:
+
+   vrName = XeoEarth_name_rsc
+   vrDesc = XeoEarth_desc_rsc
+   vrKocName = XeoEarth_koc_name_rsc
+
+   viAttack_type = ATK_TYPE_MAGIC
+   viLevel = 200
+   viDifficulty = 9
+   viSpeed = SPEED_FASTER
+   vrSound_aware = XeoEarth_sound_aware
+
+   viTreasure_type = TID_XEO_EARTH
+
+   viBleedChance = 10
+   viBleedStrength = 3000
+   viBleedDuration = 20000
+
+properties:
+
+   piAnimation = ANIM_NONE
+   piMax_Mana = 90
+
+messages:
+
+   Constructed()
+   {
+      plResistances = [ [ATK_TYPE_NERUDITE, 70 ],
+                        [ATK_TYPE_MAGIC, -10 ],
+                        [-SPL_TYPE_SHOCK, -10 ],
+                        [-SPL_TYPE_QUAKE, 110 ]
+                      ];
+
+      piColor_Translation = Send(SYS,@EncodeTwoColorXLAT,#color1=XLAT_TO_SKIN4);
+
+      plActions = [ [SID_EARTHQUAKE],[SID_SAND_STORM],[SID_KILLING_FIELDS],[SID_BRAMBLE_WALL] ];
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

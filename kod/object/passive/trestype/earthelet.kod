@@ -1,0 +1,45 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+EarthElementalTreasure is TreasureType
+
+constants:
+
+   include blakston.khd
+
+classvars:
+
+   viTreasure_num = TID_EARTH_ELE
+
+properties:
+
+   piItem_att_chance = 3
+   piDIff_seed = 9
+
+messages:
+
+   Constructed()
+   {
+      plTreasure = [ [ &BlueDragonScale, 18],
+                     [ &DarkAngelFeather, 18],
+                     [ &PurpleMushroom, 16],
+                     [ &InkyCap, 14],
+                     [ &NightVisionPotion, 5],
+                     [ &BerserkerRing, 5],
+                     [ &Emerald, 10],
+                     [ &RedMushroom, 10],
+                     [ &MysticSword, 4]
+                   ];
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

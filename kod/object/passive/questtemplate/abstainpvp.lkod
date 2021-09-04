@@ -1,0 +1,30 @@
+// Quest description.
+abstainpvp_name_rsc = de "Pfad des Pazifisten"
+abstainpvp_desc_rsc = de \
+   "Wenn Du dir sicher bist, dass es dein Wunsch ist, mit diesem Charakter "
+   "niemals gegen andere Spieler zu kämpfen, dann sprich die folgenden Worte "
+   "zur Priesterin von Shal'ille: \"Ich bitte Shal'ille mich vor Leid zu "
+   "beschützen\".\n\n"
+   "WARNUNG: Dies ist eine permanente und unwiderrufliche Entscheidung! Wenn "
+   "Du diesen Schritt gehst, wirst Du nicht mehr in der Lage sein an PvP "
+   "Kämpfen teilzunehmen, ein Fraktionsschild (oder zukünftige PvP Gegenstände) "
+   "zu tragen, Gildenhallen zu betreten oder an Richterwahlen teilzunehmen."
+abstainpvp_completed_rsc = de \
+   "Du hast die Quest \"Pfad des Pazifisten\" abgeschlossen nun bist nun dauerhaft"
+   "vor anderen Spielern geschützt. Du kannst niemanden angreifen, noch angegriffen "
+   "werden. Du kannst auch keine Gildenhallen betreten, nicht an der Richterwahlen "
+   "teilnehmen, kein Fraktionsschild tragen oder an Gebietseroberungen teilnehmen."
+
+// Quest resources.
+abstainpvp_trigger = de "Verzicht der Gewalt"
+abstainpvp_trigger_2 = de "Ich bitte Shal'ille mich vor Leid zu beschützen"
+abstainpvp_assign = de \
+   "Shal'ille wird dich vor Gewalt von anderen Abenteurern beschützen. Um "
+   "diesen Schutz zu erhalten musst Du folgende Worte laut sagen: "
+   "\"~IIch bitte Shal'ille mich vor Leid zu beschützen.~I\"."
+abstainpvp_success = de \
+   "Du wurdest von Shal'ille gesegnet, und stehst nun unter Ihrem "
+   "dauerhaften Schutz."
+abstainpvp_failure = de "Betreff: Dein Wunsch nach Schutz vor Angriffen\n"
+   "Wenn Du in der Zukunft den Wunsch nach einem permanentem Schutz vor Angriffen hast, "
+   "so kehre zurück und sprich mit mir."

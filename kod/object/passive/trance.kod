@@ -1,0 +1,209 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Trance is PassiveObject
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include trance.lkod
+
+   trance_begin = "You focus your whole will on casting %s."
+   trance_break = "Your concentration is broken and the %s spell fizzles."
+   trance_disturbed = "You manage to retain your concentration."
+   trance_break_sound = spelfail.ogg
+
+classvars:
+
+properties:
+
+   piMovementSpeedReduction = 50
+   vbIsLightSource = FALSE
+
+messages:
+
+   GetSpellNum()
+   {
+      return SID_TRANCE;
+   }
+
+   BeginTrance(what=$,who=$,lTargets=$,time=0,bFreeCast=FALSE,power=0)
+   {
+      local lState, iPower;
+
+      lState = Send(who,@GetRadiusEnchantmentState,#byclass=&WarpTime);
+      if (lState <> $)
+      {
+         iPower = Nth(lState,5);
+         // Up to an extra second.
+         time += iPower * 10;
+      }
+
+      Send(who,@StartEnchantment,#what=self,#time=time,#addicon=FALSE,
+           #state=[what,who,lTargets,TRUE,bFreeCast,100,power]);
+
+      Send(who,@AddMovementSpeedPercent,#iSpeed=-piMovementSpeedReduction);
+
+      return;
+   }
+
+   SetSpellPlayerFlag(who=$)
+   {
+      Send(who,@SetTranceFlag);
+
+      return;
+   }
+
+   EndEnchantment(who = $, state = $ )
+   "Called when:"
+   " 1) Casting time expires, time to call CastSpell"
+   " 2) Spell expires"
+   {
+      local oAbility, lTargets, iSpellPower;
+
+      oAbility = First(state);
+      lTargets = Nth(state,3);
+
+      // Let's clear up our trance related effects before proceeding further.
+      Send(who,@AddMovementSpeedPercent,#iSpeed=piMovementSpeedReduction);
+
+      // Double-check to get valid targets.  Don't report 'cause we've already 
+      //  spammed them during the first check.
+      lTargets = Send(oAbility,@GetGoodTargets,#who=who,#lTargets=lTargets,
+                      #report=FALSE);
+
+      if IsClass(oAbility,&Spell)
+      {
+         iSpellPower = Send(oAbility,@GetSpellPower,#who=who);
+
+         if Send(oAbility,@DoubleCheckAfterTrance,#who=who,#lTargets=lTargets,
+                 #iSpellPower=iSpellPower)
+         {
+            Send(oAbility,@TranceCompleted,#who=who,#state=state);
+
+            if lTargets <> $
+               AND isClass(First(lTargets),&Battler)
+               AND Send(First(lTargets),@TryDeflect,#what=oAbility,#caster=who)
+            {
+               Post(oAbility,@CastSpell,#who=who,#lTargets=[who],
+                    #iSpellPower=iSpellPower/2);
+            }
+            else
+            {
+               Post(oAbility,@CastSpell,#who=who,#lTargets=lTargets,
+                    #iSpellPower=iSpellPower);
+            }
+         }
+      }
+      else
+      {
+         if Send(oAbility,@DoubleCheckAfterTrance,#who=who,#lTargets=lTargets)
+         {
+            Send(oAbility,@TranceCompleted,#who=who,#state=state);
+
+            Post(oAbility,@PerformSkill,#who=who,#lTargets=lTargets);
+         }
+      }
+
+      return;
+   }
+
+   BreakTrance(who=$,state=$,event=1,disruption=0)
+   {
+      local oAbility, iTime;
+
+      if event = EVENT_OOM
+      {
+         return;
+      }
+
+      oAbility = First(state);
+
+      if NOT Send(oAbility,@CanBreakTrance,#who=who,#state=state,#event=event,
+         #disruption=disruption)
+      {
+         return;
+      }
+
+      if event <> EVENT_STEER
+      {
+         if event = EVENT_CANCEL
+         {
+            Send(oAbility,@TranceCanceled,#who=who,#state=state);
+         }
+         else if (event = EVENT_DAMAGE)
+            AND Send(who,@SetTranceFocus,#focus=-disruption,#bAdd=TRUE)
+         {
+            iTime = Send(oAbility,@GetRawTranceTime);
+            iTime = iTime * disruption / 100;
+            Send(who,@SetTranceTime,#time=iTime,#bAdd=TRUE);
+            Send(who,@MsgSendUser,#message_rsc=trance_disturbed);
+
+            return;
+         }
+         else
+         {
+            Send(oAbility,@TranceBroken,#who=who,#state=state,#event=event);
+         }
+      }
+
+      Send(who,@AddMovementSpeedPercent,#iSpeed=piMovementSpeedReduction);
+      Send(who,@RemoveEnchantment,#what=self);
+
+      return;
+   }
+
+   RemoveEnchantmentEffects( who = $, state = $ )
+   "This is normally translated to EndEnchantment in spell.kod"
+   "For trance, it is just swallowed."
+   {
+      return;
+   }
+
+   ShowEnchantmentIcon()
+   {
+      return False;
+   }
+
+   IsPersonalEnchantment()
+   {
+      return FALSE;
+   }
+
+   AffectsMaxMana()
+   {
+      return FALSE;
+   }
+
+   ModifyResistance(resistance_list=$)
+   {
+      return resistance_list;
+   }
+
+   IsLightSource()
+   {
+      return vbIsLightSource;
+   }
+
+   GetLightColor(state=$)
+   {
+      return Send(First(state),@GetLightColor);
+   }
+
+   GetLightIntensity(state=$)
+   {
+      return 100;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

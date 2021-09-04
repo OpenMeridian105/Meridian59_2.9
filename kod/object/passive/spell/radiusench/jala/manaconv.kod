@@ -1,0 +1,119 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+/////////////////////////////////////////////////////////////////////////////////
+ManaConvergence is Jala
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include manaconv.lkod
+
+   ManaConvergence_name_rsc = "witless ditty"
+   ManaConvergence_icon_rsc = imanacon.bgf
+   ManaConvergence_desc_rsc = \
+      "The ruthlessly vexing lyrics and annoyingly catchy melody of this most devious "
+      "ditty will worm themselves into the minds of the bard's adversaries, causing them "
+      "to leak mystical energy.  The leaked mana may then be siphoned by the minstrel to "
+      "be used for his own purposes."
+
+   ManaConvergence_song = jala5.ogg
+
+   Mana_Convergence_cast = "With a wicked smile, you begin to play an annoying little ditty."
+   Mana_Convergence_starts = \
+      "%s%s begins to play an annoyingly catchy ditty."
+   Mana_Convergence_ends = "At long last, the annoying little ditty played by %s%s comes to an end."
+   Mana_Convergence_caster_ends = "Your annoying little ditty comes to an end."
+   Mana_Convergence_enter = \
+      "An annoying little tune enters your ear and emptiness spreads throughout your mind "
+      "as you involuntarily begin to hum along."
+   Mana_Convergence_leave = \
+      "You breathe a sigh of relief as you manage to banish the annoying ditty from your mind."
+   manacon_sap_caster = \
+      "%s%s begins to hum the tune you planted in %s head."
+   manacon_sap_target = \
+      "You utter a cry of frustration as %s%s's ditty causes you to lose your train of thought."
+
+classvars:
+
+   vrEnchantmentOn = Mana_Convergence_cast
+   vrEnchantmentOnOther = Mana_Convergence_starts
+   vrEnchantmentOff = Mana_Convergence_caster_ends
+   vrEnchantmentOffOther = Mana_Convergence_ends
+   vrEnterRadiusCaster = Mana_Convergence_enter
+   vrEnterRadius = Mana_Convergence_enter
+   vrLeaveRadius = Mana_Convergence_leave
+
+   vrName = ManaConvergence_name_rsc
+   vrIcon = ManaConvergence_icon_rsc
+   vrDesc = ManaConvergence_desc_rsc
+
+   viMana = 10          // Mana is amount used upon inititiation
+   viManaDrain = 1800    // Mana drained per second (10^3)
+   viSpell_num = SID_MANA_CONVERGENCE
+
+   viSchool = SS_JALA
+   viSpell_level = 5
+   viMeditate_ratio = 75
+
+   viAffectsEnemies = TRUE
+
+properties:
+
+   prMusic = ManaConvergence_song
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&PolishedSeraphym,1],plReagents);
+
+      return;
+   }
+
+   PeriodicEffect(who=$,state=$)
+   {
+      local oCaster, iManaGain;
+
+      oCaster = First(state);
+
+      if (IsClass(who,&Player)
+         AND NOT (who = oCaster))
+      {
+         iManaGain = Send(who,@LoseMana,#amount=1);
+
+         if (iManaGain > 0)
+         {
+            Send(oCaster,@GainMana,#amount=iManaGain,#bCapped=TRUE);
+            Send(oCaster,@MsgSendUser,#message_rsc=manacon_sap_caster,
+                  #parm1=Send(who,@GetCapDef),#parm2=Send(who,@GetName),
+                  #parm3=Send(who,@GetHisHer));
+
+            Send(who,@MsgSendUser,#message_rsc=manacon_sap_target,
+                  #parm1=Send(oCaster,@GetCapDef),#parm2=Send(oCaster,@GetName));
+         }
+      }
+
+      propagate;
+   }
+
+   GetStateDuration(state = $)
+   {
+      local iDuration;
+
+      // 4000-5000 ms.
+      return 5000 - (Nth(state,5) * 10);
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

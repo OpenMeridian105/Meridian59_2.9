@@ -1,0 +1,206 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Necromancer is Human
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include necromancer.lkod
+
+   skelmaster_name_rsc = "necromancer"
+   skelmaster_desc_rsc = \
+      "Transfixed under the unearthly stare of this foul being, your "
+      "mind skitters fearfully around the thought of the dark rituals "
+      "which must have transformed it into what it is.  Indeed, the "
+      "necromancer is an unliving testimonial to the terrible price "
+      "of magical power."
+
+   skelmaster_dead_name_rsc = "dead necromancer"
+   skelmaster_sound_aware = skl2_awr.ogg
+
+classvars:
+
+   vrName = skelmaster_name_rsc
+   vrDesc = skelmaster_desc_rsc
+   vrDead_name = skelmaster_dead_name_rsc
+
+   viTreasure_type = TID_NECROMANCER
+
+   viSpeed = SPEED_VERY_FAST
+   viAttack_type = ATK_TYPE_SLASH
+   viAttributes = MOB_ONE_TREASURE
+   vbIsUndead = TRUE
+
+   viDefault_behavior = AI_FIGHT_AGGRESSIVE | AI_FIGHT_HYPERAGGRESSIVE \
+      | AI_FIGHT_SWITCHALOT
+   viVisionDistance = 30
+   viBaseDifficulty = 8
+   viBaseLevel = 250
+   viCashmin = 5000
+   viCashmax = 10000
+   viChanceFemale = 0
+
+   viFaction = FACTION_NECROMANCER
+
+   vbCanPoison = FALSE
+   vbCanFatigue = FALSE
+
+   viPoisonChance = 5
+   viPoisonStrength = 2000
+   viPoisonDuration = 20000
+   viPoisonHealth = 100
+   viPoisonMana = 20
+   viPoisonVigor = 25
+
+   viBleedChance = 10
+   viBleedStrength = 3000
+   viBleedDuration = 12000
+
+   // Is one with the night...
+   viNightVision = 255
+
+   viBonusXP = 200
+   viBonusTP = 20
+
+properties:
+
+   vrSound_aware = skelmaster_sound_aware
+   viKarma = -100
+   viLevel = 250
+   viDifficulty = 8
+
+   piBody_translations = 0
+
+   piSkin_color_override = PT_BLUE_TO_ASHEN
+
+messages:
+
+   Constructor()
+   {
+      viLevel = viBaseLevel;
+      viDifficulty = viBaseDifficulty;
+
+      propagate;
+   }
+
+   Constructed()
+   {
+      plResistances = [ [-SPL_TYPE_ALL, 20],
+                        [ATK_TYPE_ALL, 20],
+                        [ATK_TYPE_SILVER, -20 ],
+                        [-SPL_TYPE_UNHOLY, 40 ],
+                        [-SPL_TYPE_FIRE, -20 ],
+                        [-SPL_TYPE_HOLY, -20 ],
+                        [-SPL_TYPE_HUNTERSWORD, -40 ]
+                      ];
+
+      plActions =  [ [SID_HOLD,500,0,MAX_KOD_INT,0,500,50,COMBAT_ACTION_HARM],
+                     [SID_CURSE_WEAPON,500,0,MAX_KOD_INT,400,1000,100,COMBAT_ACTION_HARM] ];
+
+      propagate;
+   }
+
+   SetClothes()
+   {
+      Send(self,@SetDefaultClothes,#shirt_color=XLAT_TO_GRAY);
+      Send(self,@SetTroopLegs,#translation=XLAT_TO_BLACK);
+
+      return;
+   }
+
+   SetEquipment()
+   {
+      local oItem;
+
+      // Armor
+      oItem = Create(&PlateArmor);
+      Send(oItem,@SetPaletteTranslation,#translation=PT_GRAY_TO_KRED);
+      Send(oItem,@SetArmorColored,#value=TRUE);
+      Send(self,@AddEquipmentObject,#what=oItem);
+
+      // Helm
+      oItem = Create(&DaemonHelm);
+      Send(self,@AddEquipmentObject,#what=oItem);
+
+      // Gauntlets
+      oItem = Create(&Gauntlet);
+      Send(self,@AddEquipmentObject,#what=oItem);
+
+      // Weapon
+      oItem = Create(&Scimitar);
+      Send(self,@AddEquipmentObject,#what=oItem);
+
+      // Shield
+      oItem = Create(&NecromancerShield);
+      Send(self,@AddEquipmentObject,#what=oItem);
+
+      // Pants
+      oItem = Create(&PantsC,#translation=PT_GRAY_TO_BLACK);
+      Send(self,@AddEquipmentObject,#what=oItem);
+
+      // Shirt
+      oItem = Create(&Tanktop,#color=XLAT_TO_RED);
+      Send(self,@AddEquipmentObject,#what=oItem);
+
+      return;
+   }
+
+   DoMeleeAnimation()
+   {
+      local oSpell, lTargets;
+
+      // 10% chance of area attack.
+      if (Random(1,10) = 1)
+      {
+         oSpell = Send(SYS,@FindSpellByNum,#num=SID_SPIRIT_BLAST);
+         lTargets = [poTarget];
+         lTargets = Send(oSpell,@GetTargets,#who=self,#lTargets=lTargets);
+         if Send(oSpell,@CanPayMonsterCosts,#who=self,#lTargets=lTargets,
+                  #iSpellPower=piSpellPower)
+            AND Send(poOwner,@ReqSpellCast,#who=self,#oSpell=oSpell,
+                     #lItems=lTargets)
+         {
+            Send(self,@MonsterCastAnimation);
+            Send(oSpell,@CastSpell,#who=self,#lTargets=lTargets,
+                  #iSpellPower=piSpellPower);
+
+            return;
+         }
+      }
+
+      propagate;
+   }
+
+   CreateTreasure(who = $, corpse = $)
+   {
+      local oItem;
+
+      // Don't drop used items.
+      foreach oItem in plUsing
+      {
+         Send(oItem,@Delete);
+      }
+
+      plUsing = $;
+
+      propagate;
+   }
+
+   CountsAsMonster()
+   {
+      return TRUE;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,87 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+ActiveSporeCloud is ActiveWallElement
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include asburstc.lkod
+
+   ActiveSporeCloud_name_rsc = "thick fog"
+   ActiveSporeCloud_icon_rsc = poisoncl.bgf
+   ActiveSporeCloud_desc_rsc = \
+      "You choke just looking at the thick putrid fog."
+
+   ActiveSporeCloud_dissipates = "The spore clouds drift away on the wind."
+   ActiveSporeCloud_poisoned = \
+      "You suddenly feel sick as you inhale the vapors of the fog."
+   ActiveSporeCloud_unaffected = \
+      "Strangely, the noxious cloud does not affect you."
+
+classvars:
+
+   vrName = ActiveSporeCloud_name_rsc
+   vrIcon = ActiveSporeCloud_icon_rsc
+   vrDesc = ActiveSporeCloud_desc_rsc
+
+   viObject_flags = OF_NOEXAMINE
+
+   vrDissipateMessage = ActiveSporeCloud_dissipates
+   vrUnaffectedMessage = ActiveSporeCloud_unaffected
+
+   // Hold min percent is the base chance to hold a target. This number
+   // then has spellpower/2 added to it.
+   viHoldMinPercent = 40
+
+   // How much does each element contribute to the summoning limit?
+   viLimitCount = 0
+
+   // Time between checks for effect.
+   viEffectInterval = 2500
+
+properties:
+
+   piDrawFx = DRAWFX_TRANSLUCENT_50
+
+messages:
+
+   DoEffect(what=$)
+   {
+      local oSpell;
+
+      if (Random(1,100) > viHoldMinPercent + Nth(plSeed,2) / 2)
+      {
+         propagate;
+      }
+
+      oSpell = Send(SYS,@FindSpellByNum,#num=SID_HOLD);
+
+      Send(oSpell,@DoSpellEffects,#who=self,#lTargets=[what],
+            #iDuration=Send(oSpell,@GetDuration,#iSpellPower=Nth(plSeed,2)));
+
+      Send(poOwner,@SomethingAttacked,#what=poCaster,#victim=what,
+            #use_weapon=self,#stroke_obj=self);
+
+      propagate;
+   }
+
+   SendAnimation()
+   {
+      AddPacket(1,ANIMATE_CYCLE, 4,Random(240,280), 2,1, 2,5);
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,209 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+DeathRift is TeleportationSpell
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include deathrift.lkod
+
+   DeathRift_name_rsc = "death rift"
+   DeathRift_icon_rsc = ideathrift.bgf
+   DeathRift_desc_rsc = \
+      "In their worship of the most ancient of dark forces, the caster performs "
+      "a ritual to mark a location in the wilds with a splattering of their "
+      "own blood, so that they may return to the site of their sacrifice at a "
+      "later point in time.  From a safe location, the caster may conclude the "
+      "ritual to open a portal to the fiery pits of hell itself, allowing "
+      "them to journey to many different destinations, among them, the marked "
+      "location.  Unlike regular visitors of the underworld, Qor's favored "
+      "may travel unharmed, as their toll has already been paid."
+
+   DeathRift_sound = qdthdoor.ogg
+
+   DeathRift_no_angeled = \
+      "You cannot call upon such an evil pact while your guardian "
+      "angel watches over you."
+   DeathRift_bind = \
+      "You leave a smattering of blood at the ground beneath your "
+      "feet, binding a small part of your soul to this location."
+   DeathRift_travel = \
+      "A vast passage of flames opens, and you find yourself "
+      "pulled to the Underworld!"
+   DeathRift_travel_notify = \
+      "A fiery portal flares open briefly, dragging %s to the Underworld!"
+   DeathRift_travel_notify_dest = \
+      "A fiery portal flares open briefly, dragging %s through "
+      "the Underworld and toward %s!"
+   DeathRift_generic_fail = \
+      "The evil pact's magic fails. Something seems amiss."
+   DeathRift_warning = \
+      "~BYou sense a nearby connection forming between dimensions!"
+   deathrift_bound_desc = "\n\nYour soul is bound to %s."
+
+classvars:
+
+   vrName = DeathRift_name_rsc
+   vrIcon = DeathRift_icon_rsc
+   vrDesc = DeathRift_desc_rsc
+
+   viSpell_num = SID_DEATH_RIFT
+   viSchool = SS_QOR
+   viSpell_level = 6
+   viMana = 20
+   viSpellExertion = 15
+   viCast_time = 15000
+
+   viChance_To_Increase = 15
+   viMeditate_ratio = 100
+
+   vrSucceed_wav = DeathRift_sound
+
+   vbAngeledCast = TRUE
+
+properties:
+
+messages:
+
+   ResetReagents()
+   {
+      plReagents = $;
+      plReagents = Cons([&DarkAngelFeather,4],plReagents);
+
+      return;
+   }
+
+   CanPayCosts(who = $, lTargets = $, bItemCast = FALSE)
+   {
+      local oRoom;
+
+      if who = $
+      {
+         return FALSE;
+      }
+
+      if (NOT vbAngeledCast
+         AND NOT Send(who,@CheckPlayerFlag,#flag=PFLAG_PKILL_ENABLE))
+      {
+         Send(who,@MsgSendUser,#message_rsc=DeathRift_no_angeled);
+
+         return FALSE;
+      }
+
+      oRoom = Send(who,@GetOwner);
+
+      if (oRoom = $
+         OR NOT Send(oRoom,@CanHavePlayerPortal))
+      {
+         Send(who,@MsgSendUser,#message_rsc=DeathRift_generic_fail);
+
+         return FALSE;
+      }
+
+      propagate;
+   }
+
+   GetTranceTime(iSpellpower=0,who=$)
+   {
+      return Bound(viCast_time - (iSpellpower * 500),10000,60000);
+   }
+
+   DoSpellEffects(who = $, lTargets = $)
+   {
+      local oOwner, oTargetRoom, i, each_obj;
+
+      oOwner = Send(who,@GetOwner);
+
+      if oOwner = $
+      {
+         return FALSE;
+      }
+
+      if Send(oOwner,@CheckRoomFlag,#flag=ROOM_NO_COMBAT)
+         AND Send(oOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
+      {
+         Send(who,@MsgSendUser,#message_rsc=DeathRift_travel);
+
+         oTargetRoom = Send(SYS,@FindRoomByNum,
+                           #num=Send(who,@GetBoundLocationRoomNum));
+         if oTargetRoom <> $
+         {
+            foreach i in Send(oTargetRoom,@GetHolderActive)
+            {
+               each_obj = First(i);
+               if IsClass(each_obj,&User)
+               {
+                  Send(each_obj,@MsgSendUser,#message_rsc=DeathRift_warning);
+                  Send(each_obj,@WaveSendUser,#wave_rsc=DeathRift_sound,
+                        #row=Send(who,@GetBoundLocationRow),
+                        #col=Send(who,@GetBoundLocationCol));
+               }
+            }
+         }
+
+         foreach i in Send(oOwner,@GetHolderActive)
+         {
+            each_obj = First(i);
+            if IsClass(each_obj,&User)
+               AND each_obj <> who
+            {
+               if oTargetRoom <> $
+               {
+                  Send(each_obj,@MsgSendUser,#message_rsc=DeathRift_travel_notify_dest,
+                        #parm1=Send(who,@GetName),#parm2=Send(oTargetRoom,@GetName));
+               }
+               else
+               {
+                  Send(each_obj,@MsgSendUser,#message_rsc=DeathRift_travel_notify,
+                        #parm1=Send(who,@GetName));
+               }
+            }
+         }
+
+         Post(who,@UserGotoDeadRoom);
+         Post(who,@SetDeathRiftProtection,#value=TRUE);
+         Post(who,@StartDeathRiftTimer);
+      }
+      else
+      {
+         Send(who,@MsgSendUser,#message_rsc=DeathRift_bind);
+         Send(who,@BindPlayerToCurrentLocation);
+      }
+
+      return TRUE;
+   }
+
+   SuccessChance(who=$)
+   {
+      return TRUE;
+   }
+
+   SendStatsDesc(who=$)
+   {
+      local rName;
+
+      rName = Send(who,@GetBoundLocationName);
+
+      if (rName = $)
+      {
+         propagate;
+      }
+
+      AddPacket(4,deathrift_bound_desc, 4,rName);
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

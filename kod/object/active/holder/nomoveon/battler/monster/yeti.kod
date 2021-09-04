@@ -1,0 +1,164 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+Yeti is Monster
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include yeti.lkod
+
+   yeti_name_rsc = "yeti"
+   yeti_koc_name_rsc = "tezatzmoch"
+   yeti_icon_rsc = yeti.bgf
+   yeti_desc_rsc = \
+      "This magnificent white beast towers above all in his "
+      "presence.  Yetis are extremely dangerous, particularly "
+      "when attacked in the ice caves where they dwell.  Only "
+      "someone well prepared would dare attack a yeti alone."
+
+   yeti_dead_icon_rsc = yetiX.bgf
+   yeti_dead_name_rsc = "dead yeti"
+
+   yeti_sound_hit = yti_atkh.ogg
+   yeti_sound_miss = yti_atkm.ogg
+   yeti_sound_death = yti_dth.ogg
+   yeti_sound_aware = yti_awr.ogg
+
+   yeti_cast_spell = "The yeti is offended by the polluting human magic."
+   yeti_cast_sound = bsp_dth.ogg
+
+classvars:
+   vrKocName = yeti_koc_name_rsc
+   vrName = yeti_name_rsc
+   vrIcon = yeti_icon_rsc
+   vrDesc = yeti_desc_rsc
+   vrDead_icon = yeti_dead_icon_rsc
+   vrDead_name = yeti_dead_name_rsc
+
+   viTreasure_type = TID_VERY_TOUGH
+   viSpeed = SPEED_SLOW
+   viAttack_type = ATK_TYPE_CLAW
+   viAttributes = 0
+   viLevel = 170
+   viDifficulty = 9
+   viVisionDistance = 15
+   // Attack range of 192, or 3 row/col.
+   viMeleeRange = 192
+   viKarma = 0
+   viDefault_behavior = \
+      AI_FIGHT_AGGRESSIVE | AI_MOVE_OPTIMAL_RANGE | AI_FIGHT_SWITCHALOT
+   viCashmin = 200
+   viCashmax = 800
+   vrSound_hit = yeti_sound_hit
+   vrSound_miss = yeti_sound_miss
+   vrSound_aware = yeti_sound_aware
+   vrSound_death = yeti_sound_death
+
+   viFatigueChance = 10
+   viFatigueStrength = 3000
+   viFatigueDuration = 5000
+   vbCanSiphon = FALSE
+
+   viBonusXP = 100
+
+properties:
+
+   piAnimation = ANIM_NONE
+
+   piMax_mana = 40
+
+messages:
+
+   Constructed()
+   {
+      plResistances = [ [-SPL_TYPE_COLD, 90],
+                        [-SPL_TYPE_SHOCK, 90],
+                        [ATK_TYPE_THRUST, 90],
+                        [ATK_TYPE_SLASH, 90],
+                        [ATK_TYPE_PIERCE, 90],
+                        [-SPL_TYPE_FIRE, -45 ]
+                      ];
+
+      plActions = [ [SID_DISCORDANCE,0,0,MAX_KOD_INT,500,50,99,COMBAT_ACTION_NEUTRAL] ];
+
+      propagate;
+   }
+
+   SendMoveAnimation()
+   {
+      if piColor_Translation <> 0
+      {
+         AddPacket(1,ANIMATE_TRANSLATION, 1,piColor_Translation);
+      }
+
+      AddPacket(1,ANIMATE_CYCLE, 4,100, 2,2, 2,2);
+
+      return;
+   }
+
+   SendAnimation()
+   {
+      if piColor_Translation <> 0
+      {
+         AddPacket(1,ANIMATE_TRANSLATION, 1,piColor_Translation);
+      }
+
+      if piAnimation = ANIM_ATTACK
+      {
+         AddPacket(1,ANIMATE_ONCE, 4,100, 2,4, 2,6, 2,1);
+
+         return;
+      }
+
+      // if no body animation
+      propagate;
+   }
+
+   SomethingMoved(what=$)
+   {
+      if what <> self OR poOwner = $
+      {
+         propagate;
+      }
+
+      // Shake the ground when I take a step.
+      Send(poOwner,@Rumble,#duration=250,#disruption=25);
+
+      propagate;
+   }
+
+   MonsterCastAnimation(iSpellNum=$)
+   "If a monster has a special cast animation, call this."
+   {
+      Send(poOwner,@SomethingWaveRoom,#what=self,#wave_rsc=yeti_cast_sound);
+      Send(poOwner,@SomeoneSaid,#type=SAY_MESSAGE,
+            #string=yeti_cast_spell,#what=self);
+      Send(poOwner,@Rumble,#duration=250,#disruption=25);
+
+      propagate;
+   }
+
+   CanMorphTo()
+   {
+      // Art is too big.
+      return FALSE;
+   }
+
+   CanBeWebbed()
+   {
+      return FALSE;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,5 @@
+LightningWall_name_rsc = de "Blitzwand"
+LightningWall_desc_rsc = de \
+   "Erschafft eine Wand aus Elektrizität. Jeder, der dieses Feld betritt, "
+   "wird mehr als nur Donner spüren."
+LightningWall_cast_rsc = de "Eine Blitzwand erscheint vor dir!"

@@ -1,0 +1,5 @@
+RingOfFlames_name_rsc = de "Flammenring"
+RingOfFlames_desc_rsc = de \
+   "Erschafft einen Ring aus Flammen um den Zaubernden."
+RingOfFlames_cast_rsc = de \
+   "Ein glühend heißer Flammenring beginnt sich zu formen."

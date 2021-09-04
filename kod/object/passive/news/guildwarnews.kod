@@ -1,0 +1,72 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+////////////////////////////////////////////////////////////////////////////////
+GuildWarNews is News
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   guildwarnews_icon_rsc = jbook.bgf
+
+classvars:
+
+   vrIcon = guildwarnews_icon_rsc
+
+properties:
+
+   piMax_messages = 200
+
+messages:
+
+   GetNewsPermission(what = $)
+   {
+      // We only want the GuildCreator (and DMs) to post to this book.
+      if IsClass(what,&GuildCreator)
+         OR IsClass(what,&DM)
+      {
+         return NEWS_PERMISSION_READ_WRITE;
+      }
+
+      return NEWS_PERMISSION_READ;
+   }
+
+   FixPostAuthors()
+   "Frular is the poster on this globe and is remade on recreateall, so the "
+   "object ID of the author must be updated to point to the new Frular."
+   {
+      local i, oFrular, oPoster;
+
+      // Get new Frular.
+      oFrular = Send(Send(SYS,@FindRoomByNum,#num=RID_GMHALL),@GetMaster);
+      if (oFrular = $)
+      {
+         Debug("Couldn't find Frular to fix GuildWarNews posts!");
+
+         return;
+      }
+
+      foreach i in plMessages
+      {
+         oPoster = Nth(i,NEWS_ARTICLE_POSTER);
+         if (oPoster <> oFrular
+            AND IsClass(oPoster,&GuildCreator))
+         {
+            SetNth(i,NEWS_ARTICLE_POSTER,oFrular);
+         }
+      }
+
+      return;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////
