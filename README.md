@@ -5,6 +5,17 @@ Copyright 1994-2012 Andrew Kirmse and Chris Kirmse
 All rights reserved.  Meridian is a registered trademark.
 
 
+Server 105 Update 2.9 Source Code Release
+--------------
+This repository contains the source code for Server 105's [2.9 update](https://www.meridiannext.com/patch-2-9/) (specifically 2.9.3). Some
+rooms, graphics and audio files are not included and can be obtained from a
+server 105 client.
+
+Note that a more up-to-date version, including git history, will be released
+alongside the upcoming 3.0 expansion. The git history contains expansion content,
+thus is not reproduced here.
+
+
 Play Meridian 59
 --------------
 This repository is for the "Server 105" version of Meridian 59.
