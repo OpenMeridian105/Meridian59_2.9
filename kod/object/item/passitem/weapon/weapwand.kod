@@ -176,7 +176,7 @@ messages:
 
    GetDamage()
    {
-      return;
+      return 0;
    }
 
 end
