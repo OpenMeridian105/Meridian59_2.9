@@ -15080,7 +15080,7 @@ messages:
 
    StartPhaseTimer()
    {
-      local i;
+      local i, iPhaseTime, oSoldierShield;
 
       // If phase time regen timer is active, delete it.
       if (ptPhaseRegenTimer <> $)
@@ -15090,9 +15090,17 @@ messages:
       }
 
       if ptPhaseTimer = $
-      {
-         ptPhaseTimer = CreateTimer(self,@PhaseTimerEnd,piRemainingPhaseTime);
+      { 
+         // NEW: If there is a soldier shield then we will introduce a short pen to reward PVP immediately.
+         iPhaseTime = piRemainingPhaseTime; // still use the time as the default
+         oSoldierShield = Send(self,@FindUsing,#class=&SoldierShield);       
+         if oSoldierShield <> $
+         {
+            iPhaseTime = 1000 * 10; // 10 seconds
+         }
 
+         ptPhaseTimer = CreateTimer(self,@PhaseTimerEnd,iPhaseTime);
+         
          // Stop any rescue attempts if the user phases out.
          if ptRescue <> $
          {
