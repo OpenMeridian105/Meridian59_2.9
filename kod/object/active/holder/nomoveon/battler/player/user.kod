@@ -578,6 +578,9 @@ properties:
    // List of user objects this user cannot receive communications from.
    plForcedIgnore = $
 
+   // Instant pen related stuff
+   piIsInstantPenActive = 0
+
 messages:
 
    Constructor(name = $,icon = $)
@@ -1337,6 +1340,13 @@ messages:
       iNumHurters = 0;
       iHonorEach = Send(SETTINGS_OBJECT,@GetHonorLossPen);
       iLostTotal = 0;
+
+      // Instant pen is awarded 25%.
+      if piIsInstantPenActive = 1
+         AND iHonorEach > 0
+      {
+         iHonorEach = iHonorEach * 25 / 100;
+      }
 
       // Find out how many people attacked us recently. Don't count ourselves.
       foreach i in plHurtMeRecently
@@ -12452,6 +12462,44 @@ messages:
    SetLastServerTeleport()
    {
       piLastServerTeleport = GetTickCount();
+      return;
+   }
+
+   DoInstantPen(who = $)
+   "Provides an instant penalty aka reward for phasing someone."
+   {
+      local iCol, iFineRow, iFineCol, iRow, oHealWand, oRoom;
+
+      if who = $
+      {
+         return;
+      }
+      // Instant pen should only apply on players which have attacked other players recently.
+      if IsClass(who,&Player) AND (NOT Send(who,@CanHelpPlayer)
+            OR Send(who,@PlayerIsImmortal))
+      {
+         // Needed in the honour point calculation.
+         piIsInstantPenActive = 1;
+         // Find the first heal wand in the inventory and drop it if found.
+         oHealWand = GetListElemByClass(plPassive,&HealWand);
+         if oHealWand <> $
+         {
+            // Get current room and position for the drop.
+            oRoom = Send(who,@GetOwner);
+            iRow = Send(who,@GetRow);
+            iCol = Send(who,@GetCol);
+            iFineRow = Send(who,@GetFineRow);
+            iFineCol = Send(who,@GetFineCol);
+            // Drop the item.       
+            Send(oRoom,@NewHold,
+               #what=oHealWand,
+               #new_row=iRow,#new_col=iCol,
+               #fine_row=iFineRow,#fine_col=iFineCol);
+         }
+         // Trigger honour points award
+         Send(who,@PenaltyLoseHonor,#where=who);
+         piIsInstantPenActive = 0;
+      }
       return;
    }
 
