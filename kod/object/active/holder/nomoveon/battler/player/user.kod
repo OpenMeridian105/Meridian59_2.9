@@ -578,9 +578,6 @@ properties:
    // List of user objects this user cannot receive communications from.
    plForcedIgnore = $
 
-   // Instant pen related stuff
-   piIsInstantPenActive = 0
-
 messages:
 
    Constructor(name = $,icon = $)
@@ -1341,11 +1338,12 @@ messages:
       iHonorEach = Send(SETTINGS_OBJECT,@GetHonorLossPen);
       iLostTotal = 0;
 
-      // Instant pen is awarded 25%.
-      if piIsInstantPenActive = 1
+      // Instant pen is awarded 25%
+      if Send(SETTINGS_OBJECT,@IsInstantPenActive) = 1
          AND iHonorEach > 0
       {
          iHonorEach = iHonorEach * 25 / 100;
+         Debug("Instant pen: ",self," loses ",iHonorEach," honor.");
       }
 
       // Find out how many people attacked us recently. Don't count ourselves.
@@ -12465,40 +12463,32 @@ messages:
       return;
    }
 
-   DoInstantPen(who = $)
+   DoInstantPen()
    "Provides an instant penalty aka reward for phasing someone."
    {
-      local iCol, iFineRow, iFineCol, iRow, oHealWand, oRoom;
+      local oHealWand, oRoom;
 
-      if who = $
-      {
-         return;
-      }
       // Instant pen should only apply on players which have attacked other players recently.
-      if IsClass(who,&Player) AND (NOT Send(who,@CanHelpPlayer)
-            OR Send(who,@PlayerIsImmortal))
+      if IsClass(self,&Player) AND (NOT Send(self,@CanHelpPlayer)
+            OR Send(self,@PlayerIsImmortal))
       {
          // Needed in the honour point calculation.
-         piIsInstantPenActive = 1;
+         Send(SETTINGS_OBJECT,@SetInstantPenActive);
          // Find the first heal wand in the inventory and drop it if found.
          oHealWand = GetListElemByClass(plPassive,&HealWand);
          if oHealWand <> $
          {
             // Get current room and position for the drop.
-            oRoom = Send(who,@GetOwner);
-            iRow = Send(who,@GetRow);
-            iCol = Send(who,@GetCol);
-            iFineRow = Send(who,@GetFineRow);
-            iFineCol = Send(who,@GetFineCol);
+            oRoom = Send(self,@GetOwner);
             // Drop the item.       
             Send(oRoom,@NewHold,
                #what=oHealWand,
-               #new_row=iRow,#new_col=iCol,
-               #fine_row=iFineRow,#fine_col=iFineCol);
+               #new_row=piRow,#new_col=piCol,
+               #fine_row=piFine_row,#fine_col=piFine_col);
          }
          // Trigger honour points award
-         Send(who,@PenaltyLoseHonor,#where=who);
-         piIsInstantPenActive = 0;
+         Send(self,@PenaltyLoseHonor,#where=self);
+         Send(SETTINGS_OBJECT,@SetInstantPenInactive);
       }
       return;
    }

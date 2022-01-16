@@ -404,6 +404,9 @@ properties:
    // Are fizzles disabled?
    pbNoFizzles = FALSE
 
+   // Instant pen related stuff
+   piIsInstantPenActive = 0
+
 messages:
 
    Constructor()
@@ -1013,6 +1016,23 @@ messages:
    NoFizzles()
    {
       return pbNoFizzles;
+   }
+
+   IsInstantPenActive()
+   {
+      return piIsInstantPenActive;
+   }
+
+   SetInstantPenActive()
+   {
+      piIsInstantPenActive = 1;
+      return;
+   }
+
+   SetInstantPenInactive()
+   {
+      piIsInstantPenActive = 0;
+      return;
    }
 
 end
