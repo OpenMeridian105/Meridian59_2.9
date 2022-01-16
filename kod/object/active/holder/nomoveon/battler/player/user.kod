@@ -1339,7 +1339,7 @@ messages:
       iLostTotal = 0;
 
       // Instant pen is awarded 25%
-      if Send(SETTINGS_OBJECT,@IsInstantPenActive) = 1
+      if Send(SETTINGS_OBJECT,@IsInstantPenActive)
          AND iHonorEach > 0
       {
          iHonorEach = iHonorEach * 25 / 100;
@@ -12469,8 +12469,8 @@ messages:
       local oHealWand, oRoom;
 
       // Instant pen should only apply on players which have attacked other players recently.
-      if IsClass(self,&Player) AND (NOT Send(self,@CanHelpPlayer)
-            OR Send(self,@PlayerIsImmortal))
+      if IsClass(self,&Player)
+         AND NOT (Send(self,@CanHelpPlayer) OR Send(self,@PlayerIsImmortal))
       {
          // Needed in the honour point calculation.
          Send(SETTINGS_OBJECT,@SetInstantPenActive);
