@@ -94,6 +94,7 @@ messages:
 
          if oOtherChalice <> $
             AND NOT (IsClass(what,&DM) AND Send(what,@PlayerIsImmortal))
+            AND NOT (IsClass(what,&NonPlayerCharacter))
          {
             Send(what,@MsgSendUser,#message_rsc=chalice_combine);
             Send(oOtherChalice,@SetHits,#number=Send(oOtherChalice,@GetHits) + piHits);
