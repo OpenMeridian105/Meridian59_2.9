@@ -6866,9 +6866,19 @@ messages:
       return;
    }
 
-   GetMoneyObject()
+   GetMoneyObject(type= $)
    {
-      return GetListElemByClass(plPassive,&Shillings);
+      if (type = &Silver)
+      {
+         return GetListElemByClass(plPassive,&Silver);
+      }
+      else
+      if (type = &Shillings)
+      {
+         return GetListElemByClass(plPassive,&Shillings);
+      }
+      
+      return;
    }
 
    // Returns wielded Melee/Ranged weapon.
