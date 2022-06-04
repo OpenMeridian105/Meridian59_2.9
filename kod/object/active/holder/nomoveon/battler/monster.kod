@@ -4344,7 +4344,7 @@ messages:
    "type, or a quest completion of some kind or an intrigue token."
    {
       // Handle the kludgy banker interface immediately.
-      if (viAttributes & MOB_BANKER) AND IsClass(obj,&Money)
+      if (viAttributes & MOB_BANKER) AND IsClass(obj,&Shillings)
       {
          Send(self,@BankDeposit,#who=who,#amount=Send(obj,@GetNumber));
 
@@ -5405,7 +5405,7 @@ messages:
 
          poCustomer = what;
 
-         plOffer_items = [ Create(&Money,#number=iValue_offered) ];
+         plOffer_items = [ Create(&Shillings,#number=iValue_offered) ];
          Send(what,@CounterOffer,#item_list=plOffer_items);
          ptCancelOffer = CreateTimer(self,@CancelOfferTimer,viCancel_offer_time);
       }
@@ -5455,7 +5455,7 @@ messages:
       foreach i in plOffer_items
       {
          Send(oHolder,@NewHold,#what=i);
-         if IsClass(i,&Money)
+         if IsClass(i,&Shillings)
          {
             Send(Send(SYS,@GetStatistics),@MoneyCreated,#amount=Send(i,@GetNumber));
          }
@@ -5957,7 +5957,7 @@ messages:
       oMoney = Send(who,@GetMoneyObject);
       if oMoney = $
       {
-         oMoney = Create(&Money,#number=amount);
+         oMoney = Create(&Shillings,#number=amount);
          Send(who,@NewHold,#what=oMoney);
       }
       else if (Send(oMoney,@GetNumber) + amount) <= 0
@@ -8049,7 +8049,7 @@ messages:
             corpse = $;
          }
 
-         oMoney = Create(&Money,#corpse=corpse,#number=iRandomCashAmount + (piBoostedLevel
+         oMoney = Create(&Shillings,#corpse=corpse,#number=iRandomCashAmount + (piBoostedLevel
                      * Send(Send(SYS,@GetSurvivalRoomMaintenance),@GetSurvivalCash)));
 
          Send(Send(SYS,@GetStatistics),@MoneyCreated,#amount=Send(oMoney,@GetNumber));
@@ -8071,7 +8071,7 @@ messages:
                   #new_row=piRow,#new_col=piCol,
                   #fine_row=piFine_row,#fine_col=piFine_col);
 
-            if NOT IsClass(oTreasure,&Money)
+            if NOT IsClass(oTreasure,&Shillings)
             {
                ++iNumberOfItemsDropped;
             }
@@ -8081,12 +8081,12 @@ messages:
                AND Send(oTreasure,@GetPos) <> $
                AND IsClass(who,&User)
                AND Send(who,@CheckPlayerPreference,#flag=CF_AUTOLOOT)
-               AND (IsClass(oTreasure,&Money)
+               AND (IsClass(oTreasure,&Shillings)
                        OR (NOT bRangeFailure
                            AND NOT bCapacityFailure))
             {
                iGetResult = Send(who,@UserGet,#what=oTreasure,#report=FALSE);
-               if NOT IsClass(oTreasure,&Money)
+               if NOT IsClass(oTreasure,&Shillings)
                   AND (iGetResult = AUTOLOOT_GOT_ITEM
                          OR iGetResult = AUTOLOOT_GOT_PARTIAL_STACK)
                {
@@ -9593,7 +9593,7 @@ messages:
    {
       local oMoney,oRoom;
 
-      oMoney=Create(&Money,#number=Random(20,120));
+      oMoney=Create(&Shillings,#number=Random(20,120));
       oRoom = Send(self,@GetOwner);
 
       if piSweepCounter < 5
