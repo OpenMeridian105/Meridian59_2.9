@@ -633,7 +633,7 @@ properties:
    // Mobs may acquire a trigger object in a room that they can interact with.
    poObject = $
 
-   poCurrency = &Shillings
+   poCurrency  = &Shillings
 
 messages:
 
@@ -5485,9 +5485,11 @@ messages:
       return TRUE;
    }
 
-   VaultDeposit(who=$,lItems=$)
+   VaultDeposit(who=$,lItems=$,funds=$)
    {
       local i, oVault, iFee, oMoney, iCash;
+
+      funds = poCurrency;
 
       if NOT Send(self,@MobIsVaultman)
       {
@@ -5533,7 +5535,7 @@ messages:
          iFee += Send(self,@GetVaultDepositFee,#what=i,#who=who);
       }
 
-      oMoney = Send(who,@GetMoneyObject);
+      oMoney = Send(who,@GetMoneyObject,#type=funds);
       if oMoney = $
       {
          // No cash.
@@ -5591,17 +5593,19 @@ messages:
       return 0;
    }
 
-   VaultWithdraw(what=$,lItems=$,number_list = $)
+   VaultWithdraw(what=$,lItems=$,number_list = $, funds = $)
    {
       local i, j, iFee, iCash, lStored, oVault, iBulk, oMoney, bFound,
             oSafeBox, lNumbers, iCount, bFailed;
+
+      funds = poCurrency;
 
       if what = $ OR lItems = $
       {
          return;
       }
 
-      oMoney = Send(what,@GetMoneyObject);
+      oMoney = Send(what,@GetMoneyObject,#type=funds);
       if oMoney = $
       {
          // No cash.
@@ -5837,9 +5841,11 @@ messages:
       return TRUE;
    }
 
-   BankDeposit(who=$, amount = 0)
+   BankDeposit(who=$, amount = 0, funds = $)
    {
       local oMoney, oBank, iBankAmt;
+
+      funds = poCurrency;
 
       if NOT Send(self,@MobIsBanker)
       {
@@ -5858,7 +5864,7 @@ messages:
          return;
       }
 
-      oMoney = Send(who,@GetMoneyObject);
+      oMoney = Send(who,@GetMoneyObject,#type=funds);
       if oMoney = $
       {
          Post(poOwner,@SomeoneSaid,#what=self,#type=SAY_RESOURCE,
@@ -5961,7 +5967,7 @@ messages:
          return;
       }
 
-      oMoney = Send(who,@GetMoneyObject);
+      oMoney = Send(who,@GetMoneyObject,#type=funds);
       if oMoney = $
       {
          funds = poCurrency;
@@ -10350,7 +10356,6 @@ messages:
    {
       return TRUE;
    }
-
 
 end
 ////////////////////////////////////////////////////////////////////////////////
