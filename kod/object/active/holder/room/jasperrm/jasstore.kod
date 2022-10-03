@@ -30,7 +30,7 @@ classvars:
    viTeleport_row = 19
    viTeleport_col = 5
 
-   viPermanent_flags = ROOM_NO_COMBAT
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SAFELOGOFF
    viTerrain_type = TERRAIN_CITY | TERRAIN_SHOP
 
 properties:

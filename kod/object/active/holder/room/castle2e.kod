@@ -37,7 +37,7 @@ classvars:
 
 properties:
 
-   viPermanent_flags = ROOM_NO_COMBAT
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SAFELOGOFF
 
    prRoom = room_castle2E
    piRoom_num = RID_CASTLE2E

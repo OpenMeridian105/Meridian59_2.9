@@ -69,7 +69,7 @@ resources:
 classvars:
 
    vrName = room_name_marion
-   viPermanent_flags = ROOM_NO_COMBAT | ROOM_LAMPS
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_LAMPS | ROOM_SAFELOGOFF
 
    viTeleport_row = 56
    viTeleport_col = 39
