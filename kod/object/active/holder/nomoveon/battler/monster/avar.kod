@@ -68,7 +68,7 @@ classvars:
    viAttack_type = ATK_TYPE_BLUDGEON
    viSpeed = SPEED_AVERAGE
    viDefault_behavior = AI_FIGHT_AGGRESSIVE
-   viLevel = 120
+   viLevel = 130
    viDifficulty = 7
    viVisionDistance = 16
 
