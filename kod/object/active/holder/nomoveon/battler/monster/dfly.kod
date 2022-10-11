@@ -70,7 +70,7 @@ classvars:
 
    viSpeed = SPEED_AVERAGE
    viAttack_type = ATK_TYPE_PIERCE
-   viLevel = 120
+   viLevel = 130
    viDifficulty = 6
    viMeleeRange = 0
    viFireRange = 192
