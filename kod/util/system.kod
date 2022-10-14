@@ -4384,7 +4384,6 @@ messages:
       Send(poParliament,@NewGameDay);
       Send(poNodeAttack,@NewGameDay);
       Send(poRentableRoomMaintenance,@NewGameDay);
-      Send(&SoldierShield,@NewGameDay);
 
       Send(self,@VerifyUsersLoggedOn);
 

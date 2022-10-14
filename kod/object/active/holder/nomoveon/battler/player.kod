@@ -2161,7 +2161,7 @@ messages:
 
    UserLogonHook()
    {
-      local i, oObj, iBonus, iDefaultBonus, iTimespan;
+      local i, oObj, iBonus, iDefaultBonus, iTimespan, oSoldierShield;
 
       SendList(plPassive, 0, @UserLogon);
       SendList(plActive, 0, @UserLogon);
@@ -2174,7 +2174,7 @@ messages:
       oObj = Send(SYS,@GetParliament);
       if oObj <> $
       {
-         if piFaction <> FACTION_NEUTRAL 
+         if piFaction <> FACTION_NEUTRAL
             AND (NOT Send(oObj,@IsShutdown))
          {
             piFactionTimeUpdated=GetTime();
@@ -2183,7 +2183,7 @@ messages:
 
          if Send(self,@PlayerIsIntriguing)
          {
-            Send(oObj,@UpdateEffects,#who=self); 
+            Send(oObj,@UpdateEffects,#who=self);
          }
       }
 
@@ -2285,12 +2285,19 @@ messages:
       // off and back on.
       ptReward_timer = CreateTimer(self,@GetDailyTrainingReward,24*60*60*1000);
 
+      // Start a timer so that soldiers lose rank after a certain time when they are online.
+      oSoldierShield = Send(self,@FindUsing,#class=&SoldierShield);
+      if oSoldierShield <> $
+      {
+         Send(oSoldierShield,@StartRankLossTimer);
+      }
+
       return;
    }
 
    UserLogoffHook()
    {
-      local i;
+      local i, oSoldierShield;
 
       SendList(plPassive,0,@UserLogoff);
       SendList(plActive,0,@UserLogoff);
@@ -2368,6 +2375,13 @@ messages:
          AND NOT Send(poMercenary,@IsAbsent)
       {
          Send(poMercenary,@FollowerAbsence,#iDelay=30000);
+      }
+
+      // Stop the rank loss timer on logoff.
+      oSoldierShield = Send(self,@FindUsing,#class=&SoldierShield);
+      if oSoldierShield <> $
+      {
+         Send(oSoldierShield,@StopRankLossTimer);
       }
 
       return;
