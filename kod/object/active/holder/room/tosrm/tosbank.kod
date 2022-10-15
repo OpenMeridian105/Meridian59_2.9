@@ -37,7 +37,7 @@ classvars:
 
 properties:
 
-   viPermanent_flags = ROOM_NO_COMBAT 
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SAFELOGOFF
    viTerrain_type = TERRAIN_CITY | TERRAIN_SHOP
 
    prRoom = room_tosbank

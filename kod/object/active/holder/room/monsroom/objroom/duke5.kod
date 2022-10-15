@@ -120,7 +120,7 @@ classvars:
 
 properties:
 
-   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SANCTUARY
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SANCTUARY | ROOM_SAFELOGOFF
 
    prRoom = room_duke5
    piRoom_num = RID_DUKE5

@@ -29,7 +29,7 @@ classvars:
    viTerrain_type = TERRAIN_CITY | TERRAIN_RESIDENCE
 
 properties:
-   viPermanent_flags = ROOM_NO_COMBAT
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SAFELOGOFF
 
    prRoom = room_TosTavern
    piRoom_num = RID_TOS_OLD_TAVERN

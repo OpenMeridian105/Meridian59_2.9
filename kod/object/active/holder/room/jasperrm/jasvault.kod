@@ -45,7 +45,7 @@ classvars:
 
 properties:
 
-   viPermanent_flags = ROOM_NO_COMBAT
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SAFELOGOFF
 
    prRoom = room_jaspervault
    piRoom_num = RID_JAS_VAULT

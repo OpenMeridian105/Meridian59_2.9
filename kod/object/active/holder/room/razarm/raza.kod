@@ -80,7 +80,7 @@ classvars:
    viTeleport_col = 41
    viTeleport_angle = ANGLE_NORTH
 
-   viPermanent_flags = ROOM_NO_COMBAT | ROOM_LAMPS
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_LAMPS | ROOM_SAFELOGOFF
    viTerrain_type = TERRAIN_CITY | TERRAIN_ROAD | TERRAIN_LAKE | TERRAIN_FOREST
 
    viFlag_row = 20
