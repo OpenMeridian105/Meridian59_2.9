@@ -1,0 +1,53 @@
+champions_game_stage_0_rsc = de \
+"~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BBereitet euch auf die Schlacht um Ruhm und Ehre vor.~n\n"
+"\n"
+"Bevor die Schlacht beginnt, müssen alle Spieler ihren Champion für die "
+"bevorstehende Herausforderung registrieren. "
+"Die Registrierung erfolgt durch den Kauf eines Stimmzettels bei Caramo. "
+"Die Inschrift muss mit den Worten versehen sein: "
+"'~bjoin Champions of Meridian~n'"
+"\n"
+
+champions_game_stage_1_rsc = de \
+"~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BEs wird Verstärkung angefordert.~n\n"
+
+champions_game_stage_2_rsc = de \
+"~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BDer Kampf ist entschieden! Belohne die Champions.~n\n"
+
+champions_game_stage_3_rsc = de \
+"~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BDie Schlacht ist vorbei!~n\n"
+
+champions_game_stage_4_rsc = de \
+"~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BDie nächste Schlacht wird bald beginnen!~n\n"
+
+champions_game_points_rsc = \
+de "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BDu hast insgesamt %d Champion Points!~n\n"
+"\n"
+"Geben Sie sie aus, um eine besondere Belohnung wie einen farbigen Gegenstand "
+"zu erhalten, indem Sie ihn offiziell beantragen. "
+"Der Antrag wird durch den Kauf eines Stimmzettels bei Carama gestellt. "
+"Die Inschrift muss mit den Worten versehen sein: '~breward red scimitar~n'\n"
+"\n"
+"Farben: ~bblack,blue,gold,green,orange,purple,red~n\n"
+"Gegenstände: ~bscimitar,hammer,axe,mace,battlebow,longbow~n\n"
+"\n"
+
+champions_game_reward_failed_rsc =  \
+de "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BDu hast insgesamt %d Champion Points!~n\n"
+"\n"
+"Du benötigst mindestens %d Champion points für eine besondere Belohnung!\n"
+"\n"
+
+champions_game_reward_successful_rsc =  \
+de "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+"~BDu hast insgesamt %d Champion Points!~n\n"
+"\n"
+"Du hast %d Champion points für eine besondere Belohnung ausgegeben!\n"
+"\n"
