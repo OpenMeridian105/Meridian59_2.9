@@ -87,6 +87,8 @@ messages:
       local oCaster, iManaGain, iSpellPower;
 
       oCaster = First(state);
+      
+      iSpellPower = Send(self,@GetSpellPower,#who=who);
 
       if (IsClass(who,&Player)
          AND NOT (who = oCaster))
