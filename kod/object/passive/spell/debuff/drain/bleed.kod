@@ -82,21 +82,27 @@ messages:
          return FALSE;
       }
 
-      Send(who,@StartOverTimeEffect,#strength=-strength,#duration=duration,
+      // Stack bleeding only if the effect is not present.
+      if NOT Send(who,@HasOverTimeEffect,#num=SID_BLEED)
+      {
+         Send(who,@StartOverTimeEffect,#strength=-strength,#duration=duration,
             #what=self,#who=source,#state=100,#type=TYPE_HEALTH,
             #removable=REMOVE_INTERNAL,#illusion=iIllusion);
 
-      if IsClass(who,&Player)
-      {
-         iDamage = (iStrength / 100) * (duration / 100) / 100;
-         Send(who,@MsgSendUser,#message_rsc=vrEnchantment_On,#parm1=iDamage);
+         if IsClass(who,&Player)
+         {
+            iDamage = (iStrength / 100) * (duration / 100) / 100;
+            Send(who,@MsgSendUser,#message_rsc=vrEnchantment_On,#parm1=iDamage);
 
-         // Visual indication of drain effect.
-         iFlash = Bound(iStrength / 2,100,2000);
-         Send(who,@EffectSendUserDuration,#effect=EFFECT_PAIN,#duration=iFlash);
+            // Visual indication of drain effect.
+            iFlash = Bound(iStrength / 2,100,2000);
+            Send(who,@EffectSendUserDuration,#effect=EFFECT_PAIN,#duration=iFlash);
+         }
+
+         return TRUE;
       }
 
-      return TRUE;
+      return FALSE;
    }
 
 end
