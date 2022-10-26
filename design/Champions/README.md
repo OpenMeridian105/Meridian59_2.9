@@ -23,20 +23,14 @@ The ballot disappears into thin air....
 
 The battle begins and all the rules that apply outside the battlefield apply here as well.
 If a champion dies on the battlefield, it is considered a real death.
-Spells such as "Rescue", "Truce", or "Animate Dead" and the use of a "Goblet of Rain" are considered dishonorable and are therefore forbidden.
 
 A real battle would not live up to its reputation if there was no way to reinforce your troops.
 Therefore, the system offers the possibility to teleport waves of additional champions from your own ranks into the battle at regular intervals of 3 minutes. These are also equipped before the battle as described.
 
 ## Goal of the game
 
-All champions who are still standing and breathing at the end of the battle are declared the winner and receive 500 champion points.
-
-The remaining champions who participated and survived at least 3 waves will receive 150 champion points.
-
-Killing a champion will earn you additional 100 champion points.
+All champions who who participated and survived at least 2 waves will receive 500 champion points.
 
 ## Rewards
 
-- 500 Champion Points : any equipment (bound)
-- 3000 Champion Points : colored equipment (bound)
+- 2000 Champion Points : colored equipment (bound)

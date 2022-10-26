@@ -14,43 +14,11 @@ constants:
 
 include blakston.khd
 
-   // Messages:
-   // ---------
-   // BoostChampion(who=$)
-   // CheckChampionsForRewardRequest()
-   // Constructor(pvp=TRUE)
-   // CreateGame()
-   // CreateItemReward(who=$)
-   // CreateRegistrationItem(who=$)
-   // CreateRoom(pvp=TRUE)
-   // Delete()
-   // EquipChampion(who=$)
-   // EquipHealWands(who=$)
-   // GetRewardItem(who=$)
-   // GetRewardItemClass(sInscription=$)
-   // GetRewardItemTranslation(sInscription=$)
-   // GetRewardTarget(who=$,class=&Item)
-   // HandleStage0(time=$)
-   // HandleStage1(time=$)
-   // HandleStage2(time=$)
-   // HandleStage3(time=$)
-   // HandleStage4(time=$)
-   // IsAbleToJoin(who=$)
-   // IsHoldingRegistrationItem(who=$)
-   // IsHoldingRewardItem(who=$)
-   // IsNotInRoom(who=$)
-   // IsRegisteredChampion(who=$)
-   // Maintain()
-   // RegisterChampion(who=$)
-   // RemoveRegistrationItem(who=$)
-   // RestoreBattlefield()
-   // RewardChampionsWithPoints()
-   // SendText(what=$)
-   // UpdateChampionPoints(who=$,what=$)
-
    // Admin UI:
    // ---------
    // create object ChampionsGameMaintenance
+   // 
+   // add a poChampionsGameMaintenance into system.kod on live
 
    RID_CHAMPIONS_GAME_START = 9490
 
@@ -59,58 +27,58 @@ include blakston.khd
 resources:
 
    champions_game_stage_0_rsc = \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BPrepare for the battle for glory and honor.~n\n"
-      "\n"
-      "Before the battle starts, all player need to register their champion "
-      "for the upcoming challenge. "
-      "Registration is done by purchasing a ballot from Caramo. "
-      "The inscription must be labeled with the words: '~bjoin Champions of "
-      "Meridian~n'.\n" 
-      "\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BPrepare for the battle for glory and honor.~n\n"
+   "\n"
+   "Before the battle starts, all player need to register their champion "
+   "for the upcoming challenge. "
+   "Registration is done by purchasing a ballot from Caramo. "
+   "The inscription must be labeled with the words: '~bjoin Champions of "
+   "Meridian~n'.\n" 
+   "\n"
 
    champions_game_stage_1_rsc = \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BReinforcements are called in.~n\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BReinforcements are called in.~n\n"
 
    champions_game_stage_2_rsc = \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BVictory has been decided! Reward the champions.~n\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BVictory has been decided! Reward the champions.~n\n"
    
    champions_game_stage_3_rsc = \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BThe battle is over!~n\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BThe battle is over!~n\n"
 
    champions_game_stage_4_rsc = \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BA new battle will start soon!~n\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BA new battle will start soon!~n\n"
    
    champions_game_points_rsc = \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BYou have %d Champion Points in total!~n\n"
-      "\n"
-      "Spend them to get a special reward like a colored item by requesting "
-      "it officially. The request is done by purchasing a ballot from Caramo. "
-      "The inscription must be labeled with the words: "
-      "'~breward red scimitar~n'\n"
-      "\n"
-      "Colors can be: ~bblack,blue,gold,green,orange,purple,red~n\n"
-      "Items can be: ~bscimitar,hammer,axe,mace,battlebow,longbow~n\n"
-      "\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BYou have %d Champion Points in total!~n\n"
+   "\n"
+   "Spend them to get a special reward like a colored item by requesting "
+   "it officially. The request is done by purchasing a ballot from Caramo. "
+   "The inscription must be labeled with the words: "
+   "'~breward red scimitar~n'\n"
+   "\n"
+   "Colors can be: ~bblack,blue,gold,green,orange,purple,red~n\n"
+   "Items can be: ~bscimitar,hammer,axe,mace,battlebow,longbow~n\n"
+   "\n"
 
    champions_game_reward_failed_rsc =  \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BYou have %d Champion Points in total!~n\n"
-      "\n"
-      "You need at least %d Champion points for a special reward!\n"
-      "\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BYou have %d Champion Points in total!~n\n"
+   "\n"
+   "You need at least %d Champion points for a special reward!\n"
+   "\n"
 
    champions_game_reward_successful_rsc =  \
-      "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
-      "~BYou have %d Champion Points in total!~n\n"
-      "\n"
-      "You have spent %d Champion points for a special reward!\n"
-      "\n"
+   "~B~U~k[###]~n ~B~rChampions of Meridian~n:   "
+   "~BYou have %d Champion Points in total!~n\n"
+   "\n"
+   "You have spent %d Champion points for a special reward!\n"
+   "\n"
 
 classvars:
 
@@ -134,7 +102,6 @@ properties:
    pbChampionsGame_min_levels_required = FALSE
 
    // Only equip champions with less than max items in the inventory
-   pbChampionsGame_boost_champion_active = TRUE
    pbChampionsGame_equip_champion_active = TRUE
    pbChampionsGame_equip_heal_wands_active = TRUE
    piChampionsGame_max_heal_wands = 5
@@ -148,733 +115,698 @@ properties:
    // Divide the game into different stages
    piChampionsGame_stage = 0
    piChampionsGame_stage_0_time = 0              
-   piChampionsGame_stage_1_time = 1000 * 1 * TIME_FACTOR
-   piChampionsGame_stage_2_time = 1000 * 9 * TIME_FACTOR
-   piChampionsGame_stage_3_time = 1000 * 10 * TIME_FACTOR
-   piChampionsGame_stage_4_time = 1000 * 60 * 60 * 6 // wait 6 hours
+   piChampionsGame_stage_1_time = 1000 * TIME_FACTOR * 1
+   piChampionsGame_stage_2_time = 1000 * TIME_FACTOR * 9
+   piChampionsGame_stage_3_time = 1000 * TIME_FACTOR * 10
+   piChampionsGame_stage_4_time = 1000 * TIME_FACTOR * 60 * 6
 
    // Provide multiple waves
    piChampionsGame_wave_time = 0
-   piChampionsGame_wave_max_time = 1000 * 2 * TIME_FACTOR
+   piChampionsGame_wave_max_time = 1000 * TIME_FACTOR * 2
 
-   // Rewards for winners and losers
+   // Rewards for winners
    // 2 waves at least for getting a reward
    piChampionsGame_min_reward_time = 1000 * 2 * TIME_FACTOR * 2
    piChampionsGame_reward_price = 2000
-   piChampionsGame_reward_winner = 5000 // 500
-   poChampionsGame_reward_loser = 1500 // 150
+   piChampionsGame_reward_winner = 500
+   // no reward to prevent abuse of multiple non-active toons
+   poChampionsGame_reward_loser = 0
    
    // Lists
    plChampions = $
    
 messages:
 
-BoostChampion(who=$)
-{
-   local iBaseMaxHealth, iBoostHealth, iMaxHealth, iStamina;
-
-   if NOT pbChampionsGame_boost_champion_active
+   CheckChampionsForRewardRequest()
    {
-      return;
-   }
+      local iPoints, o, oChampion;
 
-   iBaseMaxHealth = Send(who,@GetBaseMaxHealth);
-   iStamina = Send(who,@GetStamina);
-    
-   if iBaseMaxHealth <= (100+iStamina)
-   {
-      Send(who,@AddXP,#iAmount=10000000);
-      Send(who,@GivePlayerAllSkills);
-      Send(who,@GivePlayerAllSpells);
-      Send(who,@ConnectManaNode,#all=TRUE);
-   }
-
-   return;
-}
-
-CheckChampionsForRewardRequest()
-{
-   local i, iPoints, o, oChampion;
-
-   foreach o in plChampions
-   {
-      oChampion = Nth(o,1);
-      iPoints = Nth(o,2);
-      
-      if Send(self,@IsHoldingRewardItem,#who=oChampion)
+      foreach o in plChampions
       {
-         if Send(self,@HasEnoughChampionPoints,#who=oChampion)
+         oChampion = First(o);
+         iPoints = Nth(o,2);
+         
+         if Send(self,@IsHoldingRewardItem,#who=oChampion)
+         AND Send(self,@IsInRoom,#who=oChampion)
          {
-            Send(self,@CreateItemReward,#who=oChampion);
-            Send(self,@UpdateChampionPoints,
-               #who=oChampion,
-               #what=-piChampionsGame_reward_price);
-            Send(oChampion,@MsgSendUser,
-               #message_rsc=champions_game_reward_successful_rsc,
-               #parm1=iPoints,
-               #parm2=piChampionsGame_reward_price);
-         }
-         else
-         {
-            Send(oChampion,@MsgSendUser,
-               #message_rsc=champions_game_reward_failed_rsc,
-               #parm1=iPoints,
-               #parm2=piChampionsGame_reward_price);
-         }
-      }
-   }
-
-   return;
-}
-
-Constructor(pvp=TRUE)
-{
-   ptChampionsGame_timer = CreateTimer(self,@Maintain,piChampionsGame_interval);
-   
-   Send(self,@CreateGame);
-   Send(self,@CreateRoom,#pvp=pvp);
-
-   return;
-}
-
-CreateGame()
-{
-   plChampions = [];
-
-   return;
-}
-
-CreateItemReward(who=$)
-{
-   local iTranslation, oClass, oItem, oRoom, oTarget, sInscription;
-
-   oItem = Send(self,@GetRewardItem,#who=who);
-   if oItem <> $
-   {
-      sInscription = Send(oItem,@GetInscription);
-      oClass = Send(self,@GetRewardItemClass,#sInscription=sInscription);
-      iTranslation = Send(self,@GetRewardItemTranslation,#sInscription=sInscription);
-      oTarget = Send(self,@GetRewardTarget,#who=who,#class=oClass);
-      if oTarget <> $
-      {
-         // Bug? item looks like enchanted (orange) but description will not appear on click
-         // Send(Send(SYS,@FindItemAttByNum,#num=IA_BONDED),@AddtoItem,#oItem=oTarget,#oPlayer=who);
-         Send(oTarget,@SetPaletteTranslation,#translation=iTranslation);
-         if IsClass(oTarget,&Armor)
-         {
-            Send(oTarget,@SetArmorColored,#value=TRUE);
-         }
-         Send(oItem,@Delete);
-      }
-   }
-
-   return;
-}
-
-CreateRegistrationItem(who=$)
-{
-   local oItem;
-
-   oItem = Create(&BallotItem);
-   Send(oItem,@SetInscription,#string=psChampionsGame_item_join_inscription);
-   Send(who,@NewHold,#what=oItem);
-
-   return;
-}
-
-CreateRoom(pvp=TRUE)
-{
-   local oRoom;
-
-   // Use a specific base room as a template and create a new room with PVP activated
-   if pvp
-   {
-      oRoom = Send(SYS,@FindRoomByNum,#num=piChampionsGame_pvp_base_room_num);
-      Send(SYS,@CreateOneRoomIfNew,
-         #num=piChampionsGame_pvp_room_num,
-         #class=&ChampionsGameRoom,
-         #iPublic=TRUE,
-         #base_room=oRoom,
-         #iPvP=TRUE);
-   }
-   else
-   {
-      oRoom = Send(SYS,@FindRoomByNum,#num=piChampionsGame_pve_base_room_num);
-      Send(SYS,@CreateOneRoomIfNew,
-         #num=piChampionsGame_pve_room_num,
-         #class=&ChampionsGameRoom,
-         #iPublic=TRUE,
-         #base_room=oRoom,
-         #iPvP=FALSE);
-   }
-
-   poChampionsGame_room = oRoom;
-   piChampionsGame_time = 0;
-   
-   return;
-}
-
-Delete()
-{
-   if ptChampionsGame_timer <> $
-   {
-      DeleteTimer(ptChampionsGame_timer);
-      ptChampionsGame_timer = $;
-   }
-
-   return;
-}
-
-EquipChampion(who=$)
-{
-   local oItem, oOwner;
-
-   if pbChampionsGame_equip_champion_active
-   AND Length(Send(who,@GetEquippedItems)) < piChampionsGame_max_items_equipped
-   {
-      Send(who,@NewHold,#what=Create(&Longbow));
-      
-      oItem = Create(&Scimitar);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);
-
-      oItem = Create(&GoldShield);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);      
-      
-      oItem = Create(&Gauntlet);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);      
-      
-      oItem = Create(&PantsD);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);
-      
-      oItem = Create(&Shirt);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);
-
-      oItem = Create(&ChainArmor);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);      
-           
-      oItem = Create(&DaemonHelm);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);      
-     
-      oItem = Create(&Circlet);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);      
-      
-      Send(who,@NewHold,#what=Create(&Hammer));
-      Send(who,@NewHold,#what=Create(&MysticSword));  
-      
-      oItem = Create(&NeruditeArrow,#number=100);
-      Send(who,@NewHold,#what=oItem);
-      Send(who,@UserUseItem,#what=oItem);      
-
-      Send(who,@NewHold,#what=Create(&Mace));
-      Send(who,@NewHold,#what=Create(&LightRobe));
-      Send(who,@NewHold,#what=Create(&JewelofFroz));
-      Send(who,@NewHold,#what=Create(&JewelofFroz));
-
-      Send(who,@NewHold,#what=Create(&BallotItem));
-
-      oOwner = Send(who,@GetOwner);
-      Send(oOwner,@SomethingChanged,#what=who);
-   }
-
-   Send(self,@EquipHealWands,#who=who);
-   Send(who,@AddReagentsForSpells,#iNumCasts=1);
-   
-   return;
-}
-
-EquipHealWands(who=$)
-{
-   local i, iHealWandNum, oItem;
-
-   if NOT pbChampionsGame_equip_heal_wands_active
-   {
-      return;
-   }
-
-   // Ensure the champion has enough heal wands
-   iHealWandNum = Send(who,@CountHoldingHowMany,#class=&HealWand);
-   for (i = 0; i < piChampionsGame_max_heal_wands - iHealWandNum; i++)
-	{
-      Send(who,@NewHold,#what=Create(&HealWand));
-   }
-   
-   return;
-}
-
-GetRegistrationItem(who=$) 
-{
-   local oItem, sInscription;
-
-   foreach oItem in Send(who,@GetHolderPassive)
-   {
-      if IsClass(oItem,&BallotItem)
-      {
-         sInscription = Send(oItem,@GetInscription);
-         if sInscription <> $
-         AND sInscription = psChampionsGame_item_join_inscription
-         {
-            return oItem;
-         }
-      }
-   }
-
-   return $;
-}
-
-GetRewardItem(who=$)
-{
-   local oItem, sInscription;
-
-   foreach oItem in Send(who,@GetHolderPassive)
-   {
-      if IsClass(oItem,&BallotItem)
-      {
-         sInscription = Send(oItem,@GetInscription);
-         if sInscription <> $
-         AND StringContain(sInscription,psChampionsGame_item_reward_prefix)
-         {
-            return oItem;
-         }
-      }
-   }
-
-   return $;
-}
-
-GetRewardItemClass(sInscription=$)
-{
-   local i, lClassNames, o, oClass, sName;
-
-   lClassNames = [
-      ["scimitar",&Scimitar],
-      ["hammer",&Hammer],
-      ["axe",&Axe],
-      ["mace",&Mace],
-      ["battlebow",&Battlebow],
-      ["longbow",&Longbow]
-   ];
-
-   foreach o in lClassNames
-   {
-      sName = Nth(o,1);
-      oClass = Nth(o,2);
-      
-      if StringContain(sInscription,sName)
-      {
-         return oClass;
-      }
-   }
-
-   return &Item;
-}
-
-GetRewardItemTranslation(sInscription=$)
-{
-   local i, iTranslation, lColorNames, o, sName;
-   
-   lColorNames = [
-      ["black",PT_GRAY_TO_BLACK],
-      ["blue",PT_GRAY_TO_BBLUE],
-      ["gold",PT_GRAY_TO_GOLD],
-      ["green",PT_GRAY_TO_DGREEN],
-      ["orange",PT_GRAY_TO_ORANGE],
-      ["purple",PT_GRAY_TO_PURPLE],
-      ["red",PT_GRAY_TO_RED]
-   ];
-
-   foreach o in lColorNames
-   {
-      iTranslation = Nth(o,i);
-      sName = Nth(o,i);
-      
-      if StringContain(sInscription,sName)
-      {
-         return iTranslation;
-      }
-   }
-
-   return 0;
-}
-
-GetRewardTarget(who=$,class=&Item)
-{
-   local oItem;
-
-   foreach oItem in Send(who,@GetHolderPassive)
-   {
-      if IsClass(oItem,class)
-      {
-         return oItem;
-      }
-   }
-
-   return $;
-}
-
-HandleStage0(time=$)
-"Setup the event and broadcast a message to all online players"
-{
-   local oUser;
-
-   if piChampionsGame_stage = 0
-   AND time >= piChampionsGame_stage_0_time
-   {
-      Send(self,@SendText,#what=champions_game_stage_0_rsc);
-
-      // Disable this on live server
-      if pbChampionsGame_item_creation_active
-      {
-         foreach oUser in Send(SYS,@GetUsersLoggedOn)
-         {
-            Send(self,@CreateRegistrationItem,#who=oUser);
-         }
-      }
-
-      piChampionsGame_wave_time = 0;
-
-      piChampionsGame_stage = 1;
-      
-      return;
-   }
-   
-   return;
-}
-
-HandleStage1(time=$)
-"Start the battle waves by preparing the battlefield and players"
-{
-   local oUser;
-
-   if piChampionsGame_stage = 1
-   AND time >= piChampionsGame_stage_1_time
-   {
-      // No more waves
-      if time >= piChampionsGame_stage_2_time
-      {
-         piChampionsGame_stage = 2;
-         return;
-      }
-
-      // No wave started yet?
-      if piChampionsGame_wave_time = 0
-      {
-         Send(self,@SendText,#what=champions_game_stage_1_rsc);
-
-         // Spawn a yeti here ;-)
-
-         // Prepare the champions
-         foreach oUser in Send(SYS,@GetUsersLoggedOn)
-         {
-            if (Send(self,@IsAbleToJoin,#who=oUser))
-            AND (Send(self,@IsNotInRoom,#who=oUser))
+            if Send(self,@HasEnoughChampionPoints,#who=oChampion)
             {
-               // only for testing - remove this
-               Send(self,@BoostChampion,#who=oUser); 
-               Send(self,@EquipChampion,#who=oUser);
-               Send(self,@RemoveRegistrationItem,#who=oUser);
-               Send(self,@RegisterChampion,#who=oUser);
-               Send(poChampionsGame_room,@Teleport,#what=oUser);
+               Send(self,@CreateItemReward,#who=oChampion);
+               Send(self,@UpdateChampionPoints,
+                  #who=oChampion,
+                  #what=-piChampionsGame_reward_price);
+               Send(oChampion,@MsgSendUser,
+                  #message_rsc=champions_game_reward_successful_rsc,
+                  #parm1=iPoints,
+                  #parm2=piChampionsGame_reward_price);
+            }
+            else
+            {
+               Send(oChampion,@MsgSendUser,
+                  #message_rsc=champions_game_reward_failed_rsc,
+                  #parm1=iPoints,
+                  #parm2=piChampionsGame_reward_price);
             }
          }
       }
 
-      // Next wave
-      if piChampionsGame_wave_time >= piChampionsGame_wave_max_time
-      {
-         piChampionsGame_wave_time = 0;
-         return;
-      }
-
-      piChampionsGame_wave_time = piChampionsGame_wave_time + piChampionsGame_interval;
       return;
    }
 
-   return;
-}
-
-HandleStage2(time=$)
-"End battle and reward the players with points"
-{
-   if piChampionsGame_stage = 2
-   AND time >= piChampionsGame_stage_2_time
+   Constructor(pvp=TRUE)
    {
-      Send(self,@SendText,#what=champions_game_stage_2_rsc);
-      Send(self,@RewardChampionsWithPoints);
-      piChampionsGame_stage = 3;
-      return;
-   }
-
-   return;
-}
-
-HandleStage3(time=$)
-"End the event and restore the battlefield"
-{
-   if piChampionsGame_stage = 3
-   AND time >= piChampionsGame_stage_3_time
-   {
-      Send(self,@SendText,#what=champions_game_stage_3_rsc);
-      Send(self,@RestoreBattlefield);
-      piChampionsGame_stage = 4;
-      return;
-   }
-
-   return;
-}
-
-HandleStage4(time=$)
-"Wait a specific time and restart the event"
-{
-   if piChampionsGame_stage = 4
-   AND time >= piChampionsGame_stage_4_time
-   {
-      Send(self,@SendText,#what=champions_game_stage_4_rsc);
-      piChampionsGame_stage = 0;
-      piChampionsGame_time = 0;
-      return;
-   }
-
-   return;
-}
-
-HasEnoughChampionPoints(who=$)
-{
-   local i, iPoints, o, oChampion;
-
-   foreach o in plChampions
-   {
-      oChampion = Nth(o,1);
-      iPoints = Nth(o,2);
-
-      if iPoints >= piChampionsGame_reward_price
-      {
-         return TRUE;
-      }
-   }
-
-   return FALSE;
-}
-
-IsAbleToJoin(who=$)
-{
-   if pbChampionsGame_item_required
-      AND NOT Send(self,@IsHoldingRegistrationItem,#who=who)
-   {
-      return FALSE;
-   }
-
-   if Send(who,@CheckPlayerFlag,#flag=PFLAG_PERMA_NO_PVP)
-   {
-      return FALSE;
-   }
-
-   if pbChampionsGame_min_hp_required
-      AND Send(who,@GetBaseMaxHealth) < piChampionsGame_min_hp
-   {
-      return FALSE;
-   }
-
-   if pbChampionsGame_min_levels_required
-      AND Send(who,@GetTotalLearnPoints) < piChampionsGame_min_levels
-   {
-      return FALSE;
-   }
-
-   return TRUE;
-}
-
-IsHoldingRegistrationItem(who=$)
-{
-   if Send(self,@GetRegistrationItem,#who=who) <> $
-   {
-      return TRUE;
-   }
-
-   return FALSE;
-}
-
-IsHoldingRewardItem(who=$)
-{
-   if Send(self,@GetRewardItem,#who=who) <> $
-   {
-      return TRUE;
-   }
-
-   return FALSE;
-}
-
-IsNotInRoom(who=$)
-{
-   if (Send(who,@GetOwner)) = poChampionsGame_room
-   {
-      return FALSE;
-   }
-
-   return TRUE;
-}
-
-IsRegisteredChampion(who=$)
-{
-   local oChampion;
-
-   foreach oChampion in plChampions
-   {
-      if oChampion = who
-      {
-         return TRUE;
-      }
-   }
-
-   return FALSE;
-}
-
-Maintain()
-{
-   local iTime, oUser;
-
-   iTime = piChampionsGame_time;
-   ptChampionsGame_timer = CreateTimer(self,@Maintain,piChampionsGame_interval);
-   piChampionsGame_time = piChampionsGame_time + piChampionsGame_interval;
-   
-   Send(self,@CheckChampionsForRewardRequest);
-
-   Send(self,@HandleStage0,#time=iTime);
-   Send(self,@HandleStage1,#time=iTime);
-   Send(self,@HandleStage2,#time=iTime);
-   Send(self,@HandleStage3,#time=iTime);
-   Send(self,@HandleStage4,#time=iTime);
-
-   return;
-}
-
-RegisterChampion(who=$)
-{
-   local i, iTime, o, oChampion, oRoom;
-
-   // Try to update existing champion first
-   foreach o in plChampions
-   {
-      oChampion = Nth(o,1);
-      if oChampion = who
-      {
-         oRoom = Send(who,@GetOwner);
-         // Points should remain untouched
-         SetNth(o,3,oRoom);
-         SetNth(o,4,piChampionsGame_time);
-         return;
-      }
-   }
-
-   // Add as new champions
-   oRoom = Send(who,@GetOwner);
-   plChampions = Cons([who,0,oRoom,piChampionsGame_time],plChampions);
-   
-   return;
-}
-
-RemoveRegistrationItem(who=$)
-{
-   local oItem;
-
-   oItem = Send(self,@GetRegistrationItem,#who=who);
-   if oItem <> $
-   {
-      Send(oItem,@Delete);
-   }
-   
-   return;
-}
-
-RestoreBattlefield()
-{
-   local i, o, oChampion, oRoom;
-   
-   foreach o in plChampions
-   {
-      // Teleport champions back to their original room
-      oChampion = Nth(o,1);
-      oRoom = Nth(o,3);
-      Send(oRoom,@Teleport,#what=oChampion);
-   }
-
-   return;
-}
-
-RewardChampionsWithPoints()
-{
-   local i, iDiff, iPoints, iTime, o, oChampion;
-
-   foreach o in plChampions
-   {
-      oChampion = Nth(o,1);
-      iPoints = Nth(o,2);
-      iTime = Nth(o,4);
-      iDiff = (piChampionsGame_time - iTime);
+      ptChampionsGame_timer = CreateTimer(self,@Maintain,piChampionsGame_interval);
       
-      // Winner
-      if iDiff >= piChampionsGame_min_reward_time
+      Send(self,@CreateGame);
+      Send(self,@CreateRoom,#pvp=pvp);
+
+      return;
+   }
+
+   CreateGame()
+   {
+      plChampions = [];
+
+      return;
+   }
+
+   CreateItemReward(who=$)
+   {
+      local iTranslation, oClass, oItem, oRoom, oTarget, sInscription;
+
+      oItem = Send(self,@GetRewardItem,#who=who);
+      if oItem <> $
       {
-         iPoints = iPoints + piChampionsGame_reward_winner;
-         SetNth(o,2,iPoints);
-         Send(oChampion,@MsgSendUser,
-            #message_rsc=champions_game_points_rsc,
-            #parm1=iPoints);
-         Debug("champion who=",oChampion," is a winner with points=",iPoints,"!");
+         sInscription = Send(oItem,@GetInscription);
+         oClass = Send(self,@GetRewardItemClass,#sInscription=sInscription);
+         iTranslation = Send(self,@GetRewardItemTranslation,#sInscription=sInscription);
+         oTarget = Send(self,@GetRewardTarget,#who=who,#class=oClass);
+         if oTarget <> $
+         {
+            Send(Send(SYS,@FindItemAttByNum,#Num=IA_TRANSCENDANT),@AddToItem,#oItem=oTarget);
+            Send(oTarget,@SetPaletteTranslation,#translation=iTranslation);
+            if IsClass(oTarget,&Armor)
+            {
+               Send(oTarget,@SetArmorColored,#value=TRUE);
+            }
+            Send(oItem,@Delete);
+         }
       }
-      // Loser
+
+      return;
+   }
+
+   CreateRegistrationItem(who=$)
+   {
+      local oItem;
+
+      oItem = Create(&BallotItem);
+      Send(oItem,@SetInscription,#string=psChampionsGame_item_join_inscription);
+      Send(who,@NewHold,#what=oItem);
+
+      return;
+   }
+
+   CreateRoom(pvp=TRUE)
+   {
+      local oRoom;
+
+      // Use a specific base room as a template and create a new room with PVP activated
+      if pvp
+      {
+         oRoom = Send(SYS,@FindRoomByNum,#num=piChampionsGame_pvp_base_room_num);
+         Send(SYS,@CreateOneRoomIfNew,
+            #num=piChampionsGame_pvp_room_num,
+            #class=&ChampionsGameRoom,
+            #iPublic=TRUE,
+            #base_room=oRoom,
+            #iPvP=TRUE);
+      }
       else
       {
-         iPoints = iPoints + poChampionsGame_reward_loser;
-         SetNth(o,2,iPoints);
-         Send(oChampion,@MsgSendUser,
-            #message_rsc=champions_game_points_rsc,
-            #parm1=iPoints);
-         Debug("champion who=",oChampion," is a loser with points=",iPoints,"!");
+         oRoom = Send(SYS,@FindRoomByNum,#num=piChampionsGame_pve_base_room_num);
+         Send(SYS,@CreateOneRoomIfNew,
+            #num=piChampionsGame_pve_room_num,
+            #class=&ChampionsGameRoom,
+            #iPublic=TRUE,
+            #base_room=oRoom,
+            #iPvP=FALSE);
       }
+
+      poChampionsGame_room = oRoom;
+      piChampionsGame_time = 0;
+      
+      return;
    }
 
-   return;
-}
-
-SendText(what=$)
-{
-   local oUser;
-
-   foreach oUser in Send(SYS,@GetUsersLoggedOn)
+   Delete()
    {
-      Send(oUser,@MsgSendUser,#message_rsc=what);
-   }
-
-   return;
-}
-
-UpdateChampionPoints(who=$,what=$)
-{
-   local i, iPoints, o, oChampion;
-
-   foreach o in plChampions
-   {
-      oChampion = Nth(o,1);
-      iPoints = Nth(o,2);
-
-      if who = oChampion
+      if ptChampionsGame_timer <> $
       {
-         iPoints = iPoints + what;
-         SetNth(o,2,iPoints);
+         DeleteTimer(ptChampionsGame_timer);
+         ptChampionsGame_timer = $;
+      }
+
+      return;
+   }
+
+   EquipChampion(who=$)
+   {
+      local oItem, oOwner;
+
+      if pbChampionsGame_equip_champion_active
+      AND Length(Send(who,@GetEquippedItems)) < piChampionsGame_max_items_equipped
+      {
+         Send(who,@NewHold,#what=Create(&Longbow));
+         
+         oItem = Create(&Scimitar);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);
+
+         oItem = Create(&GoldShield);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);      
+         
+         oItem = Create(&Gauntlet);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);      
+         
+         oItem = Create(&PantsD);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);
+         
+         oItem = Create(&Shirt);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);
+
+         oItem = Create(&ChainArmor);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);      
+            
+         oItem = Create(&DaemonHelm);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);      
+      
+         oItem = Create(&Circlet);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);      
+         
+         Send(who,@NewHold,#what=Create(&Hammer));
+         Send(who,@NewHold,#what=Create(&MysticSword));  
+         
+         oItem = Create(&NeruditeArrow,#number=100);
+         Send(who,@NewHold,#what=oItem);
+         Send(who,@UserUseItem,#what=oItem);      
+
+         Send(who,@NewHold,#what=Create(&Mace));
+         Send(who,@NewHold,#what=Create(&LightRobe));
+         Send(who,@NewHold,#what=Create(&JewelofFroz));
+         Send(who,@NewHold,#what=Create(&JewelofFroz));
+
+         Send(who,@NewHold,#what=Create(&BallotItem));
+
+         oOwner = Send(who,@GetOwner);
+         Send(oOwner,@SomethingChanged,#what=who);
+      }
+
+      Send(self,@EquipHealWands,#who=who);
+      Send(who,@AddReagentsForSpells,#iNumCasts=1);
+      
+      return;
+   }
+
+   EquipHealWands(who=$)
+   {
+      local i, iHealWandNum, oItem;
+
+      if NOT pbChampionsGame_equip_heal_wands_active
+      {
+         return;
+      }
+
+      // Ensure the champion has enough heal wands
+      iHealWandNum = Send(who,@CountHoldingHowMany,#class=&HealWand);
+      for (i = 0; i < piChampionsGame_max_heal_wands - iHealWandNum; i++)
+      {
+         Send(who,@NewHold,#what=Create(&HealWand));
+      }
+      
+      return;
+   }
+
+   GetRegistrationItem(who=$) 
+   {
+      local oItem, sInscription;
+
+      foreach oItem in Send(who,@GetHolderPassive)
+      {
+         if IsClass(oItem,&BallotItem)
+         {
+            sInscription = Send(oItem,@GetInscription);
+            if sInscription <> $
+            AND sInscription = psChampionsGame_item_join_inscription
+            {
+               return oItem;
+            }
+         }
+      }
+
+      return $;
+   }
+
+   GetRewardItem(who=$)
+   {
+      local oItem, sInscription;
+
+      foreach oItem in Send(who,@GetHolderPassive)
+      {
+         if IsClass(oItem,&BallotItem)
+         {
+            sInscription = Send(oItem,@GetInscription);
+            if sInscription <> $
+            AND StringContain(sInscription,psChampionsGame_item_reward_prefix)
+            {
+               return oItem;
+            }
+         }
+      }
+
+      return $;
+   }
+
+   GetRewardItemClass(sInscription=$)
+   {
+      local lClassNames, o, oClass, sName;
+
+      lClassNames = [
+         ["scimitar",&Scimitar],
+         ["hammer",&Hammer],
+         ["axe",&Axe],
+         ["mace",&Mace],
+         ["battlebow",&Battlebow],
+         ["longbow",&Longbow]
+      ];
+
+      foreach o in lClassNames
+      {
+         sName = First(o);
+         oClass = Nth(o,2);
+         
+         if StringContain(sInscription,sName)
+         {
+            return oClass;
+         }
+      }
+
+      return &Item;
+   }
+
+   GetRewardItemTranslation(sInscription=$)
+   {
+      local iTranslation, lColorNames, o, sName;
+      
+      lColorNames = [
+         ["black",PT_GRAY_TO_BLACK],
+         ["blue",PT_GRAY_TO_BBLUE],
+         ["gold",PT_GRAY_TO_GOLD],
+         ["green",PT_GRAY_TO_DGREEN],
+         ["orange",PT_GRAY_TO_ORANGE],
+         ["purple",PT_GRAY_TO_PURPLE],
+         ["red",PT_GRAY_TO_RED]
+      ];
+
+      foreach o in lColorNames
+      {
+         sName = First(o);
+         iTranslation = Nth(o,2);
+         
+         if StringContain(sInscription,sName)
+         {
+            return iTranslation;
+         }
+      }
+
+      return 0;
+   }
+
+   GetRewardTarget(who=$,class=&Item)
+   {
+      local oItem;
+
+      foreach oItem in Send(who,@GetHolderPassive)
+      {
+         if IsClass(oItem,class)
+         {
+            return oItem;
+         }
+      }
+
+      return $;
+   }
+
+   HandleStage0(time=$)
+   "Setup the event and broadcast a message to all online players"
+   {
+      local oUser;
+
+      if piChampionsGame_stage = 0
+      AND time >= piChampionsGame_stage_0_time
+      {
+         Send(self,@SendText,#what=champions_game_stage_0_rsc);
+         piChampionsGame_wave_time = 0;
+         piChampionsGame_stage = 1;
+         plChampions = [];
+         return;
+      }
+      
+      return;
+   }
+
+   HandleStage1(time=$)
+   "Start the battle waves by preparing the battlefield and players"
+   {
+      local oUser;
+
+      if piChampionsGame_stage = 1
+      AND time >= piChampionsGame_stage_1_time
+      {
+         // No more waves
+         if time >= piChampionsGame_stage_2_time
+         {
+            piChampionsGame_stage = 2;
+            return;
+         }
+
+         // No wave started yet?
+         if piChampionsGame_wave_time = 0
+         {
+            Send(self,@SendText,#what=champions_game_stage_1_rsc);
+
+            // Spawn a yeti here ;-)
+
+            // Prepare the champions
+            foreach oUser in Send(SYS,@GetUsersLoggedOn)
+            {
+               if (Send(self,@IsAbleToJoin,#who=oUser))
+               AND NOT(Send(self,@IsInRoom,#who=oUser))
+               {
+                  Send(self,@EquipChampion,#who=oUser);
+                  Send(self,@RemoveRegistrationItem,#who=oUser);
+                  Send(self,@RegisterChampion,#who=oUser);
+                  Send(poChampionsGame_room,@Teleport,#what=oUser);
+               }
+            }
+         }
+
+         // Next wave
+         if piChampionsGame_wave_time >= piChampionsGame_wave_max_time
+         {
+            piChampionsGame_wave_time = 0;
+            return;
+         }
+
+         piChampionsGame_wave_time = piChampionsGame_wave_time + piChampionsGame_interval;
+         return;
+      }
+
+      return;
+   }
+
+   HandleStage2(time=$)
+   "End battle and reward the players with points"
+   {
+      if piChampionsGame_stage = 2
+      AND time >= piChampionsGame_stage_2_time
+      {
+         Send(self,@SendText,#what=champions_game_stage_2_rsc);
+         Send(self,@RewardChampionsWithPoints);
+         piChampionsGame_stage = 3;
+         return;
+      }
+
+      return;
+   }
+
+   HandleStage3(time=$)
+   "End the event and restore the battlefield"
+   {
+      if piChampionsGame_stage = 3
+      AND time >= piChampionsGame_stage_3_time
+      {
+         Send(self,@SendText,#what=champions_game_stage_3_rsc);
+         Send(self,@RestoreBattlefield);
+         piChampionsGame_stage = 4;
+         return;
+      }
+
+      return;
+   }
+
+   HandleStage4(time=$)
+   "Wait a specific time and restart the event"
+   {
+      if piChampionsGame_stage = 4
+      AND time >= piChampionsGame_stage_4_time
+      {
+         Send(self,@SendText,#what=champions_game_stage_4_rsc);
+         piChampionsGame_stage = 0;
+         piChampionsGame_time = 0;
+         return;
+      }
+
+      return;
+   }
+
+   HasEnoughChampionPoints(who=$)
+   {
+      local iPoints, o, oChampion;
+
+      foreach o in plChampions
+      {
+         oChampion = First(o);
+         iPoints = Nth(o,2);
+
+         if iPoints >= piChampionsGame_reward_price
+         {
+            return TRUE;
+         }
+      }
+
+      return FALSE;
+   }
+
+   IsAbleToJoin(who=$)
+   {
+      if pbChampionsGame_item_required
+         AND NOT Send(self,@IsHoldingRegistrationItem,#who=who)
+      {
+         return FALSE;
+      }
+
+      if Send(who,@CheckPlayerFlag,#flag=PFLAG_PERMA_NO_PVP)
+      {
+         return FALSE;
+      }
+
+      if pbChampionsGame_min_hp_required
+         AND Send(who,@GetBaseMaxHealth) < piChampionsGame_min_hp
+      {
+         return FALSE;
+      }
+
+      if pbChampionsGame_min_levels_required
+         AND Send(who,@GetTotalLearnPoints) < piChampionsGame_min_levels
+      {
+         return FALSE;
+      }
+
+      return TRUE;
+   }
+
+   IsHoldingRegistrationItem(who=$)
+   {
+      if Send(self,@GetRegistrationItem,#who=who) <> $
+      {
          return TRUE;
       }
+
+      return FALSE;
    }
 
-   return FALSE;
-}
+   IsHoldingRewardItem(who=$)
+   {
+      if Send(self,@GetRewardItem,#who=who) <> $
+      {
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   IsInRoom(who=$)
+   {
+      if (Send(who,@GetOwner)) = poChampionsGame_room
+      {
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   IsRegisteredChampion(who=$)
+   {
+      local oChampion;
+
+      foreach oChampion in plChampions
+      {
+         if oChampion = who
+         {
+            return TRUE;
+         }
+      }
+
+      return FALSE;
+   }
+
+   Maintain()
+   {
+      local iTime, oUser;
+
+      iTime = piChampionsGame_time;
+      ptChampionsGame_timer = CreateTimer(self,@Maintain,piChampionsGame_interval);
+      piChampionsGame_time = piChampionsGame_time + piChampionsGame_interval;
+      
+      Send(self,@CheckChampionsForRewardRequest);
+
+      Send(self,@HandleStage0,#time=iTime);
+      Send(self,@HandleStage1,#time=iTime);
+      Send(self,@HandleStage2,#time=iTime);
+      Send(self,@HandleStage3,#time=iTime);
+      Send(self,@HandleStage4,#time=iTime);
+
+      return;
+   }
+
+   RegisterChampion(who=$)
+   {
+      local o, oChampion, oRoom;
+
+      // Try to update existing champion first
+      foreach o in plChampions
+      {
+         oChampion = First(o);
+         if oChampion = who
+         {
+            oRoom = Send(who,@GetOwner);
+            // Points should remain untouched
+            SetNth(o,3,oRoom);
+            SetNth(o,4,piChampionsGame_time);
+            return;
+         }
+      }
+
+      // Add as new champions
+      oRoom = Send(who,@GetOwner);
+      plChampions = Cons([who,0,oRoom,piChampionsGame_time],plChampions);
+      
+      return;
+   }
+
+   RemoveRegistrationItem(who=$)
+   {
+      local oItem;
+
+      oItem = Send(self,@GetRegistrationItem,#who=who);
+      if oItem <> $
+      {
+         Send(oItem,@Delete);
+      }
+      
+      return;
+   }
+
+   RestoreBattlefield()
+   {
+      local o, oChampion, oRoom;
+      
+      foreach o in plChampions
+      {
+         // Teleport champions back to their original room
+         oChampion = First(o);
+         oRoom = Nth(o,3);
+         Send(oRoom,@Teleport,#what=oChampion);
+      }
+
+      return;
+   }
+
+   RewardChampionsWithPoints()
+   {
+      local iDiff, iPoints, iTime, o, oChampion;
+
+      foreach o in plChampions
+      {
+         oChampion = First(o);
+         iPoints = Nth(o,2);
+         iTime = Nth(o,4);
+         iDiff = (piChampionsGame_time - iTime);
+         
+         // Winner
+         if iDiff >= piChampionsGame_min_reward_time
+         {
+            iPoints = iPoints + piChampionsGame_reward_winner;
+            SetNth(o,2,iPoints);
+            Send(oChampion,@MsgSendUser,
+               #message_rsc=champions_game_points_rsc,
+               #parm1=iPoints);
+            Debug("champion who=",oChampion," is a winner with points=",iPoints,"!");
+         }
+         // Loser
+         else
+         {
+            iPoints = iPoints + poChampionsGame_reward_loser;
+            SetNth(o,2,iPoints);
+            Send(oChampion,@MsgSendUser,
+               #message_rsc=champions_game_points_rsc,
+               #parm1=iPoints);
+            Debug("champion who=",oChampion," is a loser with points=",iPoints,"!");
+         }
+      }
+
+      return;
+   }
+
+   SendText(what=$)
+   {
+      local oUser;
+
+      foreach oUser in Send(SYS,@GetUsersLoggedOn)
+      {
+         Send(oUser,@MsgSendUser,#message_rsc=what);
+      }
+
+      return;
+   }
+
+   UpdateChampionPoints(who=$,what=$)
+   {
+      local iPoints, o, oChampion;
+
+      foreach o in plChampions
+      {
+         oChampion = First(o);
+         iPoints = Nth(o,2);
+
+         if who = oChampion
+         {
+            iPoints = iPoints + what;
+            SetNth(o,2,iPoints);
+            return TRUE;
+         }
+      }
+
+      return FALSE;
+   }
 
 end
 
