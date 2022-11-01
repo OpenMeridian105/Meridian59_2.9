@@ -22,9 +22,6 @@ constants:
    // Max rank you can get from killing factioned NPCs
    MAX_RANK_FROM_MONSTERS = 10
 
-   // How many meridian days (approximate) before you lose a rank.
-   DAYS_PER_RANK_LOSS = 60
-
 resources:
 
    include soldshld.lkod
@@ -90,8 +87,10 @@ properties:
 
    piFactionRank = 4
 
-   // Number of M59 days left until we lose a rank.
-   piDaysUntilRankLoss = 0
+   piNextRankLoss_tick = 1000 * 60 // 1 minute
+   piNextRankLossMax = 1000 * 60 * 60 * 6 // 6 online hours per rank
+   piNextRankLossRemaining_time = 0
+   ptNextRankLoss_timer = $
 
    // A count of how many kills scored.
    piFactionKills = 0
@@ -254,24 +253,34 @@ messages:
       return;
    }
 
-   ResetRankLossCount()
+   StartRankLossTimer()
    {
-      piDaysUntilRankLoss = (DAYS_PER_RANK_LOSS * random(80,110)) / 100;
-
+      Send(self,@StopRankLossTimer);
+      ptNextRankLoss_timer = CreateTimer(self,@UpdateRemainingTime,piNextRankLoss_tick);
+      if piNextRankLossRemaining_time <= 0
+      {
+         piNextRankLossRemaining_time = piNextRankLossMax;
+      }
       return;
    }
 
-   NewGameDay()
-   "Called every new M59 day."
+   UpdateRemainingTime()
    {
-      piDaysUntilRankLoss = piDaysUntilRankLoss - 1;
-
-      if piDaysUntilRankLoss <= 0
-      {
+      piNextRankLossRemaining_time = piNextRankLossRemaining_time - piNextRankLoss_tick;
+      if piNextRankLossRemaining_time <= 0 {
          Send(self,@ModifyFactionRank,#amount=-1);
-         Send(self,@ResetRankLossCount);
+         piNextRankLossRemaining_time = piNextRankLossMax;
       }
+      ptNextRankLoss_timer = CreateTimer(self,@UpdateRemainingTime,piNextRankLoss_tick);
+      return;
+   }
 
+   StopRankLossTimer()
+   {
+      if ptNextRankLoss_timer <> $
+      {
+         DeleteTimer(ptNextRankLoss_timer);
+      }
       return;
    }
 
