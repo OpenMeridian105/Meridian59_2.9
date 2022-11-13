@@ -5977,6 +5977,17 @@ messages:
       plItemTemplates = cons(create(&ShieldRod),plItemTemplates);
       plItemTemplates = cons(create(&DamageRod),plItemTemplates);
 
+      //Thanksgiving
+      plItemTemplates = cons(create(&Corn),plItemTemplates);
+      plItemTemplates = cons(create(&PecanPie),plItemTemplates);
+      plItemTemplates = cons(create(&PumpkinPie),plItemTemplates);
+      plItemTemplates = cons(create(&MashedPatatoes),plItemTemplates);
+      plItemTemplates = cons(create(&Stuffing),plItemTemplates);
+      plItemTemplates = cons(create(&Ham),plItemTemplates);
+      plItemTemplates = cons(create(&Rouladen),plItemTemplates);
+      plItemTemplates = cons(create(&PilgrimHat),plItemTemplates);
+      plItemTemplates = cons(create(&IndianHat),plItemTemplates);
+      
       return;
    }
 
