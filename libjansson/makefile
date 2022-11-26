@@ -6,9 +6,9 @@ TOPDIR=..
 # ----------------------------------------------------------------------
 # Additional compiler flags (see common.mak)
 # /TC           Compile as C code
-# /arch:x86    Use SSE2 instructions (VS2013+ default to SSE2)
+# /arch:amd64    Use SSE2 instructions (VS2013+ default to SSE2)
 # /wd4005       Ignore macro redefinition warning
-CFLAGS = $(CFLAGS) /arch:x86 /TC /D_USING_V110_SDK71_ /wd4005
+CFLAGS = $(CFLAGS) /arch:amd64 /TC /D_USING_V110_SDK71_ /wd4005
 
 # ----------------------------------------------------------------------
 # Additional static linker flags (see common.mak)
