@@ -6,9 +6,9 @@ TOPDIR=..
 # ----------------------------------------------------------------------
 # Additional compiler flags (see common.mak)
 # /TP           Compile as C++ code
-# /arch:amd64    Use SSE2 instructions (VS2013+ default to SSE2)
+# /arch:IA32    Use SSE2 instructions (VS2013+ default to SSE2)
 # /wd4065       Ignore specific warning
-CFLAGS = $(CFLAGS) /arch:amd64 /TP /wd4065
+CFLAGS = $(CFLAGS) /arch:IA32 /TP /wd4065
 
 # ----------------------------------------------------------------------
 # Additional linker flags (see common.mak)
