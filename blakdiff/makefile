@@ -8,8 +8,8 @@ TOPDIR=..
 # ----------------------------------------------------------------------
 # Additional compiler flags (see common.mak)
 # /TP           Compile as C++ code
-# /arch:SSE2    Use SSE2 instructions (VS2013+ default to SSE2)
-CFLAGS = $(CFLAGS) /arch:SSE2 /TP
+# /arch:x64    Use SSE2 instructions (VS2013+ default to SSE2)
+CFLAGS = $(CFLAGS) /arch:x64 /TP
 
 # ----------------------------------------------------------------------
 # Additional linker flags (see common.mak)
