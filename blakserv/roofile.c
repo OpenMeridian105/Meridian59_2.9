@@ -17,6 +17,10 @@
 
 #include "blakserv.h"
 
+#ifdef _MSC_VER
+  #pragma warning (disable: 4244)// Switch off implicit type conversion warnings
+#endif
+
 #pragma region Macros
 /*****************************************************************************************
 ********* macro functions ****************************************************************
@@ -2359,7 +2363,8 @@ bool BSPLoadRoom(char *fname, room_type *room)
    if (fread(&temp, 1, 4, infile) != 4)
    { fclose(infile); return False; }
    y1 = (float)temp;
-   
+
+
    // from the 4 bbox points shown in roomedit (defined by 2 vertices)
    // 1) Pick the left-bottom one as minimum (and scale to ROO fineness)
    // 2) Pick the right-up one as maximum (and scale to ROO fineness)

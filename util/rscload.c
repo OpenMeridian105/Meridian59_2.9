@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-
+#include <string.h>
 #ifdef BLAK_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif
