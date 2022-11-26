@@ -1,5 +1,6 @@
 name: Test Build on Push
 run-name: ${{ github.actor }} is running a build.
+on: [push]
 jobs:
   build:
     runs-on: windows-latest
