@@ -1,0 +1,11 @@
+name: Test Build on Push
+run-name: ${{ github.actor }} is running a build.
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Build something
+        run: |
+          nmake debug=1
