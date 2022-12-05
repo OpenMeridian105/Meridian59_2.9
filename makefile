@@ -8,8 +8,9 @@ TOPDIR=.
 .SILENT:
 
 # make ignores targets if they match directory names
-all: Bzlib Blibpng Bjansson Bserver Bclient Bmodules Bkod Bdeco Bbbgun Bkeybind Bresource
-
+all: APrep Bzlib Blibpng Bjansson Bserver Bclient Bmodules Bkod Bdeco Bbbgun Bkeybind Bresource
+APrep: 
+    IF exist $(CLIENTRUNDIR)\resource ( echo resources dir exists ) ELSE ( mkdir $(CLIENTRUNDIR)\resource && echo resources dir created)
 Bserver: Bresource Bjansson
 	echo Making $(COMMAND) in $(BLAKSERVDIR)
 	cd $(BLAKSERVDIR)
@@ -94,7 +95,6 @@ Blibpng:
 	cd ..
 	
 Bzlib:
-    IF exist $(RESOURCEDIR) ( echo resources dir exists ) ELSE ( mkdir $(RESOURCEDIR) && echo resources dir created)
 	echo Making $(COMMAND) in $(ZLIBDIR)
 	cd $(ZLIBDIR)
 	$(MAKE) /$(MAKEFLAGS) $(COMMAND)
