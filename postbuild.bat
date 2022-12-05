@@ -10,6 +10,11 @@ set foundcli=0
 rem Step 1: Try 64-bit Program Files
 set m59path=%ProgramW6432%\Open Meridian\Meridian 105
 
+rem Step 1a: check for autobuild ovveride
+if EXIST m59res\resource (
+   set m59path=m59res
+)
+
 if EXIST !m59path! (
    call :copying
    if %ERRORLEVEL% LSS 8 goto found

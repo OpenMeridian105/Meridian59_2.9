@@ -6,6 +6,19 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v2
+      - name: Checkout Resources
+        uses: actions/checkout@v2
+        with:
+            lfs: true
+            repository: xmycroftx/meridian_resource
+            path: './m59res'
+            token: ${{ secrets.checkout_resources }}
+      - name: Download resources
+        run: | 
+        cd m59res
+        git lfs pull
+      - name: Extract Resources
+        run: 7z x ./m59res/resource_04122002_OM105.7z -om59res
       - uses: ilammy/msvc-dev-cmd@v1
         with:
             arch: x86
