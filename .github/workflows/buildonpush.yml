@@ -12,3 +12,14 @@ jobs:
       - name: Build something
         run: |
           nmake debug=1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: WUHbins
+          path: "./run"
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: 'release.zip'
+          exclusions: '*.git* /*node_modules/* .editorconfig'
