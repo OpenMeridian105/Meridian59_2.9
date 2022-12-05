@@ -13,10 +13,10 @@ APrep:
     setlocal enableextensions
     IF exist $(CLIENTRUNDIR)\resource ( echo resources dir exists ) ELSE ( mkdir $(CLIENTRUNDIR)\resource && echo resources dir created)
 	IF exist $(BLAKSERVRUNDIR)\rsc ( echo server\rsc dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\rsc && echo server\rsc dir created)
-	IF exist $(BLAKSERVRUNDIR)\memmap ( echo server\memmap dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\memmap && echo server\memmap dir created)
-	IF exist $(BLAKSERVRUNDIR)\loadkod ( echo server\loadkod dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\loadkod && echo server\loadkod dir created)
-	IF exist $(BLAKSERVRUNDIR)\savegame ( echo server\savegame dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\savegame && echo server\savegame dir created)
-	IF exist $(BLAKSERVRUNDIR)\channel ( echo server\channel dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\channel && echo server\channel dir created)
+	IF exist $(BLAKSERVRUNDIR)\memmap ( echo server\memmap dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\memmap && echo server\memmap dir created > $(BLAKSERVRUNDIR)\memmap\.placeholder )
+	IF exist $(BLAKSERVRUNDIR)\loadkod ( echo server\loadkod dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\loadkod && echo server\loadkod dir created )
+	IF exist $(BLAKSERVRUNDIR)\savegame ( echo server\savegame dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\savegame && echo server\savegame dir created > $(BLAKSERVRUNDIR)\savegame\.placeholder )
+	IF exist $(BLAKSERVRUNDIR)\channel ( echo server\channel dir exists ) ELSE ( mkdir $(BLAKSERVRUNDIR)\channel && echo server\channel dir created > $(BLAKSERVRUNDIR)\channel\.placeholder )
 
 Bserver: Bresource Bjansson
 	echo Making $(COMMAND) in $(BLAKSERVDIR)
