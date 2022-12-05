@@ -7,14 +7,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ilammy/msvc-dev-cmd@v1
+        with:
+            arch: x86
       - name: Build something
-        env:
-         is_x64_arch: false
-         VSCMD_ARG_HOST_ARCH: x86
-         VSCMD_ARG_TGT_ARCH: x86
-         PROCESSOR_ARCHITECTURE: x86
-         PROCESSOR_ARCHITEW6432: AMD64
-         __DOTNET_PREFERRED_BITNESS: 32
-         Platform: x86
         run: |
           nmake debug=1
