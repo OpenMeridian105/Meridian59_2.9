@@ -5,6 +5,7 @@
 *.rsc
 kodbase.txt
 run/server/*
+!run/server/blakserv.cfg
 run/localclient/*
 !run/localclient/*.dll
 bbgun.exe
