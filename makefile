@@ -58,7 +58,6 @@ Bdeco:
 	cd ..
 
 Bresource: Bmakebgf Bbbgun
-    IF exist $(RESOURCEDIR) ( echo resources dir exists ) ELSE ( mkdir $(RESOURCEDIR) && echo resources dir created)
 	echo Making $(COMMAND) in $(RESOURCEDIR)
 	cd $(RESOURCEDIR)
 	$(MAKE) /$(MAKEFLAGS) $(COMMAND)
@@ -95,6 +94,7 @@ Blibpng:
 	cd ..
 	
 Bzlib:
+    IF exist $(RESOURCEDIR) ( echo resources dir exists ) ELSE ( mkdir $(RESOURCEDIR) && echo resources dir created)
 	echo Making $(COMMAND) in $(ZLIBDIR)
 	cd $(ZLIBDIR)
 	$(MAKE) /$(MAKEFLAGS) $(COMMAND)
