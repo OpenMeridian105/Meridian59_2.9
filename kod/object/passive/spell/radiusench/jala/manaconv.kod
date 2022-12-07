@@ -64,6 +64,7 @@ classvars:
    viSchool = SS_JALA
    viSpell_level = 5
    viMeditate_ratio = 75
+   viBaseRange = 5 * FINENESS
 
    viAffectsEnemies = TRUE
 
@@ -83,14 +84,16 @@ messages:
 
    PeriodicEffect(who=$,state=$)
    {
-      local oCaster, iManaGain;
+      local oCaster, iManaGain, iSpellPower;
 
       oCaster = First(state);
+      
+      iSpellPower = Send(self,@GetSpellPower,#who=who);
 
       if (IsClass(who,&Player)
          AND NOT (who = oCaster))
       {
-         iManaGain = Send(who,@LoseMana,#amount=1);
+         iManaGain = Send(who,@LoseMana,#amount=(iSpellPower/40+1));
 
          if (iManaGain > 0)
          {

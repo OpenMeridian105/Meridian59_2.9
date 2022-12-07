@@ -136,7 +136,7 @@ messages:
    {
       plFor_Sale = [$,
                     $,
-                    [ SID_CONCILIATION] ];
+                    [ SID_CONCILIATION], [SID_LULLABY] ];
 
       return;
    }
