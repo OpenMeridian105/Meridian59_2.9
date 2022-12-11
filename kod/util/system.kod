@@ -5596,6 +5596,7 @@ messages:
       plMonsterTemplates = cons(create(&IceElementalChampion,#template=TRUE),plMonsterTemplates);
       plMonsterTemplates = cons(create(&NeruElemental,#template=TRUE),plMonsterTemplates);
       plMonsterTemplates = cons(create(&NeruElementalChampion,#template=TRUE),plMonsterTemplates);
+      plMonsterTemplates = cons(create(&Snowman,#template=TRUE),plMonsterTemplates);
 
       return;
    }
