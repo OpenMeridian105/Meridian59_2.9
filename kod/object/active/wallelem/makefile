@@ -5,7 +5,8 @@
 !include $(TOPDIR)\common.mak
 
 DEPEND = ..\wallelem.bof
-BOFS =  wallfire.bof wallltng.bof poisfogc.bof web.bof asburstc.bof wallifire.bof fogcloud.bof
+BOFS =  wallfire.bof wallltng.bof poisfogc.bof web.bof asburstc.bof \
+		wallifire.bof fogcloud.bof wallice.bof
 
 
 !include $(KODDIR)\kod.mak
