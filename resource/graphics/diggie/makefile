@@ -10,7 +10,7 @@ BGFS = neeleme.bgf neelemeX.bgf iunholyt.bgf xeoneru.bgf xeoneruX.bgf \
        pear.bgf peartree.bgf orange.bgf orangetree.bgf cookie.bgf \
        mmdrat.bgf mfdrat.bgf arrowgold.bgf Msnowman.bgf MsnowmanX.bgf \
        woice.bgf iwallice.bgf gshqm.bgf gshqmov.bgf gingermen.bgf \
-       gingerhouse.bgf
+       gingerhouse.bgf mmrednose.bgf nfrednose.bgf
 
 !include $(RESOURCEDIR)\copy.mak
 
