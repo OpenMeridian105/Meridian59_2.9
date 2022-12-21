@@ -3502,6 +3502,7 @@ messages:
       Send(self,@CreateOneSpellIfNew,#num=SID_RESIST_POISON,#class=&ResistPoison);
       Send(self,@CreateOneSpellIfNew,#num=SID_ILLUSIONARY_FIREWALL,#class=&IllusionaryFirewall);
       Send(self,@CreateOneSpellIfNew,#num=SID_FIREWALL,#class=&Firewall);
+      Send(self,@CreateOneSpellIfNew,#num=SID_ICEWALL,#class=&Icewall);
       Send(self,@CreateOneSpellIfNew,#num=SID_GAZE_OF_THE_BASILISK,#class=&Paralyze);
 
       Send(self,@CreateOneSpellIfNew,#num=SID_SPORE_BURST,#class=&SporeBurst);
@@ -5596,6 +5597,7 @@ messages:
       plMonsterTemplates = cons(create(&IceElementalChampion,#template=TRUE),plMonsterTemplates);
       plMonsterTemplates = cons(create(&NeruElemental,#template=TRUE),plMonsterTemplates);
       plMonsterTemplates = cons(create(&NeruElementalChampion,#template=TRUE),plMonsterTemplates);
+      plMonsterTemplates = cons(create(&Snowman,#template=TRUE),plMonsterTemplates);
 
       return;
    }
@@ -5723,6 +5725,8 @@ messages:
       plItemTemplates = cons(create(&TrollMask),plItemTemplates);
       plItemTemplates = cons(create(&StoneTrollMask),plItemTemplates);
       plItemTemplates = cons(create(&KriipaMask),plItemTemplates);
+      plItemTemplates = cons(create(&RedNoseMask),plItemTemplates);
+      plItemTemplates = cons(create(&CarrotNoseMask),plItemTemplates);
 
       plItemTemplates = cons(create(&FarenCharm),plItemTemplates);
       plItemTemplates = cons(create(&RiijaCharm),plItemTemplates);
@@ -5905,6 +5909,7 @@ messages:
       plItemTemplates = cons(create(&Pear),plItemTemplates);
       plItemTemplates = cons(create(&Orange),plItemTemplates);
       plItemTemplates = cons(create(&TeloFruit),plItemTemplates);
+      plItemTemplates = cons(create(&Gingermen),plItemTemplates);
 
       plItemTemplates = cons(create(&EasterEgg),plItemTemplates);
 
